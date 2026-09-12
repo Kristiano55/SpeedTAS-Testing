@@ -1,0 +1,3090 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SpeedTAS Stats</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --accent: #e9fb59;
+      --bg: #0a0a0c;
+      --bg2: #121216;
+      --card: #17171c;
+      --card-hover: #1e1e25;
+      --border: #26262e;
+      --text: #f2f2f0;
+      --muted: #8a8a94;
+      --gold: #ffd700;
+      --silver: #c8c8d0;
+      --bronze: #cd7f32;
+      --radius: 16px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 4px;
+    }
+
+    #particles {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      opacity: .5;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: rgba(10, 10, 12, .85);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .logo {
+      font-weight: 800;
+      font-size: 20px;
+      letter-spacing: .5px;
+      color: var(--accent);
+      text-shadow: 0 0 20px rgba(233, 251, 89, .4);
+    }
+
+    .discord-icon-link {
+      color: #5865F2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: .2s;
+      flex: 0 0 32px;
+      line-height: 0;
+      padding: 3px;
+    }
+
+    .discord-icon-link svg {
+      display: block;
+      width: 27px;
+      height: 27px;
+      aspect-ratio: 1/1;
+      flex: none;
+    }
+
+    .discord-icon-link:hover {
+      filter: brightness(1.3);
+      transform: scale(1.12);
+    }
+
+    nav {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    nav a {
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--muted);
+      transition: .2s;
+    }
+
+    nav a:hover,
+    nav a.active {
+      background: var(--card);
+      color: var(--accent);
+    }
+
+    .search-wrap {
+      margin-left: auto;
+      position: relative;
+      min-width: 200px;
+    }
+
+    .search-wrap input {
+      width: 100%;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 9px 14px;
+      color: var(--text);
+      font-size: 14px;
+      outline: none;
+      transition: .2s;
+    }
+
+    .search-wrap input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(233, 251, 89, .15);
+    }
+
+    .search-results {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      right: 0;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      max-height: 300px;
+      overflow-y: auto;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, .5);
+      z-index: 30;
+    }
+
+    .search-results div {
+      padding: 10px 14px;
+      font-size: 13px;
+      cursor: pointer;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .search-results div:last-child {
+      border-bottom: none;
+    }
+
+    .search-results div:hover {
+      background: var(--card-hover);
+      color: var(--accent);
+    }
+
+    main {
+      position: relative;
+      z-index: 1;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 28px 20px 80px;
+    }
+
+    .grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .cards {
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      margin-bottom: 28px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+      transition: .25s;
+      animation: fadeUp .5s ease both;
+    }
+
+    .card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(233, 251, 89, .3);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, .4);
+    }
+
+    .card .label {
+      font-size: 12px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      margin-bottom: 8px;
+    }
+
+    .card .value {
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--accent);
+    }
+
+    .card .sub {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes pop {
+      0% {
+        transform: scale(.9);
+        opacity: 0;
+      }
+
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    h2.section-title {
+      font-size: 18px;
+      margin: 0 0 14px;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    h2.section-title::before {
+      content: '';
+      width: 4px;
+      height: 18px;
+      background: var(--accent);
+      border-radius: 2px;
+      display: inline-block;
+    }
+
+    section {
+      margin-bottom: 34px;
+    }
+
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    th {
+      text-align: left;
+      padding: 10px 12px;
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .4px;
+      cursor: pointer;
+      user-select: none;
+      white-space: nowrap;
+    }
+
+    th:hover {
+      color: var(--accent);
+    }
+
+    th.sorted {
+      color: var(--accent);
+    }
+
+    td {
+      padding: 10px 12px;
+      border-top: 1px solid var(--border);
+      white-space: nowrap;
+    }
+
+    tr.row-anim {
+      animation: fadeUp .4s ease both;
+    }
+
+    tbody tr:hover {
+      background: rgba(233, 251, 89, .05);
+    }
+
+    .player-cell {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 12px;
+      color: #0a0a0c;
+      flex-shrink: 0;
+    }
+
+    .medal {
+      font-size: 16px;
+      margin-right: 4px;
+    }
+
+    .avatar-wrap {
+      position: relative;
+      display: inline-block;
+      flex-shrink: 0;
+    }
+
+    .avatar-edit-btn {
+      position: absolute;
+      bottom: -2px;
+      right: -2px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: 2px solid var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      padding: 0;
+      line-height: 1;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, .4);
+    }
+
+    .avatar-edit-btn:hover {
+      transform: scale(1.1);
+    }
+
+    .avatar-remove-link {
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 12px;
+      cursor: pointer;
+      text-decoration: underline;
+      padding: 0;
+    }
+
+    .avatar-remove-link:hover {
+      color: var(--accent);
+    }
+
+    .avatar-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .65);
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      animation: fadeUp .2s ease both;
+    }
+
+    .avatar-modal {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      width: 100%;
+      max-width: 340px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, .5);
+    }
+
+    .avatar-modal-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .avatar-modal-close {
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 16px;
+      cursor: pointer;
+      padding: 4px;
+    }
+
+    .avatar-modal-close:hover {
+      color: var(--accent);
+    }
+
+    .move-up {
+      color: #5be27f;
+    }
+
+    .move-down {
+      color: #e2585b;
+    }
+
+    .move-same {
+      color: var(--muted);
+    }
+
+    .countdown {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      justify-content: center;
+      padding: 24px;
+      background: radial-gradient(circle at 50% 0%, rgba(233, 251, 89, .08), transparent 70%);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+    }
+
+    .countdown .unit {
+      text-align: center;
+      min-width: 70px;
+    }
+
+    .countdown .num {
+      font-size: 34px;
+      font-weight: 800;
+      color: var(--accent);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .countdown .unit-label {
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+
+    .countdown-title {
+      text-align: center;
+      color: var(--muted);
+      font-size: 14px;
+      margin-bottom: 6px;
+    }
+
+    .chart-box {
+      position: relative;
+      height: 340px;
+    }
+
+    .badge-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .badge {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      animation: pop .3s ease both;
+    }
+
+    .filters {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      padding: 7px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--muted);
+      font-size: 13px;
+      cursor: pointer;
+      transition: .2s;
+    }
+
+    .filter-btn:hover {
+      border-color: var(--accent);
+    }
+
+    .filter-btn.active {
+      background: var(--accent);
+      color: #0a0a0c;
+      font-weight: 700;
+      border-color: var(--accent);
+    }
+
+    .directory {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 14px;
+    }
+
+    .player-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: .2s;
+      animation: fadeUp .4s ease both;
+    }
+
+    .player-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-3px);
+    }
+
+    .player-card .avatar {
+      width: 48px;
+      height: 48px;
+      font-size: 16px;
+      margin: 0 auto 10px;
+    }
+
+    .player-card .pname {
+      font-weight: 700;
+      font-size: 14px;
+      margin-bottom: 2px;
+    }
+
+    .player-card .pmeta {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .edition-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 14px;
+    }
+
+    .video-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 16px;
+    }
+
+    .video-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      cursor: pointer;
+      transition: .2s;
+      animation: fadeUp .4s ease both;
+    }
+
+    .video-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-3px);
+    }
+
+    .video-card.expanded {
+      grid-column: 1 / -1;
+      cursor: default;
+      animation: none;
+    }
+
+    .video-card.expanded:hover {
+      transform: none;
+      border-color: var(--border);
+    }
+
+    .video-thumb-wrap {
+      position: relative;
+      aspect-ratio: 16/9;
+      background: var(--bg2);
+      overflow: hidden;
+    }
+
+    .video-thumb-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .video-play-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      color: #fff;
+      background: rgba(0, 0, 0, .25);
+      opacity: 0;
+      transition: .2s;
+    }
+
+    .video-card:hover .video-play-overlay {
+      opacity: 1;
+      background: rgba(0, 0, 0, .4);
+    }
+
+    .video-card-title {
+      padding: 12px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .video-expanded-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 14px 16px;
+      font-size: 14px;
+    }
+
+    .video-expanded-head b {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .video-collapse-hint {
+      color: var(--muted);
+      font-size: 12px;
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+
+    .video-collapse-hint:hover {
+      color: var(--accent);
+    }
+
+    .video-watch-link {
+      display: block;
+      padding: 10px 16px 14px;
+      color: var(--accent);
+      font-size: 12px;
+    }
+
+    .edition-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      cursor: pointer;
+      transition: .2s;
+      animation: fadeUp .4s ease both;
+    }
+
+    .edition-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-3px);
+    }
+
+    .edition-card .enum {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+
+    .edition-card .erow {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 4px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .edition-card .erow b {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .breadcrumb {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 18px;
+    }
+
+    .breadcrumb a:hover {
+      color: var(--accent);
+    }
+
+    .profile-header {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    .profile-header .avatar {
+      width: 72px;
+      height: 72px;
+      font-size: 26px;
+    }
+
+    .profile-header h1 {
+      margin: 0;
+      font-size: 26px;
+    }
+
+    .profile-header .rank-tag {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .profile-hero {
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(120deg, rgba(233, 251, 89, .12), rgba(89, 214, 251, .06) 52%, var(--card));
+      border: 1px solid rgba(233, 251, 89, .25);
+      border-radius: var(--radius);
+      padding: 22px;
+      margin-bottom: 18px;
+    }
+
+    .profile-hero::after {
+      content: '';
+      position: absolute;
+      width: 240px;
+      height: 240px;
+      border-radius: 50%;
+      right: -100px;
+      top: -130px;
+      background: radial-gradient(circle, rgba(233, 251, 89, .15), transparent 68%);
+      pointer-events: none;
+    }
+
+    .profile-hero .profile-header {
+      position: relative;
+      z-index: 1;
+      margin-bottom: 0;
+    }
+
+    .profile-season-tabs {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+
+    .podium-banner {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 18px;
+      padding: 12px 14px;
+      background: rgba(10, 10, 12, .46);
+      border: 1px solid rgba(255, 215, 0, .25);
+      border-radius: 12px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .podium-banner strong {
+      display: block;
+      color: var(--text);
+      font-size: 14px;
+      margin-bottom: 2px;
+    }
+
+    .podium-icon {
+      font-size: 24px;
+      line-height: 1;
+    }
+
+    .profile-stat-emphasis .value {
+      color: var(--gold);
+    }
+
+    .edition-podium-banner {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      margin: 0 0 18px;
+    }
+
+    .edition-podium-place {
+      background: var(--card);
+      padding: 14px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .edition-podium-place b {
+      display: block;
+      color: var(--text);
+      font-size: 15px;
+      margin: 5px 0 2px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .edition-podium-place.gold {
+      box-shadow: inset 0 3px 0 var(--gold);
+    }
+
+    .edition-podium-place.silver {
+      box-shadow: inset 0 3px 0 var(--silver);
+    }
+
+    .edition-podium-place.bronze {
+      box-shadow: inset 0 3px 0 var(--bronze);
+    }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+
+    select,
+    input.h2h-select {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-size: 13px;
+      outline: none;
+    }
+
+    .h2h-select-row {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    .h2h-select-side {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .h2h-select-side select {
+      min-width: 160px;
+      text-align: center;
+      font-weight: 600;
+    }
+
+    .h2h-vs-badge {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 12px;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .h2h-header {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 16px;
+      padding: 24px 20px;
+      border-radius: var(--radius);
+      margin-bottom: 4px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .h2h-header-bg {
+      position: absolute;
+      inset: 0;
+      opacity: .12;
+      z-index: 0;
+    }
+
+    .h2h-side-header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .h2h-side-header.side-a {
+      align-items: flex-end;
+      text-align: right;
+    }
+
+    .h2h-side-header.side-b {
+      align-items: flex-start;
+      text-align: left;
+    }
+
+    .h2h-avatar-big {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 22px;
+      color: #0a0a0c;
+      box-shadow: 0 0 0 3px var(--bg), 0 0 24px -4px var(--glow, transparent);
+    }
+
+    .h2h-side-name {
+      font-weight: 800;
+      font-size: 16px;
+    }
+
+    .h2h-side-rank {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .h2h-center-label {
+      text-align: center;
+      font-size: 13px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .6px;
+      position: relative;
+      z-index: 1;
+      font-weight: 700;
+      padding-top: 4px;
+    }
+
+    .h2h-shared {
+      text-align: center;
+      color: var(--muted);
+      font-size: 12px;
+      margin: 14px 0 6px;
+    }
+
+    .h2h-stats {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .h2h-row {
+      display: grid;
+      grid-template-columns: 1fr 2fr 1fr;
+      align-items: center;
+      gap: 10px;
+      padding: 13px 8px;
+      border-top: 1px solid var(--border);
+      animation: fadeUp .35s ease both;
+    }
+
+    .h2h-row:first-child {
+      border-top: none;
+    }
+
+    .h2h-row .h2h-val {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .h2h-row .h2h-val.side-left {
+      text-align: right;
+    }
+
+    .h2h-row .h2h-val.side-right {
+      text-align: left;
+    }
+
+    .h2h-row .h2h-label {
+      text-align: center;
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .h2h-pill {
+      display: inline-block;
+      min-width: 44px;
+      padding: 5px 12px;
+      border-radius: 999px;
+      font-weight: 800;
+      font-size: 14px;
+      color: #0a0a0c;
+      animation: pop .3s ease both;
+    }
+
+    .h2h-summary {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border-top: 1px solid var(--border);
+    }
+
+    .h2h-summary-item {
+      background: var(--bg2);
+      padding: 13px 10px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .h2h-summary-item b {
+      display: block;
+      color: var(--text);
+      font-size: 16px;
+      margin-top: 3px;
+    }
+
+    .h2h-swap {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: 999px;
+      padding: 6px 11px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: .2s;
+    }
+
+    .h2h-swap:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .h2h-matchups {
+      border-top: 1px solid var(--border);
+      padding: 18px;
+    }
+
+    .h2h-matchups-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .h2h-matchups-head b {
+      font-size: 13px;
+      color: var(--text);
+    }
+
+    .h2h-matchups-head span {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .h2h-matchups table {
+      font-size: 12px;
+    }
+
+    .h2h-matchups th,
+    .h2h-matchups td {
+      padding: 8px 10px;
+    }
+
+    .season-intro {
+      background: linear-gradient(120deg, rgba(233, 251, 89, .09), rgba(89, 214, 251, .06) 54%, transparent);
+      border: 1px solid rgba(233, 251, 89, .2);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 18px;
+    }
+
+    .season-intro p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .compare-table-wrap {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: auto;
+      background: var(--bg2);
+    }
+
+    .compare-table-wrap table {
+      min-width: 760px;
+    }
+
+    .compare-table-wrap th {
+      position: sticky;
+      top: 0;
+      background: var(--card);
+      z-index: 1;
+      transition: color .15s, background .15s;
+    }
+
+    .compare-table-wrap th::after {
+      content: '↕';
+      font-size: 11px;
+      margin-left: 6px;
+      opacity: .35;
+    }
+
+    .compare-table-wrap th.sorted::after {
+      content: attr(data-arrow);
+      opacity: 1;
+      color: var(--accent);
+    }
+
+    .compare-table-wrap td {
+      font-variant-numeric: tabular-nums;
+    }
+
+    .compare-table-wrap .player-name {
+      color: var(--text);
+    }
+
+    .compare-hint {
+      font-size: 12px;
+      color: var(--muted);
+      margin: 0 0 12px;
+    }
+
+    .compare-spotlight {
+      display: grid;
+      grid-template-columns: 1.6fr 1fr;
+      gap: 12px;
+      margin: 0 0 18px;
+    }
+
+    .compare-spotlight-card {
+      background: linear-gradient(135deg, rgba(233, 251, 89, .13), rgba(23, 23, 28, .9));
+      border: 1px solid rgba(233, 251, 89, .23);
+      border-radius: 14px;
+      padding: 16px;
+    }
+
+    .compare-spotlight-card .kicker {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .7px;
+      color: var(--muted);
+    }
+
+    .compare-spotlight-card b {
+      display: block;
+      margin-top: 6px;
+      font-size: 19px;
+      color: var(--text);
+    }
+
+    .compare-spotlight-card strong {
+      color: var(--accent);
+    }
+
+    .compare-spotlight-card.compact {
+      background: var(--bg2);
+      border-color: var(--border);
+    }
+
+    .compare-spotlight-card.compact b {
+      font-size: 24px;
+      color: var(--accent);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--muted);
+    }
+
+    .loader {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 60px;
+      color: var(--muted);
+    }
+
+    .spinner {
+      width: 22px;
+      height: 22px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .refresh-btn {
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 8px 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .refresh-btn:hover {
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .export-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 6px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    .export-btn:hover {
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .table-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    @media (max-width:640px) {
+      header {
+        padding: 12px 14px;
+      }
+
+      nav {
+        order: 3;
+        width: 100%;
+      }
+
+      .search-wrap {
+        order: 2;
+        flex: 1;
+      }
+
+      .countdown .num {
+        font-size: 24px;
+      }
+
+      .h2h-row {
+        grid-template-columns: 0.7fr 1.6fr 0.7fr;
+        font-size: 12px;
+      }
+
+      .h2h-avatar-big {
+        width: 48px;
+        height: 48px;
+        font-size: 16px;
+      }
+
+      .h2h-header {
+        padding: 18px 10px;
+        gap: 8px;
+      }
+
+      .h2h-summary-item {
+        padding: 10px 4px;
+        font-size: 11px;
+      }
+
+      .h2h-summary-item b {
+        font-size: 14px;
+      }
+
+      .compare-spotlight {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="particles"></canvas>
+  <header>
+    <a href="https://discord.gg/CCPP9FRHdx" target="_blank" rel="noopener" class="discord-icon-link"
+      title="Join our Discord" aria-label="Join our Discord">
+      <svg viewBox="0 0 127.14 96.36" aria-hidden="true" fill="currentColor">
+        <path
+          d="M107.7 8.07A105.15 105.15 0 0 0 81.47 0a72.06 72.06 0 0 0-3.36 6.83 97.68 97.68 0 0 0-29 0A72.37 72.37 0 0 0 45.74 0a105.89 105.89 0 0 0-26.25 8.09C2.79 33.1-1.73 57.5.53 81.57a105.73 105.73 0 0 0 32.17 16.29 77.7 77.7 0 0 0 6.89-11.14 68.42 68.42 0 0 1-10.85-5.18c.91-.67 1.79-1.36 2.64-2.06 20.91 9.76 43.63 9.76 64.29 0 .86.7 1.74 1.39 2.64 2.06a68.68 68.68 0 0 1-10.87 5.19 77 77 0 0 0 6.89 11.13 105.25 105.25 0 0 0 32.19-16.29c2.65-27.92-4.52-52.1-18.82-73.5ZM42.45 66.89c-6.3 0-11.48-5.78-11.48-12.88s5.06-12.89 11.48-12.89 11.6 5.78 11.48 12.89c0 7.1-5.06 12.88-11.48 12.88Zm42.24 0c-6.3 0-11.48-5.78-11.48-12.88s5.06-12.89 11.48-12.89 11.6 5.78 11.48 12.89c0 7.1-5.06 12.88-11.48 12.88Z" />
+      </svg>
+    </a>
+    <div class="logo">⚡ SpeedTAS</div>
+    <nav id="nav">
+      <a href="#/" data-route="/">Home</a>
+      <a href="#/players" data-route="/players">Players</a>
+      <a href="#/history" data-route="/history">History</a>
+      <a href="#/season-compare" data-route="/season-compare">S1 ↔ S2</a>
+      <a href="#/all-time" data-route="/all-time">All-time</a>
+      <a href="#/versus" data-route="/versus">Head-to-Head</a>
+      <a href="#/videos" data-route="/videos">Videos</a>
+    </nav>
+    <div class="search-wrap">
+      <input id="globalSearch" placeholder="Search players or editions...">
+      <div class="search-results" id="searchResults" style="display:none;"></div>
+    </div>
+    <button class="refresh-btn" id="refreshBtn">↻ Refresh</button>
+  </header>
+
+  <main id="app">
+    <div class="loader">
+      <div class="spinner"></div> Loading SpeedTAS data...
+    </div>
+  </main>
+
+  <script>
+    /* ============ CONFIG ============ */
+    const SHEET_ID = "1g7M1IWvDlqmUkUWB6oSX-HKf7tCpAmaQK_nvNGBEppw";
+    const SHEET_NAME = "Editions";
+    const PLAYER_SHEET_NAME = "Players"; // columns: Players, Id (the Discord ID)
+    /* After deploying outputs/speedtas-api-worker.js, paste its public URL here.
+       Both seasons' Editions data (via /data), Discord avatars, and videos are
+       all proxied through it; its Discord and YouTube keys stay in Worker
+       secrets, never here. */
+    const SPEEDTAS_API_URL = "https://speedtas-api.kristianogeorgiev652.workers.dev";
+    const POINTS = {1: 10, 2: 7, 3: 6, 4: 5, 5: 4, 6: 3, 7: 2, 8: 1};
+
+    /* Last-resort snapshot of the real sheet — used only if BOTH the Worker's
+       cached /data endpoint and a direct browser connection to Google Sheets
+       fail. This is NOT kept in sync automatically — use "Retry Live
+       Connection" or the manual paste/upload option to pull fresh data. */
+    const FALLBACK_CSV_TEXT = `👥: 40,Vogtek,Sneak,Charlie,Magon,Exix,C4ster,Leva,Elliot,Galaxy,Skycrafter,Mufat,Lucy,Fabi,QQ,DeleteC,Crayhax,Thoman,Bedeux,Rio,IgntuL,Frusty,Oogy,NaiCou,Salty,Midnight,oeN,wasgud,Faiby,Caleb,Comfy,Kim,Qwerter,LilDemo,Timefall,Felipe,Meable,Viron,Infra,Adrien,7-n,Magnus,	casterjamar,Telve,Tizzan,Tejas,MigthBeJoe,Kram
+1,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+2,4,10,2,9,,8,6,,,3,,,,7,,,1,5,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+3,4,12,8,,11,6,,10,,1,2,13,,9,,,3,,5,7,,,,,,,,,,,,,,,,,,,,,,,,,,,
+4,5,,4,6,,,,9,,1,2,,8,7,,,3,10,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+5,3,6,,,5,,,,,1,4,,10,9,,,2,,,,7,8,,,,,,,,,,,,,,,,,,,,,,,,,
+6,2,4,3,,,,,,,,1,,6,5,,,,7,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+7,5,3,7,,8,6,,9,,2,,,11,,,4,1,,,,,12,10,,,,,,,,,,,,,,,,,,,,,,,,
+8,,4,,,,5,,,,3,,8,,9,,6,1,,2,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+9,,1,,,,4,,,,,,,,,,5,3,,6,,,2,7,,,,,,,,,,,,,,,,,,,,,,,,
+10,,6,,4,,,,,,,,,,7,,,5,3,2,1,,,,,,,,,,,,,,,,,,,,,,,,,,,
+11,,3,,,,,,6,,,,,5,7,,4,,,,1,,2,,,,,,,,,,,,,,,,,,,,,,,,,
+12,,2,,,,,,,,,3,,,8,,,4,,1,,,10,,5,6,7,9,,,,,,,,,,,,,,,,,,,,
+13,,1,,,,,,,,,,,4,3,,,,,2,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+14,,9,,,,,,,,,,,,8,,,3,,10,1,,11,2,,7,,,4,5,6,12,,,,,,,,,,,,,,,,
+15,,7,,,,,,,,,,11,15,10,,,,2,1,4,,5,13,,8,,,,,3,11,9,6,14,,,,,,,,,,,,,
+16,9,3,,,13,,,,,4,,,,,,5,8,,2,1,,,,,,,,,,,12,6,,,14,10,7,11,,,,,,,,,
+17,,4,,,,,,,,,,,5,11,,,3,,1,,,,9,,10,,,,2,,6,,8,,,,,,7,,,,,,,,
+18,3,9,,,,,,,,,,,,11,,,2,,8,1,,,10,,4,,,,5,6,13,,7,,,,12,,,14,,,,,,,
+19,1,5,,,,,,,,2,,,4,,,,3,,,,,,,,,,,,6,,7,,,,,,,,,8,,,,,,,
+20,,6,,,,,,,,,3,,,8,,,1,,7,2,,,,,,,,,11,5,9,,4,,,,,,,10,,,,,,,
+21,,4,,,,,,,,1,,,8,,,,,,2,3,,6,,,5,,,,,,,,,,,,,,,7,,,,,,,
+22,,9,,,,,,,,3,,,8,7,10,,,,1,2,,4,11,,6,,,,,,,,,,,,,,,12,5,,,,,,
+23,,6,,,4,,,,,,,,,7,,,,,,1,,3,,,12,,,,,,5,,2,,,,,,,10,,11,9,8,,,
+24,,4,,,,,,,,,,,,,,,1,,,,,6,,,9,,,,3,,2,,,,,,,,,10,,,8,7,5,11,
+25,,1,,,,,,,,,,,,,,,,,3,,,4,,,2,,,,5,,6,,,,,,,,,8,,,,,7,,9`;
+    const pointsFor = p => POINTS[p] ?? 0;
+
+    /* ============ STATE ============ */
+    let RAW = null;        // { editions: [...], players: [...] }
+    let STATE = {players: {}, editions: []};
+    let sortState = {key: 'points', dir: 'desc'};
+    let leaderboardFilter = 'all'; // all | 10 | 25
+    let DISCORD_IDS = {}, DISCORD_AVATARS = {};
+
+    /* Season 1 is embedded so the comparison and all-time pages remain usable
+       even when the published Google Sheet is unavailable. */
+    const SEASON_1_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT2PVKpC2mV_UWnXg6ouoPooQ6lgJlPLNIen11GniPy0q3m40b9CL_VTyhWP0V2cGEMItY7c75LLjZH/pub?output=csv';
+    /* Full Season 1 snapshot, compressed for a one-file dashboard fallback —
+       only used if both the Worker's cached /data endpoint and the direct
+       published-CSV fetch above fail. Refresh the snapshot on a major
+       correction by replacing this value with a fresh gzip+base64 export. */
+    const SEASON_1_SNAPSHOT_GZIP = 'H4sIAAAAAAAACp1XS3LjNhDdowp3yAHewvyAkrKz5c/MOFOpZFzepiAZkliiSQ1IjqVj5ARZ5X45QqoBgqRMUiYHG1sS+/Xr1z/iv3/+/vfXX0SEp132KlN8LTeywK16zZDKeJmVyNUq3uNeyvx7GRf4tj+ttdwUSuNel3lxwnO2LdQeTzJOcmSr1WkVbzcyL/Bbts3KAg8ykccTljupk1jhNtMS34oyLZLsh9L4KrdZioPOXuIYB1Uo/dcmThQedbZNCfjmdi0PyA9qXSZS4yFLXlT6+1uCm0T9wFJ6aoXP6UbpNMO9XMX4vE2LMsEneTicCD4tc9wdJZa7eL1XKb7k8oAbmcr0MU63eNRxXsQyzfCo5SvukjgrcJ0fdjIp8Kw0/ZjgjzelKehnqZJTqnCflJvNCX/GGZZZXqwzPD3ssrzAo9zvlcbdy1a9ZbrAtd6rHPcyXp3wqfyudIG7Y3zEjXpR5RHXryutTuSnUEcstTzt5BFLmRdKc+bDg48AIQQizDDHxMNZAB8IyVIgQAQPMyzgXU1DCemPD8CbygCcCQh4iOhDYFEQTgKIQFEIwIAYCuEkNTibWeekggXwp3DgrPL1MxJwtgAMWdIfiyoIkxYxGqPOmE/GJpTI6CgwGwtRMacCgGfiN8kQBBWMkpMzz5iYM10IL3AMvCoDcwR1YkdihC5z5L9mE4y2rzUPQf1lBZgC0HD1rCmRmFmAcEQknHlNyqpc2p5otP3Afl6JH7qOsl4nlBPVZDtqwnMd8SENzvyrbgDje4ozvy4e808w2b7mGNpewoQckj09arzRZKry2KRxFETYDKNGMjunxgEIF6/paXfGE6CuddOscz6SkjPftKE1px0z7XDmuyoUJnMN75HNzJm/aPWyq4EJDIKr2oBWjGPQZIDWxAcQtZkTgGJqWc1NSiOamcMgjjXp0DMWiVBwQRfOAsfdWfvnlXA5O5wFZsVXAHYeOccNwiUKhEEattwjMvYtLQIDM7woOAuomaq95Jb9hMNZMHNG3lDolZpDAPPWoh7upQFBOQsWznPbeGQgnIVX5lk7G/pGQZ2Bfm6chV6ThqCHwEelEPpjWLfG9jtz871lMD19oa3/qnqnz5SwVYMXrGlg9dvX9XfGfvRMDWctDz2d3HCimdCLQAPDdU0PQosKzf8uCGehmzVnFdyE07YRfUOOM2HLEPAojBkiy7yjg6tQ83rp+fBojizgXhVruLomfQLpZqZ1oTDsFmZKzM46gDPhYohcOIR01iXO8UB+hfneDDLv4gv0QOlyJpq3nPpa8u4EXe8thTkTwuHbG1XnmPFXnfkARtSi2I2iBdq7BTgTtbhGiOFjbh0Nh9orZ8Jx60Gw6avP4rxW6D5WoXIm6MezmRkN5eFsrzbp4yzqXkgdiNcRyGHWNxiD4A3eSPwObtjW1YJzFg2Ouw5udzVwFgWjzZ3Y1e3BZoizaPgKcOmuVQXDWSSm3M2CMzY+BGdR1HoN64NoquTdyLGDbE4kZu6x9v7vn5ZUZF7nfYKzaN7aQDVPctntFGP9DjzE/w/aglbZEgAA';
+    let SEASON_1 = null, season1Promise = null;
+    async function loadSeason1Snapshot() {
+      const bytes = Uint8Array.from(atob(SEASON_1_SNAPSHOT_GZIP), c => c.charCodeAt(0));
+      if (!window.DecompressionStream) throw new Error('Season 1 live data could not be reached, and this browser cannot read its saved snapshot.');
+      const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));
+      return parseDelimitedText(await new Response(stream).text());
+    }
+    function loadSeason1() {
+      if (SEASON_1) return Promise.resolve(SEASON_1);
+      if (!season1Promise) {
+        const proxyUrl = (SPEEDTAS_API_URL || '').replace(/\/+$/, '');
+        const viaWorker = proxyUrl
+          ? fetch(proxyUrl + '/data?season=s1').then(async r => {
+              if (!r.ok) {
+                let msg = `Worker responded with ${r.status}`;
+                try {const errBody = await r.json(); if (errBody && errBody.error) msg = errBody.error;} catch (e) {}
+                throw new Error(msg);
+              }
+              const payload = await r.json();
+              return {editions: payload.editions, players: payload.players};
+            })
+          : Promise.reject(new Error('No SPEEDTAS_API_URL configured.'));
+
+        season1Promise = viaWorker
+          .catch(err => {
+            console.warn('Season 1 via Worker failed; trying direct sheet fetch.', err);
+            return fetch(SEASON_1_CSV_URL)
+              .then(r => {if (!r.ok) throw new Error('Season 1 sheet could not be reached.'); return r.text();})
+              .then(text => parseDelimitedText(text));
+          })
+          .then(data => SEASON_1 = data)
+          .catch(async err => {console.warn('Season 1 live fetch failed; using saved snapshot.', err); return SEASON_1 = await loadSeason1Snapshot();});
+      }
+      return season1Promise;
+    }
+
+    /* ============ PARTICLES ============ */
+    (function particles() {
+      const c = document.getElementById('particles');
+      const ctx = c.getContext('2d');
+      let w, h, pts = [];
+      function resize() {w = c.width = window.innerWidth; h = c.height = window.innerHeight;}
+      window.addEventListener('resize', resize); resize();
+      const N = Math.min(50, Math.floor(window.innerWidth / 25));
+      for (let i = 0; i < N; i++) pts.push({x: Math.random() * w, y: Math.random() * h, vx: (Math.random() - .5) * .15, vy: (Math.random() - .5) * .15, r: Math.random() * 1.6 + .4});
+      function loop() {
+        ctx.clearRect(0, 0, w, h);
+        ctx.fillStyle = '#e9fb59';
+        pts.forEach(p => {
+          p.x += p.vx; p.y += p.vy;
+          if (p.x < 0) p.x = w; if (p.x > w) p.x = 0; if (p.y < 0) p.y = h; if (p.y > h) p.y = 0;
+          ctx.globalAlpha = 0.35;
+          ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill();
+        });
+        requestAnimationFrame(loop);
+      }
+      loop();
+    })();
+
+    /* ============ JSONP LOADER (avoids CORS entirely) ============
+       fetch() to Google's gviz endpoint gets blocked by browsers because
+       Google doesn't reliably send Access-Control-Allow-Origin headers.
+       The Visualization API has a built-in JSONP callback mode
+       (tqx=responseHandler:NAME) designed exactly for this: it's loaded
+       via a <script> tag, which is never subject to CORS restrictions. */
+    let jsonpCounter = 0;
+    function fetchViaJSONP(sheetName, timeoutMs = 12000) {
+      return new Promise((resolve, reject) => {
+        const callbackName = `__gsheetCb_${Date.now()}_${jsonpCounter++}`;
+        const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?` +
+          `tqx=responseHandler:${callbackName}&headers=1&sheet=${encodeURIComponent(sheetName)}`;
+
+        let settled = false;
+        const script = document.createElement('script');
+
+        function cleanup() {
+          delete window[callbackName];
+          script.remove();
+          clearTimeout(timer);
+        }
+
+        window[callbackName] = function (response) {
+          if (settled) return;
+          settled = true;
+          cleanup();
+          resolve(response);
+        };
+
+        script.onerror = () => {
+          if (settled) return;
+          settled = true;
+          cleanup();
+          reject(new Error('Could not reach Google Sheets (network/script load error).'));
+        };
+
+        const timer = setTimeout(() => {
+          if (settled) return;
+          settled = true;
+          cleanup();
+          reject(new Error('Timed out waiting for Google Sheets response.'));
+        }, timeoutMs);
+
+        script.src = url;
+        document.body.appendChild(script);
+      });
+    }
+
+    function buildDatasetFromGrid(grid) {
+      if (!grid || grid.length < 2) throw new Error('The sheet data appears to be empty.');
+      const header = grid[0].map(v => String(v == null ? '' : v).trim());
+      const playerNames = header.slice(1).filter(n => n.length);
+
+      const editions = [];
+      for (let r = 1; r < grid.length; r++) {
+        const row = grid[r];
+        const editionRaw = row[0];
+        if (editionRaw === '' || editionRaw === undefined || editionRaw === null) continue;
+        const editionNum = String(editionRaw).trim();
+        if (!editionNum) continue;
+        const results = {};
+        for (let c = 1; c < header.length; c++) {
+          const name = header[c];
+          if (!name) continue;
+          const val = row[c];
+          if (val === '' || val === undefined || val === null) continue;
+          const place = typeof val === 'number' ? val : parseInt(String(val).trim(), 10);
+          if (!isNaN(place)) results[name] = place;
+        }
+        if (Object.keys(results).length === 0) continue;
+        editions.push({edition: editionNum, results});
+      }
+      return {editions, players: playerNames};
+    }
+
+    function parseGvizResponse(response) {
+      if (!response || !response.table) throw new Error('Unexpected response format from Google Sheets.');
+      if (response.status === 'error') {
+        const msg = (response.errors && response.errors[0] && (response.errors[0].detailed_message || response.errors[0].message)) || 'Unknown error from Google Sheets.';
+        throw new Error(msg);
+      }
+      const table = response.table;
+      const rawRows = (table.rows || []).map(r => (r.c || []).map(cell => (cell && cell.v !== undefined && cell.v !== null) ? cell.v : ''));
+
+      // Google's API sometimes auto-detects the first row as a header and pulls
+      // it OUT of table.rows into table.cols[].label — even when we ask it not
+      // to. If it did that, table.rows starts at the real data (edition 1), and
+      // we must reconstruct the header from cols[].label instead of rows[0],
+      // or every row shifts by one (edition 1 gets read as headers, and its
+      // placements get misread as player names).
+      const colLabels = (table.cols || []).map(c => (c && c.label != null && c.label !== '') ? String(c.label) : '');
+      const headerWasExtracted = colLabels.some(l => l.length > 0);
+
+      let grid;
+      if (headerWasExtracted) {
+        grid = [colLabels, ...rawRows];
+      } else {
+        grid = rawRows; // no auto-detection happened; first row of rawRows IS the header
+      }
+
+      if (grid.length < 2) throw new Error('The "Editions" sheet appears to be empty.');
+      return buildDatasetFromGrid(grid);
+    }
+
+    /* Parses manually pasted or uploaded delimited text (CSV or TSV — Google
+       Sheets copy/paste produces tab-separated values, downloaded files are
+       usually comma-separated, so we auto-detect). Used as a fallback when
+       the live connection to Google Sheets can't be established. */
+    function parseDelimitedText(text) {
+      const firstLine = text.split(/\r?\n/)[0] || '';
+      const commaCount = (firstLine.match(/,/g) || []).length;
+      const tabCount = (firstLine.match(/\t/g) || []).length;
+      const delimiter = tabCount > commaCount ? '\t' : ',';
+      const lines = text.split(/\r?\n/).filter(l => l.trim().length);
+      const grid = lines.map(line => {
+        if (delimiter === ',') {
+          // simple CSV parse with quote support
+          const cells = []; let field = '', inQuotes = false;
+          for (let i = 0; i < line.length; i++) {
+            const c = line[i];
+            if (inQuotes) {
+              if (c === '"') {if (line[i + 1] === '"') {field += '"'; i++;} else inQuotes = false;}
+              else field += c;
+            } else {
+              if (c === '"') inQuotes = true;
+              else if (c === ',') {cells.push(field); field = '';}
+              else field += c;
+            }
+          }
+          cells.push(field);
+          return cells;
+        }
+        return line.split('\t');
+      });
+      return buildDatasetFromGrid(grid);
+    }
+
+    async function loadData() {
+      const proxyUrl = (SPEEDTAS_API_URL || '').replace(/\/+$/, '');
+      if (proxyUrl) {
+        try {
+          const res = await fetch(proxyUrl + '/data?season=s2');
+          if (!res.ok) {
+            let msg = `Worker responded with ${res.status}`;
+            try {const errBody = await res.json(); if (errBody && errBody.error) msg = errBody.error;} catch (e) {}
+            throw new Error(msg);
+          }
+          const payload = await res.json();
+          return {editions: payload.editions, players: payload.players};
+        } catch (err) {
+          console.warn('Season 2 via Worker failed; trying direct Google Sheets connection.', err);
+        }
+      }
+      const response = await fetchViaJSONP(SHEET_NAME);
+      return parseGvizResponse(response);
+    }
+
+    /* Retries a flaky async call a few times with a short, growing pause
+       between attempts, instead of giving up after one failure. This is
+       what a manual page refresh was effectively doing by hand. */
+    async function retryAsync(fn, attempts = 3, delayMs = 1200) {
+      let lastErr;
+      for (let i = 0; i < attempts; i++) {
+        try { return await fn(); }
+        catch (err) { lastErr = err; if (i < attempts - 1) await new Promise(r => setTimeout(r, delayMs * (i + 1))); }
+      }
+      throw lastErr;
+    }
+
+    /* Cloudflare Workers on the free plan cap each invocation at 50 outgoing
+       fetch() calls, so one Discord lookup per ID means the roster can't be
+       sent in a single request forever. Splitting into batches keeps each
+       request to the Worker safely under that limit, however large the
+       roster grows — it just becomes a few more sequential requests. */
+    async function fetchAvatarsInBatches(proxyUrl, ids, batchSize = 20) {
+      const avatars = {};
+      for (let i = 0; i < ids.length; i += batchSize) {
+        const batch = ids.slice(i, i + batchSize);
+        try {
+          const data = await retryAsync(async () => {
+            const res = await fetch(proxyUrl + '/avatars?ids=' + encodeURIComponent(batch.join(',')));
+            if (!res.ok) throw new Error('Worker responded with ' + res.status);
+            return res.json();
+          });
+          Object.assign(avatars, data.avatars || {});
+        } catch (err) {console.warn('Avatar batch failed after retries, continuing with the rest:', err);}
+      }
+      return avatars;
+    }
+
+    async function loadDiscordProfiles() {
+      try {
+        const response = await retryAsync(() => fetchViaJSONP(PLAYER_SHEET_NAME));
+        const table = response?.table;
+        const labels = (table?.cols || []).map(c => String(c?.label || '').trim().toLowerCase());
+        // Accepts the real sheet headers ("Players" / "Id") as well as the
+        // older, more verbose variants, so nothing breaks if either is renamed.
+        const nameCol = labels.findIndex(x => x === 'players' || x === 'player' || x === 'player name' || x === 'name');
+        const idCol = labels.findIndex(x => x === 'id' || x === 'discord id' || x === 'discordid' || x === 'discord');
+        if (nameCol < 0 || idCol < 0) throw new Error('Players tab needs a name column ("Players") and an ID column ("Id").');
+        (table.rows || []).forEach(row => {const cells = (row.c || []).map(c => String(c?.v ?? '').trim()); const name = cells[nameCol], id = cells[idCol]; if (name && /^\d{15,25}$/.test(id)) DISCORD_IDS[playerKey(name)] = id;});
+        // Every player's ID is pulled from the sheet above in one pass — nobody
+        // has to enter IDs one at a time. This just needs a proxy URL to turn
+        // those IDs into images: either hardcode your deployed Worker's URL
+        // into SPEEDTAS_API_URL above, or set it once via the ⚙️ button on any
+        // player card (saved locally) — either source works here.
+        const proxyUrl = (SPEEDTAS_API_URL || getAvatarProxyUrl() || '').replace(/\/+$/, '');
+        if (proxyUrl && Object.keys(DISCORD_IDS).length) {
+          const ids = [...new Set(Object.values(DISCORD_IDS))];
+          DISCORD_AVATARS = await fetchAvatarsInBatches(proxyUrl, ids);
+        }
+      } catch (err) {console.warn('Discord player directory unavailable:', err);}
+    }
+
+    /* ============ COMPUTE STATS ============ */
+    function computeAll(data) {
+      const players = {}; // name -> stats object
+      data.players.forEach(name => {
+        players[name] = {
+          name, points: 0, wins: 0, podiums: 0, played: 0, placements: [],
+          cumulative: [], history: [] // {edition, placement, points}
+        };
+      });
+
+      data.editions.forEach(ed => {
+        Object.entries(ed.results).forEach(([name, place]) => {
+          if (!players[name]) players[name] = {name, points: 0, wins: 0, podiums: 0, played: 0, placements: [], cumulative: [], history: []};
+          const pts = pointsFor(place);
+          const p = players[name];
+          p.points += pts;
+          p.played += 1;
+          if (place === 1) p.wins += 1;
+          if (place <= 3) p.podiums += 1;
+          p.placements.push(place);
+          p.history.push({edition: ed.edition, placement: place, points: pts});
+        });
+      });
+
+      // cumulative points per player aligned to edition order
+      const editionOrder = data.editions.map(e => e.edition);
+      Object.values(players).forEach(p => {
+        let running = 0;
+        const map = {};
+        p.history.forEach(h => {running += h.points; map[h.edition] = running;});
+        let last = 0;
+        p.cumulative = editionOrder.map(e => {if (map[e] !== undefined) last = map[e]; return last;});
+      });
+
+      // derived stats
+      Object.values(players).forEach(p => {
+        p.avgPlacement = p.placements.length ? (p.placements.reduce((a, b) => a + b, 0) / p.placements.length) : null;
+        p.best = p.placements.length ? Math.min(...p.placements) : null;
+        p.worst = p.placements.length ? Math.max(...p.placements) : null;
+        p.winRate = p.played ? p.wins / p.played : 0;
+        p.podiumRate = p.played ? p.podiums / p.played : 0;
+        p.avgPoints = p.played ? p.points / p.played : 0;
+      });
+
+      // Streaks — computed over the FULL edition order (not just the player's
+      // played editions), because a missed edition must break a streak even
+      // though it's not the same as a bad placement. E.g. win, skip, win, win
+      // is a streak of 2, not 3 — a gap in participation resets the counter.
+      Object.values(players).forEach(p => {p.maxWinStreak = 0; p.maxPodiumStreak = 0;});
+      {
+        const curWin = {}, curPodium = {};
+        data.editions.forEach(ed => {
+          Object.values(players).forEach(p => {
+            const place = ed.results[p.name];
+            if (place === undefined) {
+              curWin[p.name] = 0;
+              curPodium[p.name] = 0;
+            } else {
+              curWin[p.name] = (place === 1) ? (curWin[p.name] || 0) + 1 : 0;
+              curPodium[p.name] = (place <= 3) ? (curPodium[p.name] || 0) + 1 : 0;
+              if (curWin[p.name] > p.maxWinStreak) p.maxWinStreak = curWin[p.name];
+              if (curPodium[p.name] > p.maxPodiumStreak) p.maxPodiumStreak = curPodium[p.name];
+            }
+          });
+        });
+      }
+
+      // ranking + movement (rank now vs rank excluding last edition)
+      const ranked = Object.values(players).filter(p => p.played > 0).sort((a, b) => b.points - a.points);
+      ranked.forEach((p, i) => p.rank = i + 1);
+
+      const editionsMinusLast = data.editions.slice(0, -1);
+      const prevPoints = {};
+      editionsMinusLast.forEach(ed => Object.entries(ed.results).forEach(([name, place]) => {
+        prevPoints[name] = (prevPoints[name] || 0) + pointsFor(place);
+      }));
+      const prevRanked = Object.entries(prevPoints).sort((a, b) => b[1] - a[1]).map(x => x[0]);
+      const prevRankMap = {}; prevRanked.forEach((name, i) => prevRankMap[name] = i + 1);
+      ranked.forEach(p => {
+        const prevRank = prevRankMap[p.name];
+        if (prevRank === undefined) p.movement = 0;
+        else p.movement = prevRank - p.rank;
+      });
+
+      // most improved: compare avg points per edition first half vs second half
+      Object.values(players).forEach(p => {
+        const h = p.history;
+        if (h.length >= 4) {
+          const mid = Math.floor(h.length / 2);
+          const firstAvg = h.slice(0, mid).reduce((a, b) => a + b.points, 0) / mid;
+          const secondAvg = h.slice(mid).reduce((a, b) => a + b.points, 0) / (h.length - mid);
+          p.improvement = secondAvg - firstAvg;
+        } else p.improvement = null;
+      });
+
+      // achievements
+      Object.values(players).forEach(p => {
+        const badges = [];
+        if (p.wins >= 1) badges.push({icon: '🏆', label: 'Champion'});
+        if (p.wins >= 3) badges.push({icon: '🥇', label: 'Multi Winner'});
+        if (p.maxPodiumStreak >= 5) badges.push({icon: '🔥', label: '5 Podium Streak'});
+        if (p.rank && p.rank <= 3) badges.push({icon: '⭐', label: 'Top 3 Leaderboard'});
+        if (p.played >= 10) badges.push({icon: '🎯', label: '10 Editions Played'});
+        if (p.points >= 100) badges.push({icon: '💯', label: '100 Points'});
+        p.badges = badges;
+      });
+
+      return {players, editionOrder, ranked};
+    }
+
+    /* ============ CUSTOM PROFILE PICTURES ============
+       Stored in the browser's localStorage (this file runs standalone, not
+       inside Claude's artifact sandbox, so localStorage works normally here).
+       Photos are resized client-side before saving so they stay small. */
+    const AVATAR_KEY_PREFIX = 'speedtas_v1_avatar_';
+
+    function getAvatarOverride(name) {
+      try {const manual = localStorage.getItem(AVATAR_KEY_PREFIX + encodeURIComponent(name)); if (manual) return manual;} catch (e) { }
+      const key = playerKey(name);
+      return DISCORD_AVATARS[DISCORD_IDS[key]] || null;
+    }
+    function saveAvatarOverride(name, dataUrl) {
+      try {localStorage.setItem(AVATAR_KEY_PREFIX + encodeURIComponent(name), dataUrl); return true;}
+      catch (e) {
+        console.error('Could not save avatar:', e);
+        alert("Couldn't save that photo — your browser's local storage may be full or restricted.");
+        return false;
+      }
+    }
+    function deleteAvatarOverride(name) {
+      try {localStorage.removeItem(AVATAR_KEY_PREFIX + encodeURIComponent(name));} catch (e) { }
+    }
+
+    /* Optional: URL of a self-hosted Discord-ID-to-avatar lookup proxy (see
+       discord-avatar-worker.js). Entirely optional — only needed if the person
+       sets up the free automatic-lookup Worker. */
+    const AVATAR_PROXY_KEY = 'speedtas_v1_avatar_proxy_url';
+    function getAvatarProxyUrl() {
+      try {return localStorage.getItem(AVATAR_PROXY_KEY);} catch (e) {return null;}
+    }
+    function saveAvatarProxyUrl(url) {
+      try {localStorage.setItem(AVATAR_PROXY_KEY, url); return true;} catch (e) {return false;}
+    }
+
+    /* Downscales an uploaded image client-side (max dimension in px) and
+       returns a compressed JPEG data URL via callback, keeping storage lean. */
+    function resizeImageToDataURL(file, maxDim, callback) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          let w = img.width, h = img.height;
+          if (w > h) {if (w > maxDim) {h = Math.round(h * maxDim / w); w = maxDim;} }
+          else {if (h > maxDim) {w = Math.round(w * maxDim / h); h = maxDim;} }
+          const canvas = document.createElement('canvas');
+          canvas.width = w; canvas.height = h;
+          canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+          callback(canvas.toDataURL('image/jpeg', 0.85));
+        };
+        img.onerror = () => alert("That file couldn't be read as an image.");
+        img.src = e.target.result;
+      };
+      reader.onerror = () => alert("Couldn't read that file.");
+      reader.readAsDataURL(file);
+    }
+
+    function promptAvatarUpload(name) {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'image/*';
+      input.style.display = 'none';
+      document.body.appendChild(input);
+      const cleanup = () => {if (input.parentNode) input.remove();};
+      input.addEventListener('change', () => {
+        const file = input.files && input.files[0];
+        if (file) resizeImageToDataURL(file, 300, (dataUrl) => {if (saveAvatarOverride(name, dataUrl)) render(); cleanup();});
+        else cleanup();
+      });
+      input.addEventListener('cancel', cleanup);
+      input.click();
+    }
+    function removeAvatarClicked(name) {
+      deleteAvatarOverride(name);
+      render();
+    }
+
+    /* ============ AVATAR MODAL (upload OR paste an image URL) ============
+       Discord has no public, no-login API to fetch a user's avatar from just
+       their numeric ID — that needs a bot token, which we won't hardcode into
+       a shareable static file (anyone could view-source and steal it). The
+       practical equivalent: in Discord, right-click a person's avatar → "Copy
+       Avatar Link" → paste it here. Same result, no credentials involved. */
+    function closeAvatarModal() {
+      const el = document.getElementById('avatarModalBackdrop');
+      if (el) el.remove();
+    }
+    function openAvatarModal(name) {
+      closeAvatarModal();
+      const backdrop = document.createElement('div');
+      backdrop.id = 'avatarModalBackdrop';
+      backdrop.className = 'avatar-modal-backdrop';
+      const proxyUrl = getAvatarProxyUrl();
+      backdrop.innerHTML = `
+    <div class="avatar-modal" role="dialog" aria-label="Change photo for ${name}">
+      <div class="avatar-modal-head">
+        <b>Change photo — ${name}</b>
+        <button type="button" class="avatar-modal-close" id="avatarModalClose" aria-label="Close">✕</button>
+      </div>
+      <button type="button" class="refresh-btn" id="avatarModalUploadBtn" style="width:100%;justify-content:center;margin-bottom:14px;">📁 Upload from device</button>
+      <div style="text-align:center;color:var(--muted);font-size:12px;margin-bottom:14px;">or</div>
+      <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:6px;">Paste an image URL</label>
+      <input type="text" id="avatarUrlInput" placeholder="https://cdn.discordapp.com/avatars/..." style="width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:10px;color:var(--text);padding:9px 12px;font-size:13px;outline:none;box-sizing:border-box;margin-bottom:8px;">
+      <button type="button" class="refresh-btn" id="avatarUrlBtn" style="width:100%;justify-content:center;">Use This URL</button>
+
+      <div style="text-align:center;color:var(--muted);font-size:12px;margin:14px 0;">or</div>
+      <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:6px;">Enter Discord ID (auto-fetch)</label>
+      <div style="display:flex;gap:6px;">
+        <input type="text" id="avatarIdInput" placeholder="e.g. 123456789012345678" style="flex:1;min-width:0;background:var(--bg2);border:1px solid var(--border);border-radius:10px;color:var(--text);padding:9px 12px;font-size:13px;outline:none;box-sizing:border-box;">
+        <button type="button" class="refresh-btn" id="avatarIdBtn">Fetch</button>
+      </div>
+      <button type="button" class="avatar-remove-link" id="avatarProxySettingsBtn" style="margin-top:8px;">⚙️ ${proxyUrl ? 'Change lookup server' : 'Set up automatic lookup (one-time, free)'}</button>
+
+      <div id="avatarModalError" style="color:#e2585b;font-size:12px;margin-top:8px;"></div>
+      <div style="font-size:11px;color:var(--muted);margin-top:14px;line-height:1.6;">
+        💡 <b>Have a shared server/DM with them?</b> In Discord, right-click their profile picture → <b>"Copy Avatar Link"</b> — paste it above.<br>
+        🔗 <b>Only have their Discord ID?</b> Use <a href="https://www.vibebot.gg/tools/avatar-downloader" target="_blank" rel="noopener" style="color:var(--accent);">VibeBot's Avatar Downloader ↗</a>, or set up automatic lookup above.
+      </div>
+    </div>
+  `;
+      document.body.appendChild(backdrop);
+
+      backdrop.addEventListener('click', (e) => {if (e.target === backdrop) closeAvatarModal();});
+      document.getElementById('avatarModalClose').addEventListener('click', closeAvatarModal);
+      document.getElementById('avatarModalUploadBtn').addEventListener('click', () => {closeAvatarModal(); promptAvatarUpload(name);});
+
+      document.getElementById('avatarProxySettingsBtn').addEventListener('click', () => {
+        const current = getAvatarProxyUrl() || '';
+        const next = window.prompt(
+          "Paste your Cloudflare Worker URL (see discord-avatar-worker.js for setup steps):",
+          current
+        );
+        if (next !== null && next.trim()) {
+          saveAvatarProxyUrl(next.trim().replace(/\/+$/, ''));
+          openAvatarModal(name); // reopen to refresh the button label and re-bind handlers
+        }
+      });
+
+      async function tryFetchById() {
+        const errEl = document.getElementById('avatarModalError');
+        const proxy = getAvatarProxyUrl();
+        const id = document.getElementById('avatarIdInput').value.trim();
+        if (!proxy) {errEl.textContent = 'Set up automatic lookup first (⚙️ above) — it takes about 5 minutes, one time only.'; return;}
+        if (!/^\d{15,25}$/.test(id)) {errEl.textContent = "That doesn't look like a valid Discord ID (should be a 15–25 digit number)."; return;}
+        errEl.textContent = 'Looking up…';
+        try {
+          const res = await fetch(proxy + '/avatar?id=' + encodeURIComponent(id));
+          const data = await res.json();
+          if (!res.ok || data.error) {errEl.textContent = data.error || 'Lookup failed.'; return;}
+          if (saveAvatarOverride(name, data.avatarUrl)) {closeAvatarModal(); render();}
+        } catch (e) {
+          errEl.textContent = "Couldn't reach your lookup server. Double-check the URL in settings (⚙️ above).";
+        }
+      }
+      document.getElementById('avatarIdBtn').addEventListener('click', tryFetchById);
+      document.getElementById('avatarIdInput').addEventListener('keydown', (e) => {if (e.key === 'Enter') tryFetchById();});
+
+      function tryUseUrl() {
+        const errEl = document.getElementById('avatarModalError');
+        const url = document.getElementById('avatarUrlInput').value.trim();
+        if (!url) {errEl.textContent = 'Paste a URL first.'; return;}
+        if (!/^https?:\/\//i.test(url)) {errEl.textContent = 'That doesn\'t look like a valid URL (should start with http:// or https://).'; return;}
+        errEl.textContent = 'Checking image…';
+        const testImg = new Image();
+        testImg.onload = () => {if (saveAvatarOverride(name, url)) {closeAvatarModal(); render();} };
+        testImg.onerror = () => {errEl.textContent = "Couldn't load an image from that URL. Double-check it's a direct image link.";};
+        testImg.src = url;
+      }
+      document.getElementById('avatarUrlBtn').addEventListener('click', tryUseUrl);
+      document.getElementById('avatarUrlInput').addEventListener('keydown', (e) => {if (e.key === 'Enter') tryUseUrl();});
+      document.getElementById('avatarUrlInput').focus();
+    }
+
+    /* Delegated so it works for dynamically-rendered avatars anywhere on the page,
+       and stops the click from also triggering a wrapping link (e.g. a player card). */
+    document.addEventListener('click', (e) => {
+      const editBtn = e.target.closest('.avatar-edit-btn');
+      if (editBtn) {e.preventDefault(); e.stopPropagation(); openAvatarModal(decodeURIComponent(editBtn.dataset.player)); return;}
+      const removeBtn = e.target.closest('.avatar-remove-btn');
+      if (removeBtn) {e.preventDefault(); e.stopPropagation(); removeAvatarClicked(decodeURIComponent(removeBtn.dataset.player)); return;}
+    });
+
+    /* ============ COLOR HELPERS ============ */
+    const PALETTE = ['#e9fb59', '#59d6fb', '#fb59c9', '#59fba0', '#fba059', '#a059fb', '#fb5959', '#59fbf0'];
+    function colorForName(name) {
+      let hash = 0;
+      for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+      return PALETTE[Math.abs(hash) % PALETTE.length];
+    }
+    function initials(name) {
+      return name.split(/\s+/).map(s => s[0]).join('').slice(0, 2).toUpperCase();
+    }
+    function avatarHTML(name, size) {
+      const s = size || 32;
+      const photo = getAvatarOverride(name) || DISCORD_AVATARS[playerKey(name)];
+      if (photo) {
+        return `<img src="${photo}" alt="${name}" loading="lazy" onerror="handleAvatarError(this,'${encodeURIComponent(name)}')" style="width:${s}px;height:${s}px;border-radius:50%;object-fit:cover;flex-shrink:0;display:inline-block;vertical-align:middle;">`;
+      }
+      const c = colorForName(name);
+      return `<div class="avatar" style="background:${c};${size ? `width:${size}px;height:${size}px;font-size:${size * 0.35}px;` : ''}">${initials(name)}</div>`;
+    }
+    /* If a Discord CDN image 404s or is unreachable, swap it for the same
+       colored-initials avatar avatarHTML() would have used anyway. */
+    function handleAvatarError(img, encodedName) {
+      const name = decodeURIComponent(encodedName);
+      const s = img.clientWidth || img.offsetWidth || 32;
+      const div = document.createElement('div');
+      div.className = 'avatar';
+      div.style.cssText = `background:${colorForName(name)};width:${s}px;height:${s}px;font-size:${Math.round(s * 0.35)}px;`;
+      div.textContent = initials(name);
+      img.replaceWith(div);
+    }
+    /* Same as avatarHTML but wraps it with a small always-visible edit button
+       that opens the file picker — this is the "easy to change" entry point. */
+    function avatarEditableHTML(name, size, btnSize) {
+      const bs = btnSize || Math.max(16, Math.round((size || 32) * 0.34));
+      return `<div class="avatar-wrap" style="width:${size || 32}px;height:${size || 32}px;">
+    ${avatarHTML(name, size)}
+    <button type="button" class="avatar-edit-btn" data-player="${encodeURIComponent(name)}" title="Change photo for ${name}" aria-label="Change photo for ${name}" style="width:${bs}px;height:${bs}px;font-size:${Math.round(bs * 0.55)}px;">📷</button>
+  </div>`;
+    }
+    function medalFor(rank) {
+      if (rank === 1) return '<span class="medal">🥇</span>';
+      if (rank === 2) return '<span class="medal">🥈</span>';
+      if (rank === 3) return '<span class="medal">🥉</span>';
+      return '';
+    }
+    function moveIcon(m) {
+      if (m > 0) return `<span class="move-up">▲ ${m}</span>`;
+      if (m < 0) return `<span class="move-down">▼ ${Math.abs(m)}</span>`;
+      return `<span class="move-same">–</span>`;
+    }
+
+    /* ============ ROUTER ============ */
+    function currentRoute() {
+      const hash = location.hash.replace(/^#/, '') || '/';
+      const parts = hash.split('/').filter(Boolean);
+      return parts;
+    }
+    window.addEventListener('hashchange', render);
+
+    /* ============ RENDER: HOME ============ */
+    function renderHome() {
+      const {players, editionOrder, ranked} = computeAll(RAW);
+      const totalEditions = RAW.editions.length;
+      const totalPlayers = ranked.length;
+      const totalPodiums = ranked.reduce((a, p) => a + p.podiums, 0);
+      const avgParticipants = totalEditions ? (RAW.editions.reduce((a, e) => a + Object.keys(e.results).length, 0) / totalEditions).toFixed(1) : 0;
+      const leader = ranked[0];
+      let closestGap = null, closestPair = null;
+      for (let i = 0; i < ranked.length - 1; i++) {
+        const gap = ranked[i].points - ranked[i + 1].points;
+        if (closestGap === null || gap < closestGap) {closestGap = gap; closestPair = [ranked[i], ranked[i + 1]];}
+      }
+
+      const filteredEditions = leaderboardFilter === 'all' ? RAW.editions :
+        RAW.editions.slice(-parseInt(leaderboardFilter));
+      const filteredData = {editions: filteredEditions, players: RAW.players};
+      const filteredComputed = leaderboardFilter === 'all' ? {players, ranked} : computeAll(filteredData);
+      const board = leaderboardFilter === 'all' ? ranked : filteredComputed.ranked;
+
+      const sorted = sortBoard(board, sortState);
+
+      main.innerHTML = `
+    <section>
+      <div class="grid cards">
+        <div class="card" style="animation-delay:.02s"><div class="label">Editions</div><div class="value">${totalEditions}</div></div>
+        <div class="card" style="animation-delay:.05s"><div class="label">Players</div><div class="value">${totalPlayers}</div></div>
+        <div class="card" style="animation-delay:.08s"><div class="label">Podium Finishes</div><div class="value">${totalPodiums}</div></div>
+        <div class="card" style="animation-delay:.11s"><div class="label">Avg Participants</div><div class="value">${avgParticipants}</div></div>
+        <div class="card" style="animation-delay:.14s"><div class="label">Current Leader</div><div class="value" style="font-size:18px;">${leader ? leader.name : '—'}</div><div class="sub">${leader ? leader.points + ' pts' : ''}</div></div>
+        <div class="card" style="animation-delay:.17s"><div class="label">Closest Battle</div><div class="value" style="font-size:16px;">${closestPair ? closestPair[0].name + ' vs ' + closestPair[1].name : '—'}</div><div class="sub">${closestPair ? closestGap + ' pt gap' : ''}</div></div>
+      </div>
+    </section>
+
+    <section>
+      <div class="countdown-title">Next SpeedTAS starts in</div>
+      <div class="countdown" id="countdown"></div>
+    </section>
+
+    <section>
+      <h2 class="section-title">Top 6 Players — Progress</h2>
+      <div class="panel">
+        <div class="chart-box"><canvas id="progressChart"></canvas></div>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="section-title">Overall Leaderboard</h2>
+      <div class="filters">
+        <button class="filter-btn ${leaderboardFilter === 'all' ? 'active' : ''}" data-filter="all">All Time</button>
+        <button class="filter-btn ${leaderboardFilter === '10' ? 'active' : ''}" data-filter="10">Last 10</button>
+        <button class="filter-btn ${leaderboardFilter === '25' ? 'active' : ''}" data-filter="25">Last 25</button>
+      </div>
+      <div class="panel">
+        <div class="table-actions">
+          <button class="export-btn" id="exportCsv">Export CSV</button>
+        </div>
+        <div style="overflow-x:auto;">
+          <table id="leaderboardTable">
+            <thead><tr>
+              <th data-key="rank">Rank</th>
+              <th data-key="move"> </th>
+              <th data-key="name">Player</th>
+              <th data-key="points">Total Points</th>
+              <th data-key="wins">Wins</th>
+              <th data-key="podiums">Podiums</th>
+              <th data-key="avgPlacement">Avg Placement</th>
+              <th data-key="played">Editions Played</th>
+            </tr></thead>
+            <tbody>
+              ${sorted.map((p, i) => `
+                <tr class="row-anim" style="animation-delay:${i * 0.02}s">
+                  <td>${medalFor(p.rank)}${p.rank}</td>
+                  <td>${moveIcon(p.movement || 0)}</td>
+                  <td><a href="#/player/${encodeURIComponent(p.name)}"><div class="player-cell">${avatarHTML(p.name)}<b>${p.name}</b></div></a></td>
+                  <td><b style="color:var(--accent)">${p.points}</b></td>
+                  <td>${p.wins}</td>
+                  <td>${p.podiums}</td>
+                  <td>${p.avgPlacement ? p.avgPlacement.toFixed(2) : '—'}</td>
+                  <td>${p.played}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  `;
+
+      setupSortableTable(board);
+      document.querySelectorAll('.filter-btn').forEach(b => {
+        b.addEventListener('click', () => {leaderboardFilter = b.dataset.filter; renderHome();});
+      });
+      document.getElementById('exportCsv').addEventListener('click', () => exportLeaderboardCSV(sorted));
+
+      startCountdown();
+      renderProgressChart(players, editionOrder, ranked);
+    }
+
+    function sortBoard(board, state) {
+      const arr = [...board];
+      const keyMap = {
+        rank: p => p.rank, name: p => p.name.toLowerCase(), points: p => p.points, wins: p => p.wins,
+        podiums: p => p.podiums, avgPlacement: p => p.avgPlacement ?? 999, played: p => p.played, move: p => p.movement || 0
+      };
+      const key = keyMap[state.key] || keyMap.points;
+      arr.sort((a, b) => {
+        const av = key(a), bv = key(b);
+        if (av < bv) return state.dir === 'asc' ? -1 : 1;
+        if (av > bv) return state.dir === 'asc' ? 1 : -1;
+        return 0;
+      });
+      return arr;
+    }
+
+    function setupSortableTable(board) {
+      document.querySelectorAll('#leaderboardTable th[data-key]').forEach(th => {
+        if (th.dataset.key === sortState.key) th.classList.add('sorted');
+        th.addEventListener('click', () => {
+          if (sortState.key === th.dataset.key) sortState.dir = sortState.dir === 'asc' ? 'desc' : 'asc';
+          else {sortState.key = th.dataset.key; sortState.dir = 'desc';}
+          renderHome();
+        });
+      });
+    }
+
+    function exportLeaderboardCSV(board) {
+      const rows = [['Rank', 'Player', 'Points', 'Wins', 'Podiums', 'AvgPlacement', 'EditionsPlayed']];
+      board.forEach(p => rows.push([p.rank, p.name, p.points, p.wins, p.podiums, p.avgPlacement ? p.avgPlacement.toFixed(2) : '', p.played]));
+      const csv = rows.map(r => r.join(',')).join('\n');
+      const blob = new Blob([csv], {type: 'text/csv'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = 'speedtas_leaderboard.csv'; a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    /* ============ COUNTDOWN ============ */
+    let countdownTimer = null;
+    function nextSaturday18Lisbon() {
+      const now = new Date();
+      // Get current time components in Europe/Lisbon
+      const fmt = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'Europe/Lisbon', hour12: false,
+        year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', weekday: 'short'
+      });
+      const parts = fmt.formatToParts(now);
+      const map = {}; parts.forEach(p => map[p.type] = p.value);
+      const weekdayMap = {Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6};
+      const curDow = weekdayMap[map.weekday];
+      let daysUntil = (6 - curDow + 7) % 7;
+      const curHour = parseInt(map.hour), curMin = parseInt(map.minute), curSec = parseInt(map.second);
+      if (daysUntil === 0 && (curHour > 18 || (curHour === 18 && (curMin > 0 || curSec > 0)))) daysUntil = 7;
+
+      // Build target date string in Lisbon local time, then convert properly
+      const target = new Date(now.getTime());
+      target.setUTCDate(target.getUTCDate()); // placeholder
+      // Simplify: construct via Lisbon offset estimate using Intl
+      const y = parseInt(map.year), mo = parseInt(map.month), d = parseInt(map.day);
+      const baseLocal = new Date(Date.UTC(y, mo - 1, d, curHour, curMin, curSec));
+      const targetLocalMidnightOffset = daysUntil * 24 * 3600 * 1000;
+      // offset between "now" real UTC and the Lisbon wall-clock reading
+      const wallClockUTC = Date.UTC(y, mo - 1, d, curHour, curMin, curSec);
+      const offsetMs = now.getTime() - wallClockUTC; // Lisbon local -> real UTC offset
+      const targetWallClockUTC = Date.UTC(y, mo - 1, d, 18, 0, 0) + targetLocalMidnightOffset;
+      return new Date(targetWallClockUTC + offsetMs);
+    }
+    function startCountdown() {
+      if (countdownTimer) clearInterval(countdownTimer);
+      function tick() {
+        const target = nextSaturday18Lisbon();
+        const diff = target.getTime() - Date.now();
+        const el = document.getElementById('countdown');
+        if (!el) {clearInterval(countdownTimer); return;}
+        if (diff <= 0) {el.innerHTML = '<div class="unit"><div class="num">🎉</div><div class="unit-label">Live now!</div></div>'; return;}
+        const days = Math.floor(diff / 86400000);
+        const hours = Math.floor((diff % 86400000) / 3600000);
+        const mins = Math.floor((diff % 3600000) / 60000);
+        const secs = Math.floor((diff % 60000) / 1000);
+        el.innerHTML = `
+      <div class="unit"><div class="num">${days}</div><div class="unit-label">Days</div></div>
+      <div class="unit"><div class="num">${String(hours).padStart(2, '0')}</div><div class="unit-label">Hours</div></div>
+      <div class="unit"><div class="num">${String(mins).padStart(2, '0')}</div><div class="unit-label">Minutes</div></div>
+      <div class="unit"><div class="num">${String(secs).padStart(2, '0')}</div><div class="unit-label">Seconds</div></div>
+    `;
+      }
+      tick();
+      countdownTimer = setInterval(tick, 1000);
+    }
+
+    /* ============ CHARTS ============ */
+    let progressChartInstance = null;
+    function renderProgressChart(players, editionOrder, ranked) {
+      const top6 = ranked.slice(0, 6);
+      const ctx = document.getElementById('progressChart');
+      if (!ctx) return;
+      if (progressChartInstance) progressChartInstance.destroy();
+      progressChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: editionOrder,
+          datasets: top6.map(p => ({
+            label: p.name,
+            data: p.cumulative,
+            borderColor: colorForName(p.name),
+            backgroundColor: colorForName(p.name) + '33',
+            tension: 0.35,
+            pointRadius: 2,
+            pointHoverRadius: 5,
+            borderWidth: 2.5
+          }))
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          interaction: {mode: 'index', intersect: false},
+          plugins: {
+            legend: {labels: {color: '#8a8a94', usePointStyle: true}},
+            tooltip: {backgroundColor: '#17171c', borderColor: '#26262e', borderWidth: 1, titleColor: '#e9fb59', bodyColor: '#f2f2f0'}
+          },
+          scales: {
+            x: {ticks: {color: '#8a8a94'}, grid: {color: '#1c1c22'}, title: {display: true, text: 'Edition', color: '#8a8a94'}},
+            y: {ticks: {color: '#8a8a94'}, grid: {color: '#1c1c22'}, title: {display: true, text: 'Cumulative Points', color: '#8a8a94'}}
+          }
+        }
+      });
+    }
+
+    /* ============ RENDER: PLAYERS DIRECTORY ============ */
+    function renderPlayers(seasonKey = 's2', season1Data = null) {
+      if ((seasonKey === 's1' || seasonKey === 'both') && !season1Data) {main.innerHTML = `<div class="loader"><div class="spinner"></div> Loading player directory…</div>`; loadSeason1().then(data => renderPlayers(seasonKey, data)); return;}
+      let ranked, label;
+      if (seasonKey === 's1') {ranked = seasonStats(season1Data); label = 'Season 1';}
+      else if (seasonKey === 'both') {
+        const rows = comparisonRows(season1Data, RAW);
+        ranked = rows.map(r => ({name: r.name, points: r.total, played: r.played, wins: r.wins, podiums: r.podiums})).sort((a, b) => b.points - a.points || b.wins - a.wins).map((p, i) => ({...p, rank: i + 1})); label = 'Both seasons';
+      } else {ranked = seasonStats(RAW); label = 'Season 2';}
+      main.innerHTML = `<section><h2 class="section-title">Player Directory</h2><div class="filters"><button class="filter-btn ${seasonKey === 's2' ? 'active' : ''}" data-directory-season="s2">Season 2</button><button class="filter-btn ${seasonKey === 's1' ? 'active' : ''}" data-directory-season="s1">Season 1</button><button class="filter-btn ${seasonKey === 'both' ? 'active' : ''}" data-directory-season="both">Both</button></div><p style="color:var(--muted);font-size:13px;margin:-6px 0 16px;">${label} · ${ranked.length} player${ranked.length === 1 ? '' : 's'}</p><input id="dirSearch" placeholder="Filter players..." style="width:100%;max-width:320px;margin-bottom:18px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 14px;color:var(--text);outline:none;"><div class="directory" id="directoryGrid">${ranked.map((p, i) => `<a href="#/player/${encodeURIComponent(p.name)}" class="player-card-link" data-name="${p.name.toLowerCase()}"><div class="player-card" style="animation-delay:${Math.min(i, 25) * 0.02}s"><div style="margin:0 auto 10px;">${avatarHTML(p.name, 48)}</div><div class="pname">${p.name}</div><div class="pmeta">Rank #${p.rank} · ${p.points} pts</div></div></a>`).join('')}</div></section>`;
+      main.querySelectorAll('[data-directory-season]').forEach(btn => btn.addEventListener('click', () => renderPlayers(btn.dataset.directorySeason, season1Data)));
+      document.getElementById('dirSearch').addEventListener('input', e => {const q = e.target.value.toLowerCase(); document.querySelectorAll('#directoryGrid .player-card-link').forEach(link => link.style.display = link.dataset.name.includes(q) ? '' : 'none');});
+    }
+
+    /* ============ RENDER: PLAYER PROFILE ============ */
+    let profileCharts = [];
+    function renderPlayerProfile(name) {
+      const decoded = decodeURIComponent(name);
+      const {players, editionOrder, ranked} = computeAll(RAW);
+      const p = players[decoded];
+      if (!p || p.played === 0) {
+        main.innerHTML = `<div class="empty-state">Player "${decoded}" not found or has no results.</div>`;
+        return;
+      }
+
+      main.innerHTML = `
+    <div class="breadcrumb"><a href="#/players">Players</a> / ${p.name}</div>
+    <div class="profile-header">
+      ${avatarHTML(p.name, 72)}
+      <div>
+        <h1>${p.name}</h1>
+        <div class="rank-tag">Rank #${p.rank} · ${moveIcon(p.movement || 0)}</div>
+      </div>
+    </div>
+
+    <div class="stat-grid">
+      <div class="card"><div class="label">Total Points</div><div class="value">${p.points}</div></div>
+      <div class="card"><div class="label">Editions Played</div><div class="value">${p.played}</div></div>
+      <div class="card"><div class="label">Wins</div><div class="value">${p.wins}</div></div>
+      <div class="card"><div class="label">Podiums</div><div class="value">${p.podiums}</div></div>
+      <div class="card"><div class="label">Avg Placement</div><div class="value">${p.avgPlacement.toFixed(2)}</div></div>
+      <div class="card"><div class="label">Best / Worst</div><div class="value" style="font-size:20px;">${p.best} / ${p.worst}</div></div>
+      <div class="card"><div class="label">Win Rate</div><div class="value">${(p.winRate * 100).toFixed(0)}%</div></div>
+      <div class="card"><div class="label">Podium Rate</div><div class="value">${(p.podiumRate * 100).toFixed(0)}%</div></div>
+      <div class="card"><div class="label">Avg Pts / Edition</div><div class="value">${p.avgPoints.toFixed(2)}</div></div>
+      <div class="card"><div class="label">Longest Win Streak</div><div class="value">${p.maxWinStreak}</div></div>
+      <div class="card"><div class="label">Longest Podium Streak</div><div class="value">${p.maxPodiumStreak}</div></div>
+      <div class="card"><div class="label">Trend (2nd vs 1st half)</div><div class="value" style="font-size:18px;">${p.improvement === null ? '—' : (p.improvement >= 0 ? '+' : '') + p.improvement.toFixed(1)}</div></div>
+    </div>
+
+      <div class="card"><div class="label">Avg Placement</div><div class="value">${p.avgPlacement.toFixed(2)}</div></div>
+      <div class="card"><div class="label">Best / Worst</div><div class="value" style="font-size:20px;">${p.best} / ${p.worst}</div></div>
+      <div class="card"><div class="label">Win Rate</div><div class="value">${(p.winRate * 100).toFixed(0)}%</div></div>
+      <div class="card"><div class="label">Podium Rate</div><div class="value">${(p.podiumRate * 100).toFixed(0)}%</div></div>
+      <div class="card"><div class="label">Avg Pts / Edition</div><div class="value">${p.avgPoints.toFixed(2)}</div></div>
+      <div class="card"><div class="label">Longest Win Streak</div><div class="value">${p.maxWinStreak}</div></div>
+      <div class="card"><div class="label">Longest Podium Streak</div><div class="value">${p.maxPodiumStreak}</div></div>
+      <div class="card"><div class="label">Trend (2nd vs 1st half)</div><div class="value" style="font-size:18px;">${p.improvement === null ? '—' : (p.improvement >= 0 ? '+' : '') + p.improvement.toFixed(1)}</div></div>
+    </div>
+
+    <section>
+      <h2 class="section-title">Achievements</h2>
+      <div class="badge-list">
+        ${p.badges.length ? p.badges.map(b => `<div class="badge">${b.icon} ${b.label}</div>`).join('') : '<span style="color:var(--muted);font-size:13px;">No badges yet</span>'}
+      </div>
+    </section>
+
+    <section>
+      <h2 class="section-title">Performance Graphs</h2>
+      <div class="grid" style="grid-template-columns:1fr;gap:16px;">
+        <div class="panel"><div style="font-size:13px;color:var(--muted);margin-bottom:8px;">Placement Over Time</div><div class="chart-box" style="height:260px;"><canvas id="chartPlacement"></canvas></div></div>
+        <div class="panel"><div style="font-size:13px;color:var(--muted);margin-bottom:8px;">Cumulative Points</div><div class="chart-box" style="height:260px;"><canvas id="chartCumulative"></canvas></div></div>
+        <div class="panel"><div style="font-size:13px;color:var(--muted);margin-bottom:8px;">Rolling Average Placement (window 5)</div><div class="chart-box" style="height:260px;"><canvas id="chartRolling"></canvas></div></div>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="section-title">Placement History</h2>
+      <div class="panel">
+        <div style="overflow-x:auto;">
+          <table>
+            <thead><tr><th>Edition</th><th>Placement</th><th>Points Earned</th></tr></thead>
+            <tbody>
+              ${p.history.map(h => `<tr><td>${h.edition}</td><td>${h.placement <= 3 ? medalFor(h.placement) : ''}${h.placement}</td><td>${h.points}</td></tr>`).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  `;
+
+      profileCharts.forEach(c => c.destroy()); profileCharts = [];
+      const editions = p.history.map(h => h.edition);
+      const placements = p.history.map(h => h.placement);
+      const cum = (() => {let r = 0; return p.history.map(h => {r += h.points; return r;});})();
+      const rolling = placements.map((_, i) => {
+        const start = Math.max(0, i - 4);
+        const slice = placements.slice(start, i + 1);
+        return slice.reduce((a, b) => a + b, 0) / slice.length;
+      });
+
+      const color = colorForName(p.name);
+      const commonOpts = {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {legend: {display: false}, tooltip: {backgroundColor: '#17171c', borderColor: '#26262e', borderWidth: 1, titleColor: '#e9fb59', bodyColor: '#f2f2f0'}},
+        scales: {x: {ticks: {color: '#8a8a94'}, grid: {color: '#1c1c22'}}, y: {ticks: {color: '#8a8a94'}, grid: {color: '#1c1c22'}}}
+      };
+
+      profileCharts.push(new Chart(document.getElementById('chartPlacement'), {
+        type: 'line', data: {labels: editions, datasets: [{data: placements, borderColor: color, backgroundColor: color + '33', tension: .3, pointRadius: 3}]},
+        options: {...commonOpts, scales: {...commonOpts.scales, y: {...commonOpts.scales.y, reverse: true, title: {display: true, text: 'Placement (lower=better)', color: '#8a8a94'}}}}
+      }));
+      profileCharts.push(new Chart(document.getElementById('chartCumulative'), {
+        type: 'line', data: {labels: editions, datasets: [{data: cum, borderColor: color, backgroundColor: color + '33', tension: .3, pointRadius: 3, fill: true}]},
+        options: commonOpts
+      }));
+      profileCharts.push(new Chart(document.getElementById('chartRolling'), {
+        type: 'line', data: {labels: editions, datasets: [{data: rolling, borderColor: color, backgroundColor: color + '33', tension: .3, pointRadius: 3}]},
+        options: {...commonOpts, scales: {...commonOpts.scales, y: {...commonOpts.scales.y, reverse: true}}}
+      }));
+    }
+
+    /* ============ RENDER: HISTORY ============ */
+    function seasonTabs(active, id) {return `<div class="filters" style="margin:0 0 18px;"><button class="filter-btn ${active === 's2' ? 'active' : ''}" data-${id}-season="s2">Season 2</button><button class="filter-btn ${active === 's1' ? 'active' : ''}" data-${id}-season="s1">Season 1</button></div>`;}
+    function profileTabs(active) {return `<div class="profile-season-tabs"><button class="filter-btn ${active === 's2' ? 'active' : ''}" data-profile-season="s2">Season 2</button><button class="filter-btn ${active === 's1' ? 'active' : ''}" data-profile-season="s1">Season 1</button><button class="filter-btn ${active === 'all' ? 'active' : ''}" data-profile-season="all">All-time</button></div>`;}
+    function profilePlayerFor(data, requested) {
+      const computed = computeAll(data), exact = computed.players[requested];
+      if (exact) return {player: exact, computed};
+      const key = playerKey(requested);
+      const found = Object.values(computed.players).find(p => playerKey(p.name) === key || oneLetterApart(playerKey(p.name), key));
+      return {player: found, computed};
+    }
+    function renderPlayerProfileEnhanced(name, seasonKey = 's2', season1Data = null) {
+      const decoded = decodeURIComponent(name);
+      if ((seasonKey === 's1' || seasonKey === 'all') && !season1Data) {
+        main.innerHTML = `<div class="loader"><div class="spinner"></div> Loading player profile…</div>`;
+        loadSeason1().then(data => renderPlayerProfileEnhanced(decoded, seasonKey, data));
+        return;
+      }
+      const s2 = profilePlayerFor(RAW, decoded), s1 = season1Data ? profilePlayerFor(season1Data, decoded) : null;
+      let p, profileName, history, rankLabel, seasonLabel;
+      if (seasonKey === 'all') {
+        const p1 = s1?.player, p2 = s2.player;
+        if (!p1 && !p2) {main.innerHTML = `<div class="empty-state">Player "${decoded}" not found.</div>`; return;}
+        history = [...(p1 ? p1.history.map(h => ({...h, edition: `S1 · ${h.edition}`})) : []), ...(p2 ? p2.history.map(h => ({...h, edition: `S2 · ${h.edition}`})) : [])];
+        const points = (p1?.points || 0) + (p2?.points || 0), played = history.length, wins = (p1?.wins || 0) + (p2?.wins || 0), podiums = (p1?.podiums || 0) + (p2?.podiums || 0);
+        const placements = history.map(h => h.placement), allRows = comparisonRows(season1Data, RAW), own = allRows.find(r => r.key === playerKey((p2 || p1).name));
+        p = {name: (p2 || p1).name, points, played, wins, podiums, placements, best: Math.min(...placements), worst: Math.max(...placements), avgPlacement: placements.reduce((a, b) => a + b, 0) / played, winRate: wins / played, podiumRate: podiums / played, avgPoints: points / played, maxWinStreak: Math.max(p1?.maxWinStreak || 0, p2?.maxWinStreak || 0), maxPodiumStreak: Math.max(p1?.maxPodiumStreak || 0, p2?.maxPodiumStreak || 0), rank: own ? allRows.indexOf(own) + 1 : null, badges: []};
+        profileName = p.name; rankLabel = 'All-time rank'; seasonLabel = 'All-time';
+      } else {
+        const selected = seasonKey === 's1' ? s1 : s2;
+        p = selected?.player;
+        if (!p || !p.played) {main.innerHTML = `<div class="empty-state">${decoded} has no results in Season ${seasonKey === 's1' ? '1' : '2'}.</div>`; return;}
+        history = p.history; profileName = p.name; rankLabel = 'Season rank'; seasonLabel = seasonKey === 's1' ? 'Season 1' : 'Season 2';
+      }
+      const color = colorForName(profileName), podiumCopy = p.podiums ? `${p.podiums} podium${p.podiums === 1 ? '' : 's'} · ${(p.podiumRate * 100).toFixed(0)}% podium rate` : 'No podium finish recorded yet';
+      main.innerHTML = `
+    <div class="breadcrumb"><a href="#/players">Players</a> / ${profileName}</div>
+    <section class="profile-hero"><div class="profile-header">${avatarHTML(profileName, 72)}<div><h1>${profileName}</h1><div class="rank-tag">${seasonLabel} · ${rankLabel} #${p.rank ?? '—'}</div></div></div>${profileTabs(seasonKey)}<div class="podium-banner"><div class="podium-icon">🏆</div><div><strong>${p.podiums ? 'Podium contender' : 'Building the record'}</strong>${podiumCopy} · ${p.wins} win${p.wins === 1 ? '' : 's'}</div></div></section>
+    <div class="stat-grid"><div class="card"><div class="label">Total Points</div><div class="value">${p.points}</div></div><div class="card"><div class="label">Editions Played</div><div class="value">${p.played}</div></div><div class="card profile-stat-emphasis"><div class="label">Podiums</div><div class="value">${p.podiums}</div></div><div class="card"><div class="label">Wins</div><div class="value">${p.wins}</div></div><div class="card"><div class="label">Avg Placement</div><div class="value">${p.avgPlacement.toFixed(2)}</div></div><div class="card"><div class="label">Best / Worst</div><div class="value" style="font-size:20px;">${p.best} / ${p.worst}</div></div><div class="card"><div class="label">Win Rate</div><div class="value">${(p.winRate * 100).toFixed(0)}%</div></div><div class="card"><div class="label">Podium Rate</div><div class="value">${(p.podiumRate * 100).toFixed(0)}%</div></div></div>
+    <section><h2 class="section-title">Performance</h2><div class="grid" style="grid-template-columns:1fr;gap:16px;"><div class="panel"><div style="font-size:13px;color:var(--muted);margin-bottom:8px;">Placement over time</div><div class="chart-box" style="height:250px;"><canvas id="chartPlacement"></canvas></div></div><div class="panel"><div style="font-size:13px;color:var(--muted);margin-bottom:8px;">Cumulative points</div><div class="chart-box" style="height:250px;"><canvas id="chartCumulative"></canvas></div></div></div></section>
+    <section><h2 class="section-title">Placement History</h2><div class="panel" style="overflow:auto;"><table><thead><tr><th>Edition</th><th>Placement</th><th>Points</th></tr></thead><tbody>${history.map(h => `<tr><td>${h.edition}</td><td>${h.placement <= 3 ? medalFor(h.placement) : ''}${h.placement}</td><td style="color:var(--accent);font-weight:700">${h.points}</td></tr>`).join('')}</tbody></table></div></section>`;
+      main.querySelectorAll('[data-profile-season]').forEach(btn => btn.addEventListener('click', () => renderPlayerProfileEnhanced(decoded, btn.dataset.profileSeason, season1Data)));
+      profileCharts.forEach(c => c.destroy()); profileCharts = [];
+      const labels = history.map(h => h.edition), placements = history.map(h => h.placement), cumulative = []; let running = 0; history.forEach(h => {running += h.points; cumulative.push(running)});
+      const options = {responsive: true, maintainAspectRatio: false, plugins: {legend: {display: false}}, scales: {x: {ticks: {color: '#8a8a94'}, grid: {color: '#1c1c22'}}, y: {ticks: {color: '#8a8a94'}, grid: {color: '#1c1c22'}}}};
+      profileCharts.push(new Chart(document.getElementById('chartPlacement'), {type: 'line', data: {labels, datasets: [{data: placements, borderColor: color, backgroundColor: color + '33', tension: .3, pointRadius: 3}]}, options: {...options, scales: {...options.scales, y: {...options.scales.y, reverse: true, title: {display: true, text: 'Placement (lower is better)', color: '#8a8a94'}}}}}));
+      profileCharts.push(new Chart(document.getElementById('chartCumulative'), {type: 'line', data: {labels, datasets: [{data: cumulative, borderColor: color, backgroundColor: color + '33', fill: true, tension: .3, pointRadius: 3}]}, options}));
+    }
+    function renderHistory(seasonKey = 's2') {
+      main.innerHTML = `<div class="loader"><div class="spinner"></div> Loading Season ${seasonKey === 's1' ? '1' : '2'} editions…</div>`;
+      const dataPromise = seasonKey === 's1' ? loadSeason1() : Promise.resolve(RAW);
+      dataPromise.then(data => {
+        const editionsDesc = [...data.editions].reverse();
+        const seasonLabel = seasonKey === 's1' ? 'Season 1' : 'Season 2';
+        main.innerHTML = `
+    <section>
+      <h2 class="section-title">Competition History</h2>
+      ${seasonTabs(seasonKey, 'history')}
+      <p style="color:var(--muted);font-size:13px;margin:-6px 0 18px;">${seasonLabel} · ${data.editions.length} editions</p>
+      <div class="edition-grid">
+        ${editionsDesc.map((ed, i) => {
+          const entries = Object.entries(ed.results).sort((a, b) => a[1] - b[1]);
+          const winner = entries.find(e => e[1] === 1);
+          const avgPlacement = (entries.reduce((a, e) => a + e[1], 0) / entries.length).toFixed(2);
+          return `
+          <a href="#/edition/${seasonKey}/${encodeURIComponent(ed.edition)}">
+            <div class="edition-card" style="animation-delay:${i * 0.015}s">
+              <div class="enum">Edition ${ed.edition}</div>
+              <div class="erow"><span>Winner</span><b>${winner ? winner[0] : '—'}</b></div>
+              <div class="erow"><span>Participants</span><b>${entries.length}</b></div>
+              <div class="erow"><span>Avg Placement</span><b>${avgPlacement}</b></div>
+            </div>
+          </a>`;
+        }).join('')}
+      </div>
+    </section>
+  `;
+        main.querySelectorAll('[data-history-season]').forEach(btn => btn.addEventListener('click', () => renderHistory(btn.dataset.historySeason)));
+      }).catch(err => {main.innerHTML = `<div class="panel"><h2 class="section-title">Season 1 unavailable</h2><p style="color:var(--muted)">${err.message}</p></div>`;});
+    }
+
+    function renderEditionDetail(editionId, seasonKey = 's2', data = RAW) {
+      if (seasonKey === 's1' && data === RAW) {main.innerHTML = `<div class="loader"><div class="spinner"></div> Loading Season 1 edition…</div>`; loadSeason1().then(s1 => renderEditionDetail(editionId, 's1', s1)); return;}
+      const decoded = decodeURIComponent(editionId);
+      const ed = data.editions.find(e => String(e.edition) === decoded);
+      if (!ed) {main.innerHTML = `<div class="empty-state">Edition ${decoded} not found.</div>`; return;}
+      const entries = Object.entries(ed.results).sort((a, b) => a[1] - b[1]);
+      const podium = entries.filter(([, place]) => place <= 3).slice(0, 3);
+      main.innerHTML = `
+    <div class="breadcrumb"><a href="#/history">History</a> / ${seasonKey === 's1' ? 'Season 1' : 'Season 2'} / Edition ${ed.edition}</div>
+    <h2 class="section-title">${seasonKey === 's1' ? 'Season 1' : 'Season 2'} · Edition ${ed.edition}</h2>
+    <div class="edition-podium-banner">${[1, 2, 3].map(place => {const finisher = podium.find(([, p]) => p === place); const label = ['🥇 1st', '🥈 2nd', '🥉 3rd'][place - 1]; const cls = ['gold', 'silver', 'bronze'][place - 1]; return `<div class="edition-podium-place ${cls}">${label}<b>${finisher ? finisher[0] : '—'}</b>${finisher ? pointsFor(place) + ' pts' : 'No result'}</div>`;}).join('')}</div>
+    <div class="panel">
+      <table>
+        <thead><tr><th>Placement</th><th>Player</th><th>Points</th></tr></thead>
+        <tbody>
+          ${entries.map(([name, place], i) => `
+            <tr class="row-anim" style="animation-delay:${i * 0.02}s">
+              <td>${place <= 3 ? medalFor(place) : ''}${place}</td>
+              <td><a href="#/player/${encodeURIComponent(name)}"><div class="player-cell">${avatarHTML(name)}<b>${name}</b></div></a></td>
+              <td style="color:var(--accent);font-weight:700;">${pointsFor(place)}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+    }
+
+    /* ============ RENDER: VERSUS ============ */
+    function h2hAvatarHTML(name, color) {
+      const photo = getAvatarOverride(name);
+      if (photo) return `<img src="${photo}" alt="${name}" class="h2h-avatar-big" style="object-fit:cover;--glow:${color};">`;
+      return `<div class="h2h-avatar-big" style="background:${color};--glow:${color};">${initials(name)}</div>`;
+    }
+
+    function combinedSeasonData(s1) {
+      const preferred = {}, players = [];
+      [...s1.players, ...RAW.players].forEach(name => {const key = playerKey(name); preferred[key] = name;});
+      Object.values(preferred).forEach(name => players.push(name));
+      const convert = (data, prefix) => data.editions.map(ed => {
+        const results = {};
+        Object.entries(ed.results).forEach(([name, place]) => {results[preferred[playerKey(name)]] = place;});
+        return {edition: `${prefix} ${ed.edition}`, results};
+      });
+      return {players, editions: [...convert(s1, 'S1 ·'), ...convert(RAW, 'S2 ·')]};
+    }
+
+    function renderVersus(p1name, p2name, seasonKey = 's2', suppliedData = null) {
+      if ((seasonKey === 's1' || seasonKey === 'both') && !suppliedData) {
+        main.innerHTML = `<div class="loader"><div class="spinner"></div> Loading Season 1 Head-to-Head…</div>`;
+        loadSeason1().then(data => renderVersus(p1name, p2name, seasonKey, data)).catch(err => {main.innerHTML = `<div class="panel"><h2 class="section-title">Season 1 unavailable</h2><p style="color:var(--muted)">${err.message}</p></div>`;});
+        return;
+      }
+      const activeData = seasonKey === 'both' ? combinedSeasonData(suppliedData) : (suppliedData || RAW);
+      const {players, ranked} = computeAll(activeData);
+      const names = ranked.map(p => p.name);
+      const a = p1name || names[0];
+      const b = p2name || names[1] || names[0];
+
+      main.innerHTML = `
+    <section>
+      <h2 class="section-title">Head-to-Head Comparison</h2>
+      <div class="filters" style="margin:0 0 18px;"><button class="filter-btn ${seasonKey === 's2' ? 'active' : ''}" data-h2h-season="s2">Season 2</button><button class="filter-btn ${seasonKey === 's1' ? 'active' : ''}" data-h2h-season="s1">Season 1</button><button class="filter-btn ${seasonKey === 'both' ? 'active' : ''}" data-h2h-season="both">Both</button></div>
+      <div class="h2h-select-row">
+        <div class="h2h-select-side">
+          <select id="selA">${names.map(n => `<option value="${n}" ${n === a ? 'selected' : ''}>${n}</option>`).join('')}</select>
+        </div>
+        <div class="h2h-vs-badge">VS</div>
+        <div class="h2h-select-side">
+          <select id="selB">${names.map(n => `<option value="${n}" ${n === b ? 'selected' : ''}>${n}</option>`).join('')}</select>
+        </div>
+        <button class="h2h-swap" id="swapH2H" type="button">⇄ Swap players</button>
+      </div>
+      <div id="versusResult"></div>
+    </section>
+  `;
+
+      function fmtPct(x) {return (x * 100).toFixed(0) + '%';}
+      function fmtNum(x, d = 0) {return (x === null || x === undefined || isNaN(x)) ? '—' : x.toFixed(d);}
+
+      /* Renders one comparison row. higherIsBetter: true = bigger number wins,
+         false = smaller number wins, null = purely informational (no highlight). */
+      function statRow(label, rawA, rawB, displayA, displayB, higherIsBetter, colorA, colorB) {
+        let aWins = false, bWins = false;
+        if (higherIsBetter !== null && rawA !== null && rawB !== null && !isNaN(rawA) && !isNaN(rawB) && rawA !== rawB) {
+          if (higherIsBetter) {aWins = rawA > rawB; bWins = rawB > rawA;}
+          else {aWins = rawA < rawB; bWins = rawB < rawA;}
+        }
+        const leftHTML = aWins ? `<span class="h2h-pill" style="background:${colorA}">${displayA}</span>` : displayA;
+        const rightHTML = bWins ? `<span class="h2h-pill" style="background:${colorB}">${displayB}</span>` : displayB;
+        return `
+      <div class="h2h-row">
+        <div class="h2h-val side-left">${leftHTML}</div>
+        <div class="h2h-label">${label}</div>
+        <div class="h2h-val side-right">${rightHTML}</div>
+      </div>`;
+      }
+
+      function draw() {
+        const pa = players[document.getElementById('selA').value];
+        const pb = players[document.getElementById('selB').value];
+        const colorA = colorForName(pa.name), colorB = colorForName(pb.name);
+
+        const commonEditions = pa.history.filter(h => pb.history.find(h2 => h2.edition === h.edition));
+        let aH2H = 0, bH2H = 0, ties = 0;
+        commonEditions.forEach(h => {
+          const other = pb.history.find(h2 => h2.edition === h.edition);
+          if (h.placement < other.placement) aH2H++;
+          else if (h.placement > other.placement) bH2H++;
+          else ties++;
+        });
+        const recentMatchups = commonEditions.map(h => {
+          const other = pb.history.find(h2 => h2.edition === h.edition);
+          const result = h.placement < other.placement ? 'A' : h.placement > other.placement ? 'B' : 'T';
+          return {edition: h.edition, a: h.placement, b: other.placement, result};
+        }).sort((x, y) => Number(y.edition) - Number(x.edition)).slice(0, 8);
+        const avgA = commonEditions.length ? commonEditions.reduce((sum, h) => sum + h.placement, 0) / commonEditions.length : null;
+        const avgB = commonEditions.length ? commonEditions.reduce((sum, h) => sum + (pb.history.find(h2 => h2.edition === h.edition)?.placement || 0), 0) / commonEditions.length : null;
+
+        const rows = [
+          statRow('Current Rank', pa.rank ?? null, pb.rank ?? null, pa.rank ? ('#' + pa.rank) : '—', pb.rank ? ('#' + pb.rank) : '—', false, colorA, colorB),
+          statRow('Head-to-Head Wins', aH2H, bH2H, aH2H, bH2H, true, colorA, colorB),
+          statRow('Total Points', pa.points, pb.points, pa.points, pb.points, true, colorA, colorB),
+          statRow('Avg Points / Edition', pa.avgPoints, pb.avgPoints, fmtNum(pa.avgPoints, 2), fmtNum(pb.avgPoints, 2), true, colorA, colorB),
+          statRow('Wins', pa.wins, pb.wins, pa.wins, pb.wins, true, colorA, colorB),
+          statRow('Podiums', pa.podiums, pb.podiums, pa.podiums, pb.podiums, true, colorA, colorB),
+          statRow('Win Rate', pa.winRate, pb.winRate, fmtPct(pa.winRate), fmtPct(pb.winRate), true, colorA, colorB),
+          statRow('Podium Rate', pa.podiumRate, pb.podiumRate, fmtPct(pa.podiumRate), fmtPct(pb.podiumRate), true, colorA, colorB),
+          statRow('Avg Placement', pa.avgPlacement, pb.avgPlacement, fmtNum(pa.avgPlacement, 2), fmtNum(pb.avgPlacement, 2), false, colorA, colorB),
+          statRow('Best Placement', pa.best, pb.best, pa.best ?? '—', pb.best ?? '—', false, colorA, colorB),
+          statRow('Longest Win Streak', pa.maxWinStreak, pb.maxWinStreak, pa.maxWinStreak, pb.maxWinStreak, true, colorA, colorB),
+          statRow('Longest Podium Streak', pa.maxPodiumStreak, pb.maxPodiumStreak, pa.maxPodiumStreak, pb.maxPodiumStreak, true, colorA, colorB),
+          statRow('Editions Played', pa.played, pb.played, pa.played, pb.played, true, colorA, colorB),
+        ].join('');
+
+        document.getElementById('versusResult').innerHTML = `
+      <div class="panel" style="padding:0;overflow:hidden;">
+        <div class="h2h-header">
+          <div class="h2h-header-bg" style="background:radial-gradient(circle at 20% 50%, ${colorA}, transparent 60%), radial-gradient(circle at 80% 50%, ${colorB}, transparent 60%);"></div>
+          <div class="h2h-side-header side-a">
+            ${h2hAvatarHTML(pa.name, colorA)}
+            <div class="h2h-side-name">${pa.name}</div>
+            <div class="h2h-side-rank">Rank #${pa.rank ?? '—'}</div>
+          </div>
+          <div class="h2h-center-label">Head to<br>Head</div>
+          <div class="h2h-side-header side-b">
+            ${h2hAvatarHTML(pb.name, colorB)}
+            <div class="h2h-side-name">${pb.name}</div>
+            <div class="h2h-side-rank">Rank #${pb.rank ?? '—'}</div>
+          </div>
+        </div>
+        <div class="h2h-summary">
+          <div class="h2h-summary-item">${pa.name}<b>${aH2H}</b></div>
+          <div class="h2h-summary-item">Shared editions<b>${commonEditions.length}</b></div>
+          <div class="h2h-summary-item">${pb.name}<b>${bH2H}</b></div>
+        </div>
+        <div class="h2h-shared">Head-to-head placement wins · ${ties} tie${ties === 1 ? '' : 's'}</div>
+        <div class="h2h-stats">
+          ${rows}
+        </div>
+        <div class="h2h-matchups"><div class="h2h-matchups-head"><b>Recent shared editions</b><span>${avgA !== null ? `Avg placement: ${pa.name} ${avgA.toFixed(2)} · ${pb.name} ${avgB.toFixed(2)}` : 'No shared editions yet'}</span></div>${recentMatchups.length ? `<div style="overflow:auto;"><table><thead><tr><th>Edition</th><th>${pa.name}</th><th>${pb.name}</th><th>Winner</th></tr></thead><tbody>${recentMatchups.map(m => `<tr><td>${m.edition}</td><td>${m.a}</td><td>${m.b}</td><td style="color:${m.result === 'A' ? colorA : m.result === 'B' ? colorB : 'var(--muted)'};font-weight:700">${m.result === 'A' ? pa.name : m.result === 'B' ? pb.name : 'Tie'}</td></tr>`).join('')}</tbody></table></div>` : '<div style="color:var(--muted);font-size:13px;">These players have not raced the same edition yet.</div>'}</div>
+      </div>
+    `;
+      }
+      document.getElementById('selA').addEventListener('change', draw);
+      document.getElementById('selB').addEventListener('change', draw);
+      main.querySelectorAll('[data-h2h-season]').forEach(btn => btn.addEventListener('click', () => renderVersus(undefined, undefined, btn.dataset.h2hSeason, suppliedData)));
+      document.getElementById('swapH2H').addEventListener('click', () => {
+        const selA = document.getElementById('selA'), selB = document.getElementById('selB');
+        const oldA = selA.value; selA.value = selB.value; selB.value = oldA; draw();
+      });
+      draw();
+    }
+
+    /* ============ MAIN RENDER ROUTER ============ */
+    const main = document.getElementById('app');
+    /* ============ VIDEOS TAB (public YouTube RSS feed — no key involved) ============
+       A YouTube Data API key would have to ship inside this file's source to
+       work for site visitors, and anyone can open dev tools or view-source on
+       a published page and lift it straight out — so instead of asking for one,
+       this reads the channel's public RSS feed (no credentials at all) through
+       the free rss2json proxy, which turns the XML into plain JSON a browser
+       can fetch directly. Nothing secret ever touches this file.
+       Trade-off: the RSS feed only exposes the ~15 most recent uploads (a limit
+       of the feed itself) rather than the full back-catalog an API key would
+       allow — plenty for "this week's race," but older videos won't list here. */
+    const YT_CHANNEL_ID = 'UCSLm9iD-GUV_HhMEc1ee3tA';
+    const YT_RSS_URL = 'https://www.youtube.com/feeds/videos.xml?channel_id=' + YT_CHANNEL_ID;
+    const YT_RSS2JSON_URL = 'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(YT_RSS_URL);
+    const YT_CACHE_KEY = 'speedtas_v1_youtube_cache';
+    const YT_CACHE_TTL_MS = 30 * 60 * 1000; // 30 min — avoids re-fetching on every tab visit
+
+    function getCachedVideos() {
+      try {
+        const raw = localStorage.getItem(YT_CACHE_KEY);
+        if (!raw) return null;
+        const parsed = JSON.parse(raw);
+        if (!parsed.fetchedAt || (Date.now() - parsed.fetchedAt) > YT_CACHE_TTL_MS) return null;
+        return parsed.videos;
+      } catch (e) {return null;}
+    }
+    function setCachedVideos(videos) {
+      try {localStorage.setItem(YT_CACHE_KEY, JSON.stringify({fetchedAt: Date.now(), videos}));} catch (e) { }
+    }
+
+    async function fetchChannelVideos() {
+      if (SPEEDTAS_API_URL) {
+        try {
+          const proxyUrl = SPEEDTAS_API_URL.replace(/\/+$/, '') + '/videos?channelId=' + encodeURIComponent(YT_CHANNEL_ID);
+          const res = await fetch(proxyUrl);
+          const data = await res.json();
+          if (res.ok && Array.isArray(data.videos)) return data.videos;
+          console.warn('Worker video proxy returned an error, falling back to the RSS feed:', data.error);
+        } catch (err) {
+          console.warn('Worker video proxy unreachable, falling back to the RSS feed:', err);
+        }
+      }
+      const res = await fetch(YT_RSS2JSON_URL);
+      const data = await res.json();
+      if (data.status !== 'ok' || !Array.isArray(data.items)) {
+        throw new Error(data.message || 'Could not read the channel feed.');
+      }
+      return data.items.map(item => {
+        const idMatch = /video:([\w-]{6,})/.exec(item.guid || '') || /[?&]v=([\w-]{6,})/.exec(item.link || '');
+        const id = idMatch ? idMatch[1] : '';
+        return {
+          id,
+          title: item.title || 'Untitled',
+          thumbnail: item.thumbnail || (id ? `https://i.ytimg.com/vi/${id}/hqdefault.jpg` : ''),
+          publishedAt: item.pubDate,
+        };
+      }).filter(v => v.id);
+    }
+
+    function escapeHtml(s) {
+      return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
+    }
+
+    let videosCache = null;
+
+    function renderVideos() {
+      main.innerHTML = `
+    <section>
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:4px;">
+        <h2 class="section-title" style="margin-bottom:0;">Race Results — Video Archive</h2>
+        <button type="button" class="avatar-remove-link" id="ytRefreshBtn">↻ Refresh videos</button>
+      </div>
+      <p style="color:var(--muted);font-size:14px;margin-top:0;margin-bottom:18px;">
+        The most recent SpeedTAS uploads, straight from <a href="https://www.youtube.com/@Kristiano55-tas" target="_blank" rel="noopener" style="color:var(--accent);">Kristiano's YouTube channel ↗</a> — click any video to play it in place.
+      </p>
+      <div id="videosContent"></div>
+    </section>
+  `;
+
+      document.getElementById('ytRefreshBtn').addEventListener('click', () => {
+        videosCache = null;
+        try {localStorage.removeItem(YT_CACHE_KEY);} catch (e) { }
+        renderVideos();
+      });
+
+      const contentEl = document.getElementById('videosContent');
+      if (videosCache) {renderVideoGrid(videosCache); return;}
+      const cached = getCachedVideos();
+      if (cached) {videosCache = cached; renderVideoGrid(cached); return;}
+
+      contentEl.innerHTML = `<div class="loader"><div class="spinner"></div> Loading videos…</div>`;
+      fetchChannelVideos().then(videos => {
+        videosCache = videos;
+        setCachedVideos(videos);
+        renderVideoGrid(videos);
+      }).catch(err => {
+        contentEl.innerHTML = `
+      <div class="empty-state">
+        ⚠️ Couldn't load the video feed right now.<br><small>${escapeHtml(err.message)}</small><br><br>
+        <button class="refresh-btn" id="ytRetryBtn">↻ Try Again</button>
+      </div>`;
+        const retryBtn = document.getElementById('ytRetryBtn');
+        if (retryBtn) retryBtn.addEventListener('click', () => {videosCache = null; renderVideos();});
+      });
+    }
+
+    function renderVideoGrid(videos) {
+      const contentEl = document.getElementById('videosContent');
+      if (!contentEl) return;
+      if (!videos.length) {
+        contentEl.innerHTML = `<div class="empty-state">No videos found on the channel yet.</div>`;
+        return;
+      }
+      contentEl.innerHTML = `<div class="video-grid" id="videoGrid">${videos.map((v, i) => videoCardHTML(v, i)).join('')}</div>`;
+      document.querySelectorAll('.video-card').forEach(card => {
+        card.addEventListener('click', () => toggleVideoCard(card));
+      });
+    }
+
+    function videoCardCollapsedInner(v) {
+      return `
+    <div class="video-thumb-wrap">
+      <img src="${v.thumbnail}" alt="${escapeHtml(v.title)}" loading="lazy">
+      <div class="video-play-overlay">▶</div>
+    </div>
+    <div class="video-card-title">${escapeHtml(v.title)}</div>
+  `;
+    }
+    function videoCardHTML(v, i) {
+      return `<div class="video-card" data-video-id="${v.id}" style="animation-delay:${Math.min(i * 0.02, 0.4)}s">${videoCardCollapsedInner(v)}</div>`;
+    }
+
+    function toggleVideoCard(card) {
+      const grid = document.getElementById('videoGrid');
+      const wasExpanded = card.classList.contains('expanded');
+      grid.querySelectorAll('.video-card.expanded').forEach(c => {if (c !== card) collapseCard(c);});
+      if (wasExpanded) collapseCard(card); else expandCard(card);
+    }
+
+    function expandCard(card) {
+      const videoId = card.dataset.videoId;
+      const v = (videosCache || []).find(x => x.id === videoId);
+      const title = v ? v.title : '';
+      card.classList.add('expanded');
+      card.innerHTML = `
+    <div class="video-expanded-head">
+      <b>${escapeHtml(title)}</b>
+      <span class="video-collapse-hint">✕ Close</span>
+    </div>
+    <div style="position:relative;padding-top:56.25%;">
+      <iframe
+        src="https://www.youtube.com/embed/${videoId}?autoplay=1"
+        title="${escapeHtml(title)}"
+        style="position:absolute;inset:0;width:100%;height:100%;border:0;"
+        referrerpolicy="strict-origin-when-cross-origin"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        allowfullscreen
+      ></iframe>
+    </div>
+    <a href="https://www.youtube.com/watch?v=${videoId}" target="_blank" rel="noopener" class="video-watch-link">Watch on YouTube ↗</a>
+  `;
+      const watchLink = card.querySelector('.video-watch-link');
+      if (watchLink) watchLink.addEventListener('click', (e) => e.stopPropagation());
+    }
+
+    function collapseCard(card) {
+      const videoId = card.dataset.videoId;
+      const v = (videosCache || []).find(x => x.id === videoId);
+      card.classList.remove('expanded');
+      if (v) card.innerHTML = videoCardCollapsedInner(v);
+    }
+
+    /* ============ SEASON COMPARISON ============ */
+    const PLAYER_ALIASES = {lildemo: 'demo', caster: 'c4ster', elliot: 'eliot'};
+    const playerKey = name => PLAYER_ALIASES[name.toLowerCase().replace(/[^a-z0-9]/g, '')] || name.toLowerCase().replace(/[^a-z0-9]/g, '');
+    function oneLetterApart(a, b) {
+      if (a === b) return true;
+      if (Math.abs(a.length - b.length) > 1) return false;
+      let i = 0, j = 0, edits = 0;
+      while (i < a.length && j < b.length) {if (a[i] === b[j]) {i++; j++;} else if (++edits > 1) return false; else if (a.length > b.length) i++; else if (b.length > a.length) j++; else {i++; j++;} }
+      return true;
+    }
+    function seasonStats(data) {return computeAll(data).ranked;}
+    function rankMap(data, knownKeys = []) {const map = {}; seasonStats(data).forEach((p, i) => {let key = playerKey(p.name); if (!knownKeys.includes(key)) {const close = knownKeys.find(k => oneLetterApart(k, key)); if (close) key = close;} map[key] = {...p, rank: i + 1};}); return map;}
+    function statCard(label, value, sub = '') {return `<div class="card"><div class="label">${label}</div><div class="value">${value}</div>${sub ? `<div class="sub">${sub}</div>` : ''}</div>`;}
+    function comparisonRows(s1, s2) {
+      const a = rankMap(s1), b = rankMap(s2, Object.keys(a)), keys = [...new Set([...Object.keys(a), ...Object.keys(b)])];
+      return keys.map(k => {
+        const x = a[k], y = b[k];
+        return {
+          key: k, name: (y || x).name, s1: x, s2: y, delta: x && y ? x.rank - y.rank : null,
+          total: (x ? x.points : 0) + (y ? y.points : 0), played: (x ? x.played : 0) + (y ? y.played : 0),
+          wins: (x ? x.wins : 0) + (y ? y.wins : 0), podiums: (x ? x.podiums : 0) + (y ? y.podiums : 0)
+        };
+      }).sort((x, y) => y.total - x.total || y.played - x.played);
+    }
+    function metric(p, key, fallback = '—') {return p ? (key === 'avgPlacement' ? p[key].toFixed(2) : p[key]) : fallback;}
+    const COMPARISON_COLUMNS = [
+      ['name', 'Player'], ['s1Rank', 'S1 rank'], ['s1Points', 'S1 pts'], ['s1Played', 'S1 played'],
+      ['s2Rank', 'S2 rank'], ['s2Points', 'S2 pts'], ['s2Played', 'S2 played'], ['delta', 'Rank change']
+    ];
+    function comparisonValue(row, key) {
+      if (key === 'name') return row.name.toLowerCase();
+      if (key === 's1Rank') return row.s1?.rank;
+      if (key === 's1Points') return row.s1?.points;
+      if (key === 's1Played') return row.s1?.played;
+      if (key === 's2Rank') return row.s2?.rank;
+      if (key === 's2Points') return row.s2?.points;
+      if (key === 's2Played') return row.s2?.played;
+      return row.delta;
+    }
+    function renderComparisonTable(rows) {
+      const host = document.getElementById('comparisonTable');
+      let state = {key: 's2Rank', dir: 'asc'};
+      const cell = (r, key) => {
+        if (key === 'name') return `<b class="player-name">${r.name}</b>`;
+        if (key === 's1Rank') return r.s1 ? '#' + r.s1.rank : '—';
+        if (key === 's1Points') return metric(r.s1, 'points');
+        if (key === 's1Played') return metric(r.s1, 'played');
+        if (key === 's2Rank') return r.s2 ? '#' + r.s2.rank : '—';
+        if (key === 's2Points') return metric(r.s2, 'points');
+        if (key === 's2Played') return metric(r.s2, 'played');
+        return `<span style="color:${r.delta > 0 ? 'var(--accent)' : r.delta < 0 ? '#fb5959' : 'var(--muted)'}">${r.delta === null ? '—' : r.delta > 0 ? '▲ ' + r.delta : r.delta < 0 ? '▼ ' + Math.abs(r.delta) : '—'}</span>`;
+      };
+      function draw() {
+        const sorted = [...rows].sort((a, b) => {
+          const av = comparisonValue(a, state.key), bv = comparisonValue(b, state.key);
+          if (av === undefined || av === null) return 1; if (bv === undefined || bv === null) return -1;
+          const result = typeof av === 'string' ? av.localeCompare(bv) : av - bv;
+          return state.dir === 'asc' ? result : -result;
+        });
+        host.innerHTML = `<div class="compare-table-wrap"><table><thead><tr>${COMPARISON_COLUMNS.map(([key, label]) => `<th data-compare-sort="${key}" class="${state.key === key ? 'sorted' : ''}" data-arrow="${state.dir === 'asc' ? '↑' : '↓'}">${label}</th>`).join('')}</tr></thead><tbody>${sorted.map(r => `<tr>${COMPARISON_COLUMNS.map(([key]) => `<td>${cell(r, key)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+        host.querySelectorAll('[data-compare-sort]').forEach(th => th.addEventListener('click', () => {const key = th.dataset.compareSort; state = {key, dir: state.key === key && state.dir === 'asc' ? 'desc' : 'asc'}; draw();}));
+      }
+      draw();
+    }
+    function renderSeasonCompare() {
+      main.innerHTML = `<div class="loader"><div class="spinner"></div> Loading Season 1 comparison…</div>`;
+      loadSeason1().then(s1 => {
+        const s2 = RAW, one = seasonStats(s1), two = seasonStats(s2), rows = comparisonRows(s1, s2);
+        const shared = rows.filter(r => r.s1 && r.s2), newcomers = rows.filter(r => !r.s1 && r.s2), departed = rows.filter(r => r.s1 && !r.s2);
+        const biggest = [...shared].sort((a, b) => (b.delta || 0) - (a.delta || 0))[0];
+        const s1Leader = one[0], s2Leader = two[0];
+        main.innerHTML = `
+      <section><div class="season-intro"><h2 class="section-title">Season 1 ↔ Season 2</h2><p>Two seasons, one evolving field. Compare player results, participation and rank movement side by side.</p></div>
+      <div class="compare-spotlight"><div class="compare-spotlight-card"><div class="kicker">Season leaders</div><b><strong>S1</strong> ${s1Leader?.name || '—'} <span style="color:var(--muted);font-size:13px;font-weight:500">${s1Leader?.points || 0} pts</span></b><b><strong>S2</strong> ${s2Leader?.name || '—'} <span style="color:var(--muted);font-size:13px;font-weight:500">${s2Leader?.points || 0} pts</span></b></div><div class="compare-spotlight-card compact"><div class="kicker">Returning</div><b>${shared.length}</b><span style="color:var(--muted);font-size:12px">players raced both</span></div></div>
+      <div class="grid cards">${statCard('Season 1', '67', 'editions · 56 registered players')}${statCard('Season 2', s2.editions.length, `editions · ${two.length} active players`)}${statCard('Biggest rank gain', biggest ? biggest.name : '—', biggest ? `▲ ${biggest.delta} · #${biggest.s1.rank} → #${biggest.s2.rank}` : 'No matched players')}</div></section>
+      <section class="panel"><h2 class="section-title">Player comparison</h2><p class="compare-hint">↑ Ascending · ↓ Descending · blank entries always remain at the bottom.</p><div id="comparisonTable"></div></section>`;
+        renderComparisonTable(rows);
+      }).catch(err => {main.innerHTML = `<div class="panel"><h2 class="section-title">Season 1 unavailable</h2><p style="color:var(--muted)">${err.message} Check that the Season 1 sheet remains published as CSV.</p></div>`;});
+    }
+    function renderAllTime() {
+      main.innerHTML = `<div class="loader"><div class="spinner"></div> Building all-time standings…</div>`;
+      loadSeason1().then(s1 => {
+        const rows = comparisonRows(s1, RAW), s1Board = seasonStats(s1).slice(0, 25), s2Board = seasonStats(RAW).slice(0, 25);
+        const mixedBoard = rows.map(r => ({name: r.name, points: r.total, played: r.played, wins: r.wins, podiums: r.podiums})).sort((a, b) => b.points - a.points || b.wins - a.wins).slice(0, 25);
+        const table = (board, label) => `<section class="panel"><h2 class="section-title">${label}</h2><div style="overflow:auto"><table class="data-table"><thead><tr><th>#</th><th>Player</th><th>Points</th><th>Played</th><th>Wins</th><th>Podiums</th></tr></thead><tbody>${board.map((p, i) => `<tr><td>${i + 1}</td><td><b>${p.name}</b></td><td style="color:var(--accent);font-weight:800">${p.points}</td><td>${p.played}</td><td>${p.wins}</td><td>${p.podiums}</td></tr>`).join('')}</tbody></table></div></section>`;
+        main.innerHTML = `<section><h2 class="section-title">Season standings</h2><p style="color:var(--muted);margin:-4px 0 18px;">Season leaderboards remain separate. The all-time table adds both seasons after alias and one-letter name matching.</p><div class="grid cards">${statCard('Season 1', s1.editions.length, 'editions')}${statCard('Season 2', RAW.editions.length, 'editions')}${statCard('Players in both', rows.filter(r => r.s1 && r.s2).length, 'after alias matching')}</div></section><div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(420px,1fr));">${table(s1Board, 'Season 1 leaderboard')}${table(s2Board, 'Season 2 leaderboard')}${table(mixedBoard, 'All-time overall')}</div>`;
+      }).catch(err => {main.innerHTML = `<div class="panel"><h2 class="section-title">All-time view unavailable</h2><p style="color:var(--muted)">${err.message}</p></div>`;});
+    }
+
+
+
+    function render() {
+      document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+      const route = currentRoute();
+      if (route.length === 0) {
+        document.querySelector('nav a[data-route="/"]').classList.add('active');
+        renderHome();
+      } else if (route[0] === 'players') {
+        document.querySelector('nav a[data-route="/players"]').classList.add('active');
+        renderPlayers();
+      } else if (route[0] === 'player' && route[1]) {
+        renderPlayerProfileEnhanced(route[1]);
+      } else if (route[0] === 'history') {
+        document.querySelector('nav a[data-route="/history"]').classList.add('active');
+        renderHistory();
+      } else if (route[0] === 'season-compare') {
+        document.querySelector('nav a[data-route="/season-compare"]').classList.add('active');
+        renderSeasonCompare();
+      } else if (route[0] === 'all-time') {
+        document.querySelector('nav a[data-route="/all-time"]').classList.add('active');
+        renderAllTime();
+      } else if (route[0] === 'edition' && route[1]) {
+        if ((route[1] === 's1' || route[1] === 's2') && route[2]) renderEditionDetail(route[2], route[1]);
+        else renderEditionDetail(route[1]);
+      } else if (route[0] === 'versus') {
+        document.querySelector('nav a[data-route="/versus"]').classList.add('active');
+        renderVersus(route[1], route[2]);
+      } else if (route[0] === 'videos') {
+        document.querySelector('nav a[data-route="/videos"]').classList.add('active');
+        renderVideos();
+      } else {
+        renderHome();
+      }
+    }
+
+    /* ============ GLOBAL SEARCH ============ */
+    const searchInput = document.getElementById('globalSearch');
+    const searchResults = document.getElementById('searchResults');
+    searchInput.addEventListener('input', () => {
+      const q = searchInput.value.trim().toLowerCase();
+      if (!q || !RAW) {searchResults.style.display = 'none'; return;}
+      const playerMatches = RAW.players.filter(n => n.toLowerCase().includes(q)).slice(0, 6);
+      const editionMatches = RAW.editions.filter(e => String(e.edition).toLowerCase().includes(q)).slice(0, 4);
+      const items = [
+        ...playerMatches.map(n => ({label: `👤 ${n}`, href: `#/player/${encodeURIComponent(n)}`})),
+        ...editionMatches.map(e => ({label: `🏁 Edition ${e.edition}`, href: `#/edition/${encodeURIComponent(e.edition)}`}))
+      ];
+      if (!items.length) {searchResults.style.display = 'none'; return;}
+      searchResults.innerHTML = items.map(it => `<div data-href="${it.href}">${it.label}</div>`).join('');
+      searchResults.style.display = 'block';
+      searchResults.querySelectorAll('div').forEach(d => {
+        d.addEventListener('click', () => {location.hash = d.dataset.href.slice(1); searchResults.style.display = 'none'; searchInput.value = '';});
+      });
+    });
+    document.addEventListener('click', e => {
+      if (!e.target.closest('.search-wrap')) searchResults.style.display = 'none';
+    });
+
+    /* ============ REFRESH ============ */
+    document.getElementById('refreshBtn').addEventListener('click', init);
+
+    /* ============ DATA SOURCE STATUS BANNER ============ */
+    let dataSourceStatus = 'live'; // 'live' | 'fallback' | 'manual'
+
+    function renderStatusBanner() {
+      const existing = document.getElementById('statusBanner');
+      if (existing) existing.remove();
+      if (dataSourceStatus === 'live') return;
+
+      const banner = document.createElement('div');
+      banner.id = 'statusBanner';
+      banner.style.cssText = `
+    max-width:1200px;margin:0 auto 20px;padding:12px 18px;border-radius:12px;
+    background:rgba(233,251,89,.08);border:1px solid rgba(233,251,89,.3);
+    display:flex;align-items:center;gap:12px;flex-wrap:wrap;font-size:13px;color:var(--text);
+  `;
+      const label = dataSourceStatus === 'fallback'
+        ? "⚠️ Couldn't reach the live sheet — showing a saved snapshot (may be out of date)."
+        : "📋 Showing manually loaded data.";
+      banner.innerHTML = `
+    <span>${label}</span>
+    <button class="refresh-btn" id="bannerRetry" style="padding:5px 10px;">↻ Retry Live</button>
+    <button class="refresh-btn" id="bannerManual" style="padding:5px 10px;">Load Newer Data</button>
+    <a href="https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:html&sheet=${encodeURIComponent(SHEET_NAME)}" target="_blank" rel="noopener" style="color:var(--accent);margin-left:auto;">Check raw sheet ↗</a>
+  `;
+      main.parentNode.insertBefore(banner, main);
+      document.getElementById('bannerRetry').addEventListener('click', init);
+      document.getElementById('bannerManual').addEventListener('click', () => renderManualPanel());
+    }
+
+    function renderManualPanel() {
+      main.innerHTML = `
+    <div class="panel" style="max-width:640px;margin:20px auto;">
+      <b style="color:var(--text);font-size:14px;">Load data manually</b>
+      <p style="color:var(--muted);font-size:13px;">Select all data in the "Editions" tab and copy it (Ctrl/Cmd+C), then paste below. Or download the tab as .csv and upload it.</p>
+      <textarea id="manualPaste" placeholder="Paste sheet data here..." style="width:100%;min-height:100px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;color:var(--text);padding:10px;font-size:12px;font-family:monospace;margin-bottom:10px;"></textarea>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+        <button class="refresh-btn" id="usePasteBtn">Use Pasted Data</button>
+        <span style="color:var(--muted);font-size:12px;">or</span>
+        <label class="refresh-btn" style="cursor:pointer;">
+          Upload CSV File
+          <input type="file" id="csvUpload" accept=".csv,.tsv,text/csv,text/tab-separated-values" style="display:none;">
+        </label>
+        <button class="export-btn" id="cancelManual">Cancel</button>
+      </div>
+      <div id="manualError" style="color:#e2585b;font-size:12px;margin-top:8px;"></div>
+    </div>
+  `;
+      document.getElementById('cancelManual').addEventListener('click', () => {render(); renderStatusBanner();});
+      document.getElementById('usePasteBtn').addEventListener('click', () => {
+        const text = document.getElementById('manualPaste').value;
+        const errEl = document.getElementById('manualError');
+        try {
+          if (!text.trim()) throw new Error('Paste some data first.');
+          RAW = parseDelimitedText(text);
+          dataSourceStatus = 'manual';
+          render(); renderStatusBanner();
+        } catch (e) {errEl.textContent = e.message;}
+      });
+      document.getElementById('csvUpload').addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          try {
+            RAW = parseDelimitedText(reader.result);
+            dataSourceStatus = 'manual';
+            render(); renderStatusBanner();
+          } catch (err2) {document.getElementById('manualError').textContent = err2.message;}
+        };
+        reader.onerror = () => {document.getElementById('manualError').textContent = 'Could not read file.';};
+        reader.readAsText(file);
+      });
+    }
+
+    /* ============ INIT ============ */
+    async function init() {
+      main.innerHTML = `<div class="loader"><div class="spinner"></div> Loading SpeedTAS data...</div>`;
+      const existingBanner = document.getElementById('statusBanner');
+      if (existingBanner) existingBanner.remove();
+      try {
+        RAW = await loadData();
+        await loadDiscordProfiles();
+        dataSourceStatus = 'live';
+        render();
+      } catch (err) {
+        console.error('Live connection failed, using fallback snapshot:', err);
+        try {
+          RAW = parseDelimitedText(FALLBACK_CSV_TEXT);
+          dataSourceStatus = 'fallback';
+          render();
+          renderStatusBanner();
+        } catch (err2) {
+          console.error(err2);
+          renderManualPanel();
+        }
+      }
+    }
+    init();
+  </script>
+
+</body>
+
+</html>
