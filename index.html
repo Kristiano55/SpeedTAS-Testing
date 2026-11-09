@@ -1605,9 +1605,12 @@
     /* The Worker's /events-index finds which tmtas.exchange event is "edition N" by reading event titles.
        EVENT_PATTERN is a regular expression matched against the event title (the title must contain "#N").
        If an edition can't be found automatically, pin it by hand: EVENT_ID_OVERRIDES.tm20 = {"5": 260}. */
-    const EVENT_PATTERN = {tmnf: 'SpeedTAS Season2', tm20: 'SpeedTAS.*(TM2020|TM20|Trackmania 2020)'};
-    const EVENT_ID_RANGE = {tmnf: [40, 300], tm20: [240, 640]};
-    const EVENT_ID_OVERRIDES = {tmnf: {}, tm20: {}};
+    const EVENT_PATTERN = {tmnf: 'SpeedTAS Season2', tm20: 'SpeedTAS TM20'}; // titles look like "SpeedTAS TM20 #4"
+    const EVENT_ID_RANGE = {tmnf: [40, 300], tm20: [200, 600]};
+    const EVENT_ID_OVERRIDES = {tmnf: {}, tm20: {"1": 229, "2": 240, "3": 251, "4": 258}}; // known events always win; later ones are found automatically
+    /* Hosts sometimes upload a competitor's run under their own name. Their entry is then handed to the competitor
+       who has no time of their own - unless the sheet shows the host competed (then it's the host's own run). */
+    const EVENT_HOSTS = {tmnf: ['Kristiano'], tm20: ['Kristiano']};
     const EVENT_INDEX = {tmnf: null, tm20: null};
     const eventPromises = {};
     const eventUrl = id => 'https://tmtas.exchange/events/' + id;
@@ -1618,7 +1621,7 @@
     }
     function loadEventIndex(game, onUpdate) {
       const proxyUrl = (SPEEDTAS_API_URL || '').replace(/\/+$/, '');
-      if (!proxyUrl) return Promise.resolve({});
+      if (!proxyUrl) return Promise.resolve({}).then(r => {if (onUpdate) onUpdate(); return r;});
       const cacheKey = 'speedtas_events_' + game;
       if (!eventPromises[game]) {
         let cached = null;
@@ -1659,16 +1662,28 @@
       const m = String(t || '').trim().match(/^(?:(\d+):)?(\d+(?:\.\d+)?)$/);
       return m ? (m[1] ? parseInt(m[1], 10) * 60 : 0) + parseFloat(m[2]) : null;
     }
-    function matchEntrantsToPlayers(entrants, names) {
+    function matchEntrantsToPlayers(entrants, names, opts = {}) {
       const byKey = {};
       names.forEach(n => byKey[playerKey(n)] = n);
-      const out = {};
+      const out = {}, leftovers = [];
       entrants.forEach(en => {
         const k = playerKey(en.entrant);
         let name = byKey[k];
         if (!name) {const close = Object.keys(byKey).filter(x => oneLetterApart(x, k)); if (close.length === 1) name = byKey[close[0]];}
-        if (name && !out[name]) out[name] = en;
+        if (name) {if (!out[name]) out[name] = en;} else leftovers.push(en);
       });
+      /* A host uploading a run for someone else shows up as the HOST's entry. If the sheet says the host did not
+         compete, that entry belongs to a competitor with no time yet: the one whose sheet placement equals the
+         entry's position, or the only competitor still without a time. */
+      const hostKeys = (opts.hosts || []).map(playerKey);
+      if (hostKeys.length && !hostKeys.some(h => byKey[h])) {
+        leftovers.filter(en => hostKeys.includes(playerKey(en.entrant))).forEach(en => {
+          const free = names.filter(n => !out[n]);
+          let pick = opts.placements ? free.filter(n => opts.placements[n] === en.pos) : [];
+          if (pick.length !== 1 && free.length === 1) pick = free;
+          if (pick.length === 1) out[pick[0]] = {...en, viaHost: stripNote(en.entrant)};
+        });
+      }
       return out;
     }
     function attachEditionEvent(ed, seasonKey) {
@@ -1683,7 +1698,7 @@
         const proxyUrl = (SPEEDTAS_API_URL || '').replace(/\/+$/, '');
         return fetch(`${proxyUrl}/event-results?id=${ev.id}`).then(r => r.ok ? r.json() : null).then(data => {
           if (!data || !data.results || !stillHere()) return;
-          const matched = matchEntrantsToPlayers(data.results, Object.keys(ed.results));
+          const matched = matchEntrantsToPlayers(data.results, Object.keys(ed.results), {placements: ed.results, hosts: EVENT_HOSTS[game]});
           const secs = Object.values(matched).map(en => parseTimeSeconds(en.time)).filter(x => x != null);
           const best = secs.length ? Math.min(...secs) : null;
           let filled = 0;
@@ -1691,7 +1706,8 @@
             const en = matched[cell.dataset.player];
             if (!en || !en.time) return;
             const t = parseTimeSeconds(en.time), gap = (t != null && best != null && t - best > 0.0001) ? `<small>+${(t - best).toFixed(2)}</small>` : '';
-            cell.innerHTML = escapeHtml(en.time) + gap; filled++;
+            const via = en.viaHost ? `<small title="Uploaded by ${escapeHtml(en.viaHost)} on this player's behalf" style="cursor:help">ⓘ</small>` : '';
+            cell.innerHTML = escapeHtml(en.time) + gap + via; filled++;
           });
           if (filled) document.querySelector('.results-table').classList.remove('no-times');
         });
@@ -1925,10 +1941,25 @@
        sent in a single request forever. Splitting into batches keeps each
        request to the Worker safely under that limit, however large the
        roster grows — it just becomes a few more sequential requests. */
+    const AVATAR_STORE_KEY = 'speedtas_discord_avatars_v1';
+    let AVATAR_RETRY_IDS = [];
+    function readAvatarStore() {
+      try {const v = JSON.parse(localStorage.getItem(AVATAR_STORE_KEY) || 'null'); if (v && v.avatars) return v;} catch (e) {}
+      return {ids: {}, avatars: {}};
+    }
+    function saveAvatarStore() {
+      try {localStorage.setItem(AVATAR_STORE_KEY, JSON.stringify({t: Date.now(), ids: DISCORD_IDS, avatars: DISCORD_AVATARS}));} catch (e) {}
+    }
+    /* Pictures from the last visit appear instantly and stay if Discord/the Worker is having a bad moment. */
+    function prefillAvatarsFromStore() {
+      const v = readAvatarStore();
+      DISCORD_IDS = {...v.ids}; DISCORD_AVATARS = {...v.avatars};
+    }
     async function fetchAvatarsInBatches(proxyUrl, ids, batchSize = 20) {
-      const avatars = {};
-      for (let i = 0; i < ids.length; i += batchSize) {
-        const batch = ids.slice(i, i + batchSize);
+      const avatars = {}, transient = new Set(), queue = [...ids];
+      let calls = 0;
+      while (queue.length && calls < 60) {
+        const batch = queue.splice(0, batchSize); calls++;
         try {
           const data = await retryAsync(async () => {
             const res = await fetch(proxyUrl + '/avatars?ids=' + encodeURIComponent(batch.join(',')));
@@ -1936,15 +1967,31 @@
             return res.json();
           });
           Object.assign(avatars, data.avatars || {});
-        } catch (err) {console.warn('Avatar batch failed after retries, continuing with the rest:', err);}
+          (data.pending || []).forEach(id => queue.push(id));            // Worker ran out of its per-request budget: ask again
+          Object.keys(data.failed || {}).forEach(id => transient.add(id)); // Discord had a temporary problem: retry later
+        } catch (err) {
+          batch.forEach(id => transient.add(id));
+          console.warn('Avatar batch failed after retries, will try again later:', err);
+        }
       }
+      AVATAR_RETRY_IDS = [...transient].filter(id => !avatars[id]);
       return avatars;
+    }
+    function scheduleAvatarRetry(proxyUrl) {
+      [4000, 12000, 30000].forEach(delay => setTimeout(async () => {
+        if (!AVATAR_RETRY_IDS.length) return;
+        const got = await fetchAvatarsInBatches(proxyUrl, [...AVATAR_RETRY_IDS]);
+        if (Object.keys(got).length) {
+          Object.assign(DISCORD_AVATARS, got); saveAvatarStore();
+          if (!/versus/.test(location.hash)) render(); // don't wipe a half-made head-to-head selection
+        }
+      }, delay));
     }
 
     async function loadDiscordProfiles() {
       try {
         const proxyUrl = (SPEEDTAS_API_URL || getAvatarProxyUrl() || '').replace(/\/+$/, '');
-        DISCORD_IDS = {};
+        DISCORD_IDS = {...DISCORD_IDS}; let freshRoster = 0; // keep last visit's IDs until the new roster arrives
         // The Worker fetches the Players tab so public browsers never have
         // to execute a Google JSONP script to build the avatar roster.
         let rosterLoaded = false;
@@ -1956,9 +2003,9 @@
               return res.json();
             });
             Object.entries(response.players || {}).forEach(([name, id]) => {
-              if (/^\d{15,25}$/.test(String(id))) DISCORD_IDS[playerKey(name)] = String(id);
+              if (/^\d{15,25}$/.test(String(id))) {DISCORD_IDS[playerKey(name)] = String(id); freshRoster++;}
             });
-            rosterLoaded = Object.keys(DISCORD_IDS).length > 0;
+            rosterLoaded = freshRoster > 0;
           } catch (err) {console.warn('Worker Players endpoint unavailable; falling back to Google Sheets.', err);}
         }
         if (!rosterLoaded) {
@@ -1973,7 +2020,10 @@
         }
         if (proxyUrl && Object.keys(DISCORD_IDS).length) {
           const ids = [...new Set(Object.values(DISCORD_IDS))];
-          DISCORD_AVATARS = await fetchAvatarsInBatches(proxyUrl, ids);
+          const fresh = await fetchAvatarsInBatches(proxyUrl, ids);
+          DISCORD_AVATARS = {...DISCORD_AVATARS, ...fresh}; // new answers win, older known-good pictures are kept
+          saveAvatarStore();
+          scheduleAvatarRetry(proxyUrl);
         }
       } catch (err) {console.warn('Discord player directory unavailable:', err);}
     }
@@ -3536,6 +3586,7 @@
     /* ============ INIT ============ */
     async function init() {
       loadAvatarOverridesCache();
+      prefillAvatarsFromStore();
       GAME = 'tmnf'; DATA.tm20 = null; // RAW below is always the TMNF data; TM2020 reloads on demand
       main.innerHTML = `<div class="loader"><div class="spinner"></div> Loading SpeedTAS data...</div>`;
       const existingBanner = document.getElementById('statusBanner');
@@ -3562,6 +3613,7 @@
           dataSourceStatus = 'fallback';
           render();
           renderStatusBanner();
+          loadDiscordProfiles().then(() => render()); // pictures don't depend on the sheet being live
         } catch (err2) {
           console.error(err2);
           renderManualPanel();
