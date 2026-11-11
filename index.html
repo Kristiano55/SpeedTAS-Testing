@@ -5,11 +5,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SpeedTAS Stats</title>
+  <meta name="color-scheme" content="dark">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&display=swap">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
   <style>
     :root {
       --accent: #e9fb59;
       --accent-rgb: 233,251,89;
+      --on-accent: #0a0a0c;
       --bg: #0a0a0c;
       --bg2: #121216;
       --card: #17171c;
@@ -21,15 +26,32 @@
       --silver: #c8c8d0;
       --bronze: #cd7f32;
       --radius: 16px;
+      --radius-sm: 10px;
+      /* Timing-board type: a condensed face for numerals and headings, system sans for reading text */
+      --font-display: 'Barlow Condensed', 'Arial Narrow', 'Roboto Condensed', system-ui, sans-serif;
+      --fs-xs: 12px;
+      --fs-sm: 13px;
+      --fs-md: 14px;
+      --fs-lg: 18px;
+      --fs-xl: 24px;
+      --fs-2xl: 34px;
+      --focus-ring: 0 0 0 2px var(--bg), 0 0 0 4px var(--accent);
+    }
+
+    /* Keyboard focus: one consistent ring everywhere (mouse clicks don't show it) */
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+    input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+    .sr-only { position:absolute; width:1px; height:1px; margin:-1px; padding:0; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; scroll-behavior: auto !important; }
+      #particles { display: none; }
     }
 
     body.game-tm20 { --accent: #59d6fb; --accent-rgb: 89,214,251; }
     .game-switch { display:inline-flex; gap:4px; padding:3px; border:1px solid var(--border); border-radius:999px; background:var(--card); }
-    .game-switch a { padding:5px 11px; border-radius:999px; font-size:13px; font-weight:700; color:var(--muted); text-decoration:none; letter-spacing:.3px; }
-    header { gap:12px !important; }
-    .search-wrap { min-width:0; }
+    .game-switch a { display:inline-flex; align-items:center; min-height:28px; padding:0 12px; border-radius:999px; font-size:13px; font-weight:700; color:var(--muted); text-decoration:none; letter-spacing:.3px; }
     .game-switch a:hover { color:var(--text); }
-    .game-switch a.active { background:var(--accent); color:#0a0a0c; }
+    .game-switch a.active { background:var(--accent); color:var(--on-accent); }
     /* TM2020 is a single running season: hide every Season 1 / Season 2 / Both picker and the TMNF-only pages */
     body.game-tm20 [data-tmnf-only], body.game-tm20 #statusBanner,
     body.game-tm20 .profile-season-tabs,
@@ -87,34 +109,40 @@
       opacity: .5;
     }
 
+    /* Header: brand | nav | tools on wide screens; nav drops to its own scrollable row below 1100px */
     header {
       position: sticky;
       top: 0;
       z-index: 20;
-      background: rgba(10, 10, 12, .85);
+      background: rgba(10, 10, 12, .92);
       backdrop-filter: blur(10px);
       border-bottom: 1px solid var(--border);
-      padding: 14px 20px;
-      display: flex;
+      padding: 0 20px;
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      grid-template-areas: "brand nav tools";
       align-items: center;
-      gap: 20px;
-      flex-wrap: wrap;
+      column-gap: 24px;
     }
 
+    .brand { grid-area: brand; display: flex; align-items: center; gap: 14px; padding: 10px 0; }
+    .tools { grid-area: tools; display: flex; align-items: center; gap: 10px; padding: 10px 0; }
+
     .logo {
+      font-family: var(--font-display);
       font-weight: 800;
-      font-size: 20px;
-      letter-spacing: .5px;
+      font-size: 28px;
+      line-height: 1;
+      letter-spacing: .2px;
       color: var(--accent);
-      text-shadow: 0 0 20px rgba(var(--accent-rgb), .4);
     }
 
     .discord-icon-link {
-      color: #5865F2;
+      color: #7983f5;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: .2s;
+      transition: color .2s;
       flex: 0 0 32px;
       line-height: 0;
       padding: 3px;
@@ -122,46 +150,67 @@
 
     .discord-icon-link svg {
       display: block;
-      width: 27px;
-      height: 27px;
+      width: 24px;
+      height: 24px;
       aspect-ratio: 1/1;
       flex: none;
     }
 
     .discord-icon-link:hover {
-      filter: brightness(1.3);
-      transform: scale(1.12);
+      color: #a3abff;
     }
 
     nav {
+      grid-area: nav;
       display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
+      gap: 2px;
+      min-width: 0;
+      overflow-x: auto;
+      scrollbar-width: none;
     }
+
+    nav::-webkit-scrollbar { display: none; }
 
     nav a {
-      padding: 8px 14px;
-      border-radius: 10px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      min-height: 52px;
+      padding: 0 13px;
       font-size: 14px;
       font-weight: 600;
+      white-space: nowrap;
       color: var(--muted);
-      transition: .2s;
+      transition: color .15s;
     }
 
-    nav a:hover,
-    nav a.active {
-      background: var(--card);
-      color: var(--accent);
+    nav a::after {
+      content: '';
+      position: absolute;
+      left: 13px;
+      right: 13px;
+      bottom: 0;
+      height: 3px;
+      border-radius: 3px 3px 0 0;
+      background: var(--accent);
+      transform: scaleX(0);
+      transition: transform .2s;
+    }
+
+    nav a:hover { color: var(--text); }
+
+    nav a.active { color: var(--text); }
+
+    nav a.active::after { transform: scaleX(1); }
+
+    /* Nine nav links plus search no longer fit one row below ~1500px, so nav gets its own row there */
+    @media (max-width: 1500px) {
+      header { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "brand tools" "nav nav"; column-gap: 12px; }
+      nav { margin: 0 -20px; padding: 0 12px; border-top: 1px solid var(--border); }
     }
 
     /* Records & rivalry hub */
-    .page-hero { position:relative; overflow:hidden; padding:28px; border:1px solid rgba(var(--accent-rgb),.28); border-radius:20px; background:linear-gradient(115deg,rgba(var(--accent-rgb),.11),rgba(89,214,251,.05) 46%,var(--card)); margin-bottom:22px; }
-    .page-hero::after { content:''; position:absolute; width:360px; height:360px; border-radius:50%; right:-160px; top:-210px; background:radial-gradient(circle,rgba(var(--accent-rgb),.2),transparent 65%); pointer-events:none; }
-    .page-hero > * { position:relative; z-index:1; }
-    .eyebrow { color:var(--accent); text-transform:uppercase; font-size:11px; font-weight:800; letter-spacing:1.3px; margin-bottom:8px; }
-    .page-hero h1 { margin:0; font-size:28px; letter-spacing:-.8px; }
-    .page-hero p { color:var(--muted); max-width:720px; line-height:1.55; font-size:14px; margin:10px 0 0; }
-    .compact-page-heading { margin:0 0 18px; }.compact-page-heading h1 { font-size:22px; margin:0; letter-spacing:-.4px; }.compact-page-heading p { color:var(--muted); font-size:13px; margin:6px 0 0; }
+    .compact-page-heading { margin:0 0 20px; }.compact-page-heading h1 { font-size:var(--fs-2xl); line-height:1.05; font-weight:800; margin:0; letter-spacing:.2px; }.compact-page-heading p { color:var(--muted); font-size:var(--fs-md); margin:8px 0 0; max-width:62ch; line-height:1.5; }
     .history-header { display:flex; align-items:end; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:16px; }.history-count{color:var(--muted);font-size:12px;padding:7px 10px;background:var(--bg2);border:1px solid var(--border);border-radius:999px}.history-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(245px,1fr));gap:14px}.history-card{height:100%;position:relative;overflow:hidden;padding:17px;border:1px solid var(--border);border-radius:16px;background:var(--card);transition:.2s}.history-card:hover{transform:translateY(-3px);border-color:rgba(var(--accent-rgb),.45);box-shadow:0 14px 28px rgba(0,0,0,.25)}.history-card::after{content:'';position:absolute;width:130px;height:130px;border-radius:50%;right:-62px;top:-72px;background:radial-gradient(circle,rgba(var(--accent-rgb),.1),transparent 68%)}.history-card-top{display:flex;align-items:center;justify-content:space-between;color:var(--muted);font-size:11px;text-transform:uppercase;font-weight:800;letter-spacing:.8px}.history-edition{font-size:23px;font-weight:900;color:var(--text);letter-spacing:-.5px;margin:16px 0 14px}.history-winner{display:flex;align-items:center;gap:9px;padding:10px;border:1px solid var(--border);border-radius:12px;background:rgba(10,10,12,.3)}.history-winner-label{color:var(--muted);font-size:10px;text-transform:uppercase;font-weight:800;letter-spacing:.7px}.history-winner-name{font-size:13px;font-weight:800;margin-top:2px}.history-stats{display:flex;gap:16px;margin-top:15px;color:var(--muted);font-size:11px}.history-stats b{color:var(--text);font-size:14px;display:block;margin-top:3px}.history-open{position:absolute;right:17px;bottom:16px;color:var(--accent);font-size:12px;font-weight:800}
     .race-header{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:16px}.race-heading{display:flex;align-items:center;gap:13px}.race-edition-mark{width:45px;height:45px;border-radius:13px;display:grid;place-items:center;background:rgba(var(--accent-rgb),.12);border:1px solid rgba(var(--accent-rgb),.28);color:var(--accent);font-weight:900;font-size:16px}.race-heading h1{font-size:22px;margin:0;letter-spacing:-.5px}.race-heading p{color:var(--muted);font-size:12px;margin:4px 0 0}.race-podium{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px}.race-podium-place{position:relative;overflow:hidden;min-height:132px;padding:16px;border:1px solid var(--border);border-radius:16px;background:var(--card)}.race-podium-place.gold{border-color:rgba(255,215,0,.45);background:linear-gradient(145deg,rgba(255,215,0,.13),var(--card) 68%)}.race-podium-place.silver{border-color:rgba(200,200,208,.3)}.race-podium-place.bronze{border-color:rgba(205,127,50,.32)}.race-place-label{color:var(--muted);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.75px}.race-podium-player{display:flex;align-items:center;gap:10px;margin-top:15px;font-weight:900}.race-podium-points{color:var(--accent);font-size:12px;font-weight:800;margin-top:10px}.results-panel{padding:12px 20px 8px}.results-panel-head{display:flex;justify-content:space-between;align-items:center;padding:4px 0 12px}.results-panel-head b{font-size:14px}.results-panel-head span{color:var(--muted);font-size:12px}.results-table tr:first-child td{background:rgba(255,215,0,.04)}.results-table td:first-child{font-weight:800}.results-table td:last-child{color:var(--accent);font-weight:800}
     .toolbar { display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin:0 0 22px; }
@@ -190,36 +239,106 @@
     .rivalry-meta { display:flex; justify-content:space-between; color:var(--muted); font-size:11px; }
     .rivalry-link { display:block; margin-top:13px; color:var(--accent); font-size:12px; font-weight:800; text-align:right; }
     .empty-state { padding:35px; border:1px dashed var(--border); border-radius:16px; color:var(--muted); text-align:center; }
-    .home-hero { position:relative; overflow:hidden; padding:28px; border:1px solid rgba(var(--accent-rgb),.25); border-radius:20px; background:linear-gradient(115deg,rgba(var(--accent-rgb),.12),rgba(89,214,251,.05) 52%,var(--card)); margin-bottom:18px; }
-    .home-hero::after { content:'⚡'; position:absolute; right:34px; top:-18px; font-size:170px; opacity:.07; color:var(--accent); transform:rotate(11deg); }
-    .home-hero h1 { margin:0; font-size:30px; letter-spacing:-1px; }.home-hero p {color:var(--muted);margin:8px 0 0;font-size:14px;}.home-hero b{color:var(--accent)}
-    .recap-grid { display:grid; grid-template-columns:1.45fr repeat(3,1fr); gap:14px; }.recap-card { position:relative; overflow:hidden; background:linear-gradient(145deg,var(--card),#141419); border:1px solid var(--border); border-radius:16px; padding:17px; min-height:142px; }.recap-card:not(.featured)::after{content:'';position:absolute;width:100px;height:100px;border-radius:50%;right:-52px;bottom:-58px;background:radial-gradient(circle,rgba(89,214,251,.1),transparent 68%)}.recap-card.featured{border-color:rgba(var(--accent-rgb),.5);background:linear-gradient(135deg,rgba(var(--accent-rgb),.16),rgba(var(--accent-rgb),.035) 48%,var(--card));}.recap-card.featured::after{content:'🏆';position:absolute;right:14px;bottom:-18px;font-size:82px;opacity:.09}.recap-kicker{position:relative;z-index:1;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.85px;font-weight:800;margin-bottom:12px}.recap-title{position:relative;z-index:1;font-size:17px;font-weight:900;line-height:1.2}.recap-detail{position:relative;z-index:1;color:var(--muted);font-size:12px;margin-top:7px;line-height:1.45}.recap-link{position:relative;z-index:1;color:var(--accent);font-size:12px;font-weight:800;display:block;margin-top:13px}.recap-winner{position:relative;z-index:1;display:flex;align-items:center;gap:10px}.recap-winner .avatar,.recap-winner img{width:38px!important;height:38px!important;font-size:13px!important;box-shadow:0 0 0 2px rgba(var(--accent-rgb),.25)}.recap-winner-points{color:var(--accent);font-size:11px;font-weight:800;margin-top:3px}.recap-podium{position:relative;z-index:1;display:grid;gap:7px}.recap-podium-row{display:flex;align-items:center;gap:7px;color:var(--text);font-size:12px;font-weight:700}.recap-podium-row .avatar,.recap-podium-row img{width:23px!important;height:23px!important;font-size:8px!important}.recap-place{width:20px;color:var(--muted);font-size:10px}.recap-move{position:relative;z-index:1;display:flex;align-items:baseline;gap:7px}.recap-move strong{font-size:25px;color:#59fba0;letter-spacing:-1px}.recap-move span{font-size:12px;color:var(--muted)}.recap-debuts{position:relative;z-index:1;display:flex;align-items:center;gap:7px;flex-wrap:wrap}.recap-debuts .avatar,.recap-debuts img{width:27px!important;height:27px!important;font-size:9px!important}
+    /* ---- Home: latest result hero, stat strip, timing-board leaderboard ---- */
+    .hero-grid { display:grid; grid-template-columns:minmax(0,1.7fr) minmax(0,1fr); gap:14px; margin-bottom:14px; }
+    .hero-grid.solo { grid-template-columns:1fr; }
+    .result-hero { padding:22px; background:var(--card); border:1px solid rgba(var(--accent-rgb),.35); border-radius:var(--radius); display:flex; flex-direction:column; gap:18px; }
+    .result-head { display:flex; justify-content:space-between; align-items:baseline; gap:12px; color:var(--muted); font-size:var(--fs-sm); }
+    .result-head b { color:var(--text); font-family:var(--font-display); font-size:var(--fs-lg); font-weight:700; }
+    .result-main { display:grid; grid-template-columns:minmax(0,1.2fr) minmax(0,1fr); gap:22px; align-items:center; }
+    .result-winner { display:flex; align-items:center; gap:16px; min-width:0; }
+    .result-winner .avatar, .result-winner img { box-shadow:0 0 0 3px var(--gold); }
+    .result-name { font-family:var(--font-display); font-size:var(--fs-2xl); line-height:1; font-weight:800; overflow-wrap:anywhere; }
+    .result-pts { margin-top:6px; color:var(--accent); font-size:var(--fs-sm); font-weight:700; }
+    .result-podium { list-style:none; margin:0; padding:0 0 0 22px; border-left:1px solid var(--border); display:grid; gap:10px; }
+    .result-podium li { display:flex; align-items:center; gap:10px; font-weight:700; font-size:var(--fs-md); min-width:0; }
+    .result-podium .place { width:26px; color:var(--muted); font-family:var(--font-display); font-size:var(--fs-lg); }
+    .result-link { align-self:flex-start; color:var(--accent); font-weight:700; font-size:var(--fs-sm); }
+    .result-link:hover { text-decoration:underline; }
+    .next-up { padding:22px; background:var(--card); border:1px solid var(--border); border-radius:var(--radius); display:flex; flex-direction:column; justify-content:center; }
+    .next-up .countdown-title { text-align:left; margin-bottom:10px; }
+    .next-up .countdown { padding:0; background:none; border:0; justify-content:flex-start; gap:18px; }
+    .next-up .countdown .unit { text-align:left; min-width:0; }
+    .next-up .countdown .num { font-family:var(--font-display); font-size:44px; line-height:1; font-weight:700; }
+    .recap-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; margin-bottom:14px; }
+    .recap-card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:16px 18px; }
+    .recap-kicker { color:var(--muted); font-size:var(--fs-sm); margin-bottom:8px; }
+    .recap-title { font-size:var(--fs-lg); font-weight:700; line-height:1.2; }
+    .recap-detail { color:var(--muted); font-size:var(--fs-xs); margin-top:6px; line-height:1.45; }
+    .recap-move { display:flex; align-items:baseline; gap:8px; }
+    .recap-move strong { font-family:var(--font-display); font-size:30px; color:#5be27f; font-weight:700; }
+    .recap-move span { font-size:var(--fs-sm); color:var(--muted); }
+    .recap-debuts { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+    .stat-strip { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); border:1px solid var(--border); border-radius:var(--radius); background:var(--card); margin-bottom:34px; overflow:hidden; }
+    .stat-strip .stat { padding:16px 18px; border-left:1px solid var(--border); min-width:0; }
+    .stat-strip .stat:first-child { border-left:0; }
+    .stat-strip .label { color:var(--muted); font-size:var(--fs-sm); margin-bottom:4px; }
+    .stat-strip .value { font-family:var(--font-display); font-size:30px; line-height:1.1; font-weight:700; color:var(--accent); font-variant-numeric:tabular-nums; overflow-wrap:anywhere; }
+    .stat-strip .value.text { font-size:var(--fs-lg); line-height:1.25; color:var(--text); font-weight:700; }
+    .stat-strip .sub { color:var(--muted); font-size:var(--fs-xs); margin-top:3px; }
+    .lb-toolbar { display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:12px; }
+    .lb-toolbar .filters { margin:0; }
+    .lb-toolbar .table-actions { margin:0; }
+    .lb-panel { padding:0; overflow:hidden; }
+    .lb-scroll { overflow-x:auto; }
+    #leaderboardTable { border-collapse:separate; border-spacing:0; }
+    #leaderboardTable th { background:var(--bg2); border-bottom:1px solid var(--border); padding:12px; }
+    #leaderboardTable td { padding:11px 12px; }
+    #leaderboardTable tbody tr:first-child td { border-top:0; }
+    #leaderboardTable .rank-cell { font-family:var(--font-display); font-size:var(--fs-lg); font-weight:700; width:60px; min-width:60px; }
+    #leaderboardTable .pts { font-family:var(--font-display); font-size:var(--fs-lg); font-weight:700; color:var(--accent); }
+    #leaderboardTable .player-cell b { font-weight:700; }
+    #leaderboardTable .player-cell a, #leaderboardTable td a { display:block; }
+    #leaderboardTable tr.p1 td:first-child { box-shadow:inset 3px 0 var(--gold); }
+    #leaderboardTable tr.p2 td:first-child { box-shadow:inset 3px 0 var(--silver); }
+    #leaderboardTable tr.p3 td:first-child { box-shadow:inset 3px 0 var(--bronze); }
+    #leaderboardTable tr.p1 .player-cell b { color:var(--gold); }
+    .move-inline { display:none; font-size:var(--fs-xs); margin-left:6px; }
+    th[aria-sort="ascending"]::after { content:' \2191'; }
+    th[aria-sort="descending"]::after { content:' \2193'; }
+    @media (max-width:900px) { .hero-grid { grid-template-columns:1fr; } .result-main { grid-template-columns:1fr; gap:16px; } .result-podium { padding:14px 0 0; border-left:0; border-top:1px solid var(--border); } }
+    @media (max-width:640px) {
+      .recap-grid { grid-template-columns:1fr; }
+      .stat-strip .stat { border-left:0; border-top:1px solid var(--border); }
+      .stat-strip .stat:first-child { border-top:0; }
+      .stat-strip { grid-template-columns:repeat(2,minmax(0,1fr)); }
+      .stat-strip .stat:nth-child(2) { border-top:0; }
+      .stat-strip .stat:nth-child(even) { border-left:1px solid var(--border); }
+      /* Phones: the movement column folds into the player cell; rank + player stay pinned while the numbers scroll */
+      #leaderboardTable th[data-key="move"], #leaderboardTable td.col-move { display:none; }
+      .move-inline { display:inline; }
+      #leaderboardTable td:nth-child(1), #leaderboardTable th:nth-child(1) { position:sticky; left:0; z-index:2; background:var(--card); }
+      #leaderboardTable td:nth-child(3), #leaderboardTable th:nth-child(3) { position:sticky; left:60px; z-index:2; background:var(--card); min-width:150px; box-shadow:1px 0 0 var(--border); }
+      #leaderboardTable th:nth-child(1), #leaderboardTable th:nth-child(3) { background:var(--bg2); }
+      #leaderboardTable td:nth-child(2), #leaderboardTable th:nth-child(2) { }
+    }
     .versus-hero { position:relative; overflow:hidden; padding:27px; border-radius:20px; border:1px solid rgba(89,214,251,.3); background:linear-gradient(110deg,rgba(89,214,251,.1),rgba(160,89,251,.08),var(--card)); margin-bottom:18px; }.versus-hero h1{font-size:28px;margin:0;letter-spacing:-.8px}.versus-hero p{font-size:13px;color:var(--muted);margin:8px 0 0}.versus-controls{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:18px}.versus-selectors{display:flex;align-items:center;gap:9px;flex-wrap:wrap}.versus-selectors select{min-width:170px}.versus-vs{color:var(--accent);font-weight:900;font-size:13px;padding:8px}.matchup-board{overflow:hidden;padding:0!important}.fighter-stage{display:grid;grid-template-columns:1fr auto 1fr;gap:16px;align-items:center;padding:25px 22px;position:relative;background:linear-gradient(100deg,rgba(89,214,251,.07),transparent 45%,rgba(160,89,251,.07))}.fighter{position:relative;z-index:1;display:flex;align-items:center;gap:12px}.fighter.right{justify-content:flex-end;text-align:right}.fighter .h2h-avatar-big{width:56px;height:56px;font-size:18px}.fighter-name{font-size:18px;font-weight:900}.fighter-sub{color:var(--muted);font-size:12px;margin-top:3px}.match-score{text-align:center;position:relative;z-index:1}.match-score .score{font-size:36px;font-weight:900;line-height:1;color:var(--accent);font-variant-numeric:tabular-nums}.match-score .caption{color:var(--muted);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;margin-top:7px}.match-meta{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}.match-meta div{text-align:center;padding:13px;color:var(--muted);font-size:11px;border-right:1px solid var(--border)}.match-meta div:last-child{border:0}.match-meta b{display:block;color:var(--text);font-size:18px;margin-top:4px}.matchup-board .h2h-stats{padding:8px 18px}.matchup-board .h2h-matchups{margin:0;padding:18px;border-top:1px solid var(--border)}
-    @media (max-width:900px) { .recap-grid{grid-template-columns:repeat(2,1fr);}.race-podium{grid-template-columns:1fr;} }
-    @media (max-width:700px) { .recap-grid{grid-template-columns:1fr;}.fighter-stage{grid-template-columns:1fr auto 1fr;gap:8px;padding:19px 12px}.fighter{flex-direction:column;gap:6px}.fighter.right{flex-direction:column-reverse}.fighter-name{font-size:13px}.fighter .h2h-avatar-big{width:44px;height:44px;font-size:14px}.match-score .score{font-size:25px}.versus-selectors select{min-width:125px;max-width:145px} }
-    @media (max-width:700px) { .page-hero { padding:21px; } .page-hero h1{font-size:24px;} .rivalry-grid{grid-template-columns:1fr;} }
+    @media (max-width:900px) { .race-podium{grid-template-columns:1fr;} }
+    @media (max-width:700px) {.fighter-stage{grid-template-columns:1fr auto 1fr;gap:8px;padding:19px 12px}.fighter{flex-direction:column;gap:6px}.fighter.right{flex-direction:column-reverse}.fighter-name{font-size:13px}.fighter .h2h-avatar-big{width:44px;height:44px;font-size:14px}.match-score .score{font-size:25px}.versus-selectors select{min-width:125px;max-width:145px} }
+    @media (max-width:700px) { .rivalry-grid{grid-template-columns:1fr;} }
 
     .search-wrap {
-      margin-left: auto;
       position: relative;
-      min-width: 200px;
+      width: 240px;
+      min-width: 0;
     }
 
     .search-wrap input {
       width: 100%;
+      min-height: 40px;
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: 10px;
       padding: 9px 14px;
       color: var(--text);
       font-size: 14px;
-      outline: none;
-      transition: .2s;
+      transition: border-color .15s;
     }
+
+    .search-wrap input::placeholder { color: var(--muted); }
 
     .search-wrap input:focus {
       border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(var(--accent-rgb), .15);
     }
 
     .search-results {
@@ -227,6 +346,7 @@
       top: calc(100% + 6px);
       left: 0;
       right: 0;
+      min-width: 240px;
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: 12px;
@@ -237,20 +357,22 @@
       z-index: 30;
     }
 
-    .search-results div {
-      padding: 10px 14px;
+    .search-results a {
+      display: block;
+      padding: 12px 14px;
       font-size: 13px;
-      cursor: pointer;
       border-bottom: 1px solid var(--border);
     }
 
-    .search-results div:last-child {
+    .search-results a:last-child {
       border-bottom: none;
     }
 
-    .search-results div:hover {
+    .search-results a:hover,
+    .search-results a:focus-visible {
       background: var(--card-hover);
       color: var(--accent);
+      outline-offset: -2px;
     }
 
     main {
@@ -276,28 +398,21 @@
       border: 1px solid var(--border);
       border-radius: var(--radius);
       padding: 18px;
-      transition: .25s;
-      animation: fadeUp .5s ease both;
-    }
-
-    .card:hover {
-      transform: translateY(-3px);
-      border-color: rgba(var(--accent-rgb), .3);
-      box-shadow: 0 8px 30px rgba(0, 0, 0, .4);
     }
 
     .card .label {
-      font-size: 12px;
+      font-size: var(--fs-sm);
       color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: .5px;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
 
     .card .value {
-      font-size: 26px;
-      font-weight: 800;
+      font-family: var(--font-display);
+      font-size: 34px;
+      line-height: 1.05;
+      font-weight: 700;
       color: var(--accent);
+      font-variant-numeric: tabular-nums;
     }
 
     .card .sub {
@@ -330,23 +445,20 @@
       }
     }
 
+    h1, h2, h3 { font-family: var(--font-display); }
+
     h2.section-title {
-      font-size: 18px;
-      margin: 0 0 14px;
+      font-size: var(--fs-xl);
+      font-weight: 700;
+      letter-spacing: .2px;
+      line-height: 1.1;
+      margin: 0 0 16px;
       color: var(--text);
-      display: flex;
-      align-items: center;
-      gap: 8px;
     }
 
-    h2.section-title::before {
-      content: '';
-      width: 4px;
-      height: 18px;
-      background: var(--accent);
-      border-radius: 2px;
-      display: inline-block;
-    }
+    /* One quiet entrance for the whole page instead of every card animating on its own */
+    main > * { animation: pageIn .25s ease both; }
+    @keyframes pageIn { from { opacity: 0; } to { opacity: 1; } }
 
     section {
       margin-bottom: 34px;
@@ -370,16 +482,17 @@
       padding: 10px 12px;
       color: var(--muted);
       font-weight: 600;
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: .4px;
-      cursor: pointer;
-      user-select: none;
+      font-size: var(--fs-xs);
       white-space: nowrap;
     }
 
-    th:hover {
-      color: var(--accent);
+    th[data-key] {
+      cursor: pointer;
+      user-select: none;
+    }
+
+    th[data-key]:hover {
+      color: var(--text);
     }
 
     th.sorted {
@@ -390,10 +503,7 @@
       padding: 10px 12px;
       border-top: 1px solid var(--border);
       white-space: nowrap;
-    }
-
-    tr.row-anim {
-      animation: fadeUp .4s ease both;
+      font-variant-numeric: tabular-nums;
     }
 
     tbody tr:hover {
@@ -419,10 +529,20 @@
       flex-shrink: 0;
     }
 
+    /* Podium marker: a small coloured disc before the rank number (replaces the medal emoji) */
     .medal {
-      font-size: 16px;
-      margin-right: 4px;
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      margin-right: 8px;
+      border-radius: 50%;
+      vertical-align: baseline;
+      background: var(--muted);
     }
+
+    .medal.m1 { background: var(--gold); }
+    .medal.m2 { background: var(--silver); }
+    .medal.m3 { background: var(--bronze); }
 
     .avatar-wrap {
       position: relative;
@@ -575,7 +695,6 @@
       display: flex;
       align-items: center;
       gap: 6px;
-      animation: pop .3s ease both;
     }
 
     .filters {
@@ -621,7 +740,6 @@
       text-align: center;
       cursor: pointer;
       transition: .2s;
-      animation: fadeUp .4s ease both;
     }
 
     .player-card:hover {
@@ -666,7 +784,6 @@
       overflow: hidden;
       cursor: pointer;
       transition: .2s;
-      animation: fadeUp .4s ease both;
     }
 
     .video-card:hover {
@@ -768,7 +885,6 @@
       padding: 16px;
       cursor: pointer;
       transition: .2s;
-      animation: fadeUp .4s ease both;
     }
 
     .edition-card:hover {
@@ -833,23 +949,11 @@
     .profile-hero {
       position: relative;
       overflow: hidden;
-      background: linear-gradient(120deg, rgba(var(--accent-rgb), .12), rgba(89, 214, 251, .06) 52%, var(--card));
-      border: 1px solid rgba(var(--accent-rgb), .25);
+      background: var(--card);
+      border: 1px solid rgba(var(--accent-rgb), .35);
       border-radius: var(--radius);
       padding: 22px;
       margin-bottom: 18px;
-    }
-
-    .profile-hero::after {
-      content: '';
-      position: absolute;
-      width: 240px;
-      height: 240px;
-      border-radius: 50%;
-      right: -100px;
-      top: -130px;
-      background: radial-gradient(circle, rgba(var(--accent-rgb), .15), transparent 68%);
-      pointer-events: none;
     }
 
     .profile-hero .profile-header {
@@ -876,7 +980,8 @@
       margin-top: 18px;
       padding: 12px 14px;
       background: rgba(10, 10, 12, .46);
-      border: 1px solid rgba(255, 215, 0, .25);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--gold);
       border-radius: 12px;
       color: var(--muted);
       font-size: 13px;
@@ -941,7 +1046,7 @@
 
     .stat-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(125px, 1fr));
       gap: 14px;
       margin-bottom: 24px;
     }
@@ -1086,7 +1191,6 @@
       gap: 10px;
       padding: 13px 8px;
       border-top: 1px solid var(--border);
-      animation: fadeUp .35s ease both;
     }
 
     .h2h-row:first-child {
@@ -1122,7 +1226,6 @@
       font-weight: 800;
       font-size: 14px;
       color: #0a0a0c;
-      animation: pop .3s ease both;
     }
 
     .h2h-summary {
@@ -1370,18 +1473,28 @@
     }
 
     @media (max-width:640px) {
+      /* Three stacked header rows would eat ~160px of every phone screen, so the header scrolls away here */
       header {
-        padding: 12px 14px;
+        position: static;
+        padding: 0 14px;
       }
 
       nav {
-        order: 3;
-        width: 100%;
+        margin: 0 -14px;
+      }
+
+      .tools {
+        padding-top: 0;
+      }
+
+      header {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-areas: "brand" "tools" "nav";
       }
 
       .search-wrap {
-        order: 2;
         flex: 1;
+        width: auto;
       }
 
       .countdown .num {
@@ -1423,16 +1536,18 @@
 <body>
   <canvas id="particles"></canvas>
   <header>
+    <div class="brand">
     <a href="https://discord.gg/CCPP9FRHdx" target="_blank" rel="noopener" class="discord-icon-link"
-      title="Join our Discord" aria-label="Join our Discord">
+      title="Join our Discord" aria-label="Join our Discord (opens in a new tab)">
       <svg viewBox="0 0 127.14 96.36" aria-hidden="true" fill="currentColor">
         <path
           d="M107.7 8.07A105.15 105.15 0 0 0 81.47 0a72.06 72.06 0 0 0-3.36 6.83 97.68 97.68 0 0 0-29 0A72.37 72.37 0 0 0 45.74 0a105.89 105.89 0 0 0-26.25 8.09C2.79 33.1-1.73 57.5.53 81.57a105.73 105.73 0 0 0 32.17 16.29 77.7 77.7 0 0 0 6.89-11.14 68.42 68.42 0 0 1-10.85-5.18c.91-.67 1.79-1.36 2.64-2.06 20.91 9.76 43.63 9.76 64.29 0 .86.7 1.74 1.39 2.64 2.06a68.68 68.68 0 0 1-10.87 5.19 77 77 0 0 0 6.89 11.13 105.25 105.25 0 0 0 32.19-16.29c2.65-27.92-4.52-52.1-18.82-73.5ZM42.45 66.89c-6.3 0-11.48-5.78-11.48-12.88s5.06-12.89 11.48-12.89 11.6 5.78 11.48 12.89c0 7.1-5.06 12.88-11.48 12.88Zm42.24 0c-6.3 0-11.48-5.78-11.48-12.88s5.06-12.89 11.48-12.89 11.6 5.78 11.48 12.89c0 7.1-5.06 12.88-11.48 12.88Z" />
       </svg>
     </a>
-    <div class="logo">⚡ SpeedTAS</div>
-    <div class="game-switch" id="gameSwitch"><a href="#/" data-game="tmnf" class="active">TMNF</a><a href="#/tm20" data-game="tm20">TM2020</a></div>
-    <nav id="nav">
+    <div class="logo">SpeedTAS</div>
+    <div class="game-switch" id="gameSwitch" role="group" aria-label="Game"><a href="#/" data-game="tmnf" class="active">TMNF</a><a href="#/tm20" data-game="tm20">TM2020</a></div>
+    </div>
+    <nav id="nav" aria-label="Main">
       <a href="#/" data-route="/">Home</a>
       <a href="#/players" data-route="/players">Players</a>
       <a href="#/history" data-route="/history">History</a>
@@ -1443,11 +1558,13 @@
       <a href="#/versus" data-route="/versus">Head-to-Head</a>
       <a href="#/videos" data-route="/videos" data-tmnf-only>Videos</a>
     </nav>
-    <div class="search-wrap">
-      <input id="globalSearch" placeholder="Search players or editions...">
-      <div class="search-results" id="searchResults" style="display:none;"></div>
+    <div class="tools">
+      <div class="search-wrap">
+        <input id="globalSearch" type="search" placeholder="Search players or editions" aria-label="Search players or editions" autocomplete="off">
+        <div class="search-results" id="searchResults" style="display:none;"></div>
+      </div>
+      <button class="refresh-btn" id="refreshBtn" type="button">↻ Refresh</button>
     </div>
-    <button class="refresh-btn" id="refreshBtn">↻ Refresh</button>
   </header>
 
   <main id="app">
@@ -1762,9 +1879,13 @@
           ctx.globalAlpha = 0.35;
           ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill();
         });
-        requestAnimationFrame(loop);
+        raf = document.hidden ? 0 : requestAnimationFrame(loop);
       }
-      loop();
+      let raf = 0;
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+      if (!reduceMotion.matches) loop();
+      // The loop stops itself while the tab is hidden; restart it (once) when the tab returns
+      document.addEventListener('visibilitychange', () => {if (!document.hidden && !raf && !reduceMotion.matches) loop();});
     })();
 
     /* ============ JSONP LOADER (avoids CORS entirely) ============
@@ -2358,10 +2479,10 @@
       const s = size || 32;
       const photo = getAvatarOverride(name);
       if (photo) {
-        return `<img src="${photo}" alt="${name}" loading="lazy" onerror="handleAvatarError(this,'${encodeURIComponent(name)}')" style="width:${s}px;height:${s}px;border-radius:50%;object-fit:cover;flex-shrink:0;display:inline-block;vertical-align:middle;">`;
+        return `<img src="${escapeHtml(photo)}" alt="${escapeHtml(name)}" loading="lazy" onerror="handleAvatarError(this,'${encodeURIComponent(name).replace(/'/g, '%27')}')" style="width:${s}px;height:${s}px;border-radius:50%;object-fit:cover;flex-shrink:0;display:inline-block;vertical-align:middle;">`;
       }
       const c = colorForName(name);
-      return `<div class="avatar" style="background:${c};${size ? `width:${size}px;height:${size}px;font-size:${size * 0.35}px;` : ''}">${initials(name)}</div>`;
+      return `<div class="avatar" style="background:${c};${size ? `width:${size}px;height:${size}px;font-size:${size * 0.35}px;` : ''}" role="img" aria-label="${escapeHtml(name)}">${escapeHtml(initials(name))}</div>`;
     }
     /* If a Discord CDN image 404s or is unreachable, swap it for the same
        colored-initials avatar avatarHTML() would have used anyway. */
@@ -2380,13 +2501,11 @@
       const bs = btnSize || Math.max(16, Math.round((size || 32) * 0.34));
       return `<div class="avatar-wrap" style="width:${size || 32}px;height:${size || 32}px;">
     ${avatarHTML(name, size)}
-    <button type="button" class="avatar-edit-btn" data-player="${encodeURIComponent(name)}" title="Change photo for ${name}" aria-label="Change photo for ${name}" style="width:${bs}px;height:${bs}px;font-size:${Math.round(bs * 0.55)}px;">📷</button>
+    <button type="button" class="avatar-edit-btn" data-player="${encodeURIComponent(name)}" title="Change photo for ${escapeHtml(name)}" aria-label="Change photo for ${escapeHtml(name)}" style="width:${bs}px;height:${bs}px;font-size:${Math.round(bs * 0.55)}px;">📷</button>
   </div>`;
     }
     function medalFor(rank) {
-      if (rank === 1) return '<span class="medal">🥇</span>';
-      if (rank === 2) return '<span class="medal">🥈</span>';
-      if (rank === 3) return '<span class="medal">🥉</span>';
+      if (rank >= 1 && rank <= 3) return `<span class="medal m${rank}" role="img" aria-label="${['Gold', 'Silver', 'Bronze'][rank - 1]}"></span>`;
       return '';
     }
     function moveIcon(m) {
@@ -2406,6 +2525,8 @@
       return parts;
     }
     window.addEventListener('hashchange', render);
+    /* A page change starts at the top (hash links to non-anchors otherwise keep the old scroll position) */
+    window.addEventListener('hashchange', () => window.scrollTo(0, 0));
 
     /* ============ RENDER: HOME ============ */
     function renderHome() {
@@ -2436,71 +2557,69 @@
 
       const sorted = sortBoard(board, sortState);
 
+      const E = escapeHtml;
+      const restPodium = latestPodium.filter(([, place]) => place > 1);
       main.innerHTML = `
-    <section>
-      <div class="compact-page-heading"><h1>${S2L()} leaderboard</h1><p>Live standings, race recaps, and the matchups everyone is watching.</p></div>
-      <div class="grid cards">
-        <div class="card" style="animation-delay:.02s"><div class="label">Editions</div><div class="value">${totalEditions}</div></div>
-        <div class="card" style="animation-delay:.05s"><div class="label">Players</div><div class="value">${totalPlayers}</div></div>
-        <div class="card" style="animation-delay:.08s"><div class="label">Podium Finishes</div><div class="value">${totalPodiums}</div></div>
-        <div class="card" style="animation-delay:.11s"><div class="label">Avg Participants</div><div class="value">${avgParticipants}</div></div>
-        <div class="card" style="animation-delay:.14s"><div class="label">Current Leader</div><div class="value" style="font-size:18px;">${leader ? leader.name : '—'}</div><div class="sub">${leader ? leader.points + ' pts' : ''}</div></div>
-        <div class="card" style="animation-delay:.17s"><div class="label">Closest Battle</div><div class="value" style="font-size:16px;">${closestPair ? closestPair[0].name + ' vs ' + closestPair[1].name : '—'}</div><div class="sub">${closestPair ? closestGap + ' pt gap' : ''}</div></div>
+    <section class="home-top">
+      <div class="compact-page-heading"><h1>${S2L()} leaderboard</h1><p>Live standings, the latest race result, and the matchups everyone is watching.</p></div>
+      <div class="hero-grid ${GAME === 'tm20' ? 'solo' : ''}">
+        <article class="result-hero" aria-label="Latest edition result">
+          <div class="result-head"><span>Latest result</span><b>${latestEdition ? 'Edition ' + E(latestEdition.edition) : 'Waiting for the first result'}</b></div>
+          <div class="result-main">
+            <div class="result-winner">${latestWinner !== '—' ? avatarHTML(latestWinner, 64) : ''}<div><div class="result-name">${E(latestWinner)}</div><div class="result-pts">${latestEdition ? 'Winner · ' + pointsFor(1) + ' points earned' : ''}</div></div></div>
+            <ol class="result-podium">${restPodium.map(([name, place]) => `<li><span class="place">${place === 2 ? '2nd' : '3rd'}</span>${avatarHTML(name, 28)}<span>${E(name)}</span></li>`).join('') || '<li class="recap-detail">Results pending</li>'}</ol>
+          </div>
+          ${latestEdition ? `<a class="result-link" href="#/edition/${encodeURIComponent(latestEdition.edition)}">View full results →</a>` : ''}
+        </article>
+        ${GAME === 'tm20' ? '' : `<aside class="next-up" aria-label="Next edition">
+          <div class="countdown-title">Next SpeedTAS starts in</div>
+          <div class="countdown" id="countdown"></div>
+        </aside>`}
       </div>
-    </section>
-
-    <section>
-      <div style="display:flex;align-items:end;justify-content:space-between;gap:12px;margin-bottom:14px"><h2 class="section-title" style="margin:0">Last edition recap</h2><span style="color:var(--muted);font-size:12px">${latestEdition ? 'Edition ' + latestEdition.edition : 'Waiting for the first result'}</span></div>
       <div class="recap-grid">
-        <div class="recap-card featured"><div class="recap-kicker">🏆 Edition winner</div><div class="recap-winner">${latestWinner !== '—' ? avatarHTML(latestWinner, 38) : ''}<div><div class="recap-title">${latestWinner}</div><div class="recap-winner-points">${latestEdition ? pointsFor(1) + ' points earned' : ''}</div></div></div><div class="recap-detail">Took the top spot in the latest SpeedTAS edition.</div>${latestEdition ? `<a class="recap-link" href="#/edition/${encodeURIComponent(latestEdition.edition)}">View full results →</a>` : ''}</div>
-        <div class="recap-card"><div class="recap-kicker">🥈 Rest of the podium</div><div class="recap-podium">${latestPodium.filter(([, place]) => place > 1).map(([name, place]) => `<div class="recap-podium-row"><span class="recap-place">${place === 2 ? '2ND' : '3RD'}</span>${avatarHTML(name, 23)}<span>${name}</span></div>`).join('') || '<div class="recap-detail">Results pending</div>'}</div><div class="recap-detail">The racers who rounded out the top three.</div></div>
-        <div class="recap-card"><div class="recap-kicker">🚀 Biggest climber</div>${climber ? `<div class="recap-move"><strong>▲ ${climber.movement}</strong><span>places gained</span></div><div class="recap-title" style="margin-top:8px">${climber.name}</div><div class="recap-detail">Best rank movement after Edition ${latestEdition?.edition || '—'}.</div>` : '<div class="recap-title">No movement yet</div><div class="recap-detail">Rank shifts appear after another edition.</div>'}</div>
-        <div class="recap-card"><div class="recap-kicker">✨ First-timers</div>${debutants.length ? `<div class="recap-debuts">${debutants.slice(0, 4).map(name => avatarHTML(name, 27)).join('')}<span class="recap-title" style="font-size:14px">${debutants.join(', ')}</span></div><div class="recap-detail">Welcome to the SpeedTAS grid.</div>` : '<div class="recap-title">No debuts</div><div class="recap-detail">Every racer had already competed before.</div>'}</div>
+        <div class="recap-card"><div class="recap-kicker">Biggest climber</div>${climber ? `<div class="recap-move"><strong>▲ ${climber.movement}</strong><span>places gained</span></div><div class="recap-title" style="margin-top:6px">${E(climber.name)}</div><div class="recap-detail">Best rank movement after Edition ${E(latestEdition?.edition || '—')}.</div>` : '<div class="recap-title">No movement yet</div><div class="recap-detail">Rank shifts appear after another edition.</div>'}</div>
+        <div class="recap-card"><div class="recap-kicker">First-timers</div>${debutants.length ? `<div class="recap-debuts">${debutants.slice(0, 4).map(name => avatarHTML(name, 28)).join('')}<span class="recap-title" style="font-size:var(--fs-md)">${debutants.map(E).join(', ')}</span></div><div class="recap-detail">Welcome to the SpeedTAS grid.</div>` : '<div class="recap-title">No debuts</div><div class="recap-detail">Every racer had already competed before.</div>'}</div>
       </div>
-    </section>
-
-    ${GAME === 'tm20' ? '' : `<section>
-      <div class="countdown-title">Next SpeedTAS starts in</div>
-      <div class="countdown" id="countdown"></div>
-    </section>`}
-
-    <section>
-      <h2 class="section-title">Top 6 Players — Progress</h2>
-      <div class="panel">
-        <div class="chart-box"><canvas id="progressChart"></canvas></div>
+      <div class="stat-strip" role="list">
+        <div class="stat" role="listitem"><div class="label">Editions</div><div class="value">${totalEditions}</div></div>
+        <div class="stat" role="listitem"><div class="label">Players</div><div class="value">${totalPlayers}</div></div>
+        <div class="stat" role="listitem"><div class="label">Podium finishes</div><div class="value">${totalPodiums}</div></div>
+        <div class="stat" role="listitem"><div class="label">Avg participants</div><div class="value">${avgParticipants}</div></div>
+        <div class="stat" role="listitem"><div class="label">Current leader</div><div class="value text">${leader ? E(leader.name) : '—'}</div><div class="sub">${leader ? leader.points + ' pts' : ''}</div></div>
+        <div class="stat" role="listitem"><div class="label">Closest battle</div><div class="value text">${closestPair ? E(closestPair[0].name) + ' vs ' + E(closestPair[1].name) : '—'}</div><div class="sub">${closestPair ? closestGap + ' pt gap' : ''}</div></div>
       </div>
     </section>
 
     <section>
-      <h2 class="section-title">Overall Leaderboard</h2>
-      <div class="filters">
-        <button class="filter-btn ${leaderboardFilter === 'all' ? 'active' : ''}" data-filter="all">All Time</button>
-        <button class="filter-btn ${leaderboardFilter === '10' ? 'active' : ''}" data-filter="10">Last 10</button>
-        <button class="filter-btn ${leaderboardFilter === '25' ? 'active' : ''}" data-filter="25">Last 25</button>
-      </div>
-      <div class="panel">
-        <div class="table-actions">
-          <button class="export-btn" id="exportCsv">Export CSV</button>
+      <h2 class="section-title">Overall leaderboard</h2>
+      <div class="lb-toolbar">
+        <div class="filters" role="group" aria-label="Leaderboard range">
+          <button type="button" class="filter-btn ${leaderboardFilter === 'all' ? 'active' : ''}" data-filter="all" aria-pressed="${leaderboardFilter === 'all'}">All time</button>
+          <button type="button" class="filter-btn ${leaderboardFilter === '10' ? 'active' : ''}" data-filter="10" aria-pressed="${leaderboardFilter === '10'}">Last 10</button>
+          <button type="button" class="filter-btn ${leaderboardFilter === '25' ? 'active' : ''}" data-filter="25" aria-pressed="${leaderboardFilter === '25'}">Last 25</button>
         </div>
-        <div style="overflow-x:auto;">
+        <div class="table-actions"><button type="button" class="export-btn" id="exportCsv">Export CSV</button></div>
+      </div>
+      <div class="panel lb-panel">
+        <div class="lb-scroll">
           <table id="leaderboardTable">
             <thead><tr>
               <th data-key="rank">Rank</th>
-              <th data-key="move"> </th>
+              <th data-key="move"><span class="sr-only">Movement</span></th>
               <th data-key="name">Player</th>
-              <th data-key="points">Total Points</th>
+              <th data-key="points">Total points</th>
               <th data-key="wins">Wins</th>
               <th data-key="podiums">Podiums</th>
-              <th data-key="avgPlacement">Avg Placement</th>
-              <th data-key="played">Editions Played</th>
+              <th data-key="avgPlacement">Avg placement</th>
+              <th data-key="played">Editions played</th>
             </tr></thead>
             <tbody>
-              ${sorted.map((p, i) => `
-                <tr class="row-anim" style="animation-delay:${i * 0.02}s">
-                  <td>${medalFor(p.rank)}${p.rank}</td>
-                  <td>${moveIcon(p.movement || 0)}</td>
-                  <td><a href="#/player/${encodeURIComponent(p.name)}"><div class="player-cell">${avatarHTML(p.name)}<b>${p.name}</b></div></a></td>
-                  <td><b style="color:var(--accent)">${p.points}</b></td>
+              ${sorted.map(p => `
+                <tr class="${p.rank <= 3 ? 'p' + p.rank : ''}">
+                  <td class="rank-cell">${medalFor(p.rank)}${p.rank}</td>
+                  <td class="col-move">${moveIcon(p.movement || 0)}</td>
+                  <td><a href="#/player/${encodeURIComponent(p.name)}"><div class="player-cell">${avatarHTML(p.name)}<b>${E(p.name)}</b><span class="move-inline">${moveIcon(p.movement || 0)}</span></div></a></td>
+                  <td class="pts">${p.points}</td>
                   <td>${p.wins}</td>
                   <td>${p.podiums}</td>
                   <td>${p.avgPlacement ? p.avgPlacement.toFixed(2) : '—'}</td>
@@ -2510,6 +2629,13 @@
             </tbody>
           </table>
         </div>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="section-title">Top 6 players: progress</h2>
+      <div class="panel">
+        <div class="chart-box" role="img" aria-label="Line chart of cumulative points for the top six players across editions"><canvas id="progressChart"></canvas></div>
       </div>
     </section>
   `;
@@ -2542,12 +2668,22 @@
 
     function setupSortableTable(board) {
       document.querySelectorAll('#leaderboardTable th[data-key]').forEach(th => {
-        if (th.dataset.key === sortState.key) th.classList.add('sorted');
-        th.addEventListener('click', () => {
+        const sortBy = () => {
           if (sortState.key === th.dataset.key) sortState.dir = sortState.dir === 'asc' ? 'desc' : 'asc';
           else {sortState.key = th.dataset.key; sortState.dir = 'desc';}
+          const key = th.dataset.key;
           renderHome();
-        });
+          // renderHome rebuilds the table, so hand keyboard focus back to the header that was used
+          const again = document.querySelector(`#leaderboardTable th[data-key="${key}"]`); if (again) again.focus();
+        };
+        if (th.dataset.key === sortState.key) {
+          th.classList.add('sorted');
+          th.setAttribute('aria-sort', sortState.dir === 'asc' ? 'ascending' : 'descending');
+        }
+        // Headers are keyboard-operable: Tab to focus, Enter or Space to sort
+        th.tabIndex = 0;
+        th.addEventListener('click', sortBy);
+        th.addEventListener('keydown', e => {if (e.key === 'Enter' || e.key === ' ') {e.preventDefault(); sortBy();}});
       });
     }
 
@@ -2598,7 +2734,7 @@
         const diff = target.getTime() - Date.now();
         const el = document.getElementById('countdown');
         if (!el) {clearInterval(countdownTimer); return;}
-        if (diff <= 0) {el.innerHTML = '<div class="unit"><div class="num">🎉</div><div class="unit-label">Live now!</div></div>'; return;}
+        if (diff <= 0) {el.innerHTML = '<div class="unit"><div class="num">Live</div><div class="unit-label">The edition is running now</div></div>'; return;}
         const days = Math.floor(diff / 86400000);
         const hours = Math.floor((diff % 86400000) / 3600000);
         const mins = Math.floor((diff % 3600000) / 60000);
@@ -2810,7 +2946,7 @@
       const color = colorForName(profileName), podiumCopy = p.podiums ? `${p.podiums} podium${p.podiums === 1 ? '' : 's'} · ${(p.podiumRate * 100).toFixed(0)}% podium rate` : 'No podium finish recorded yet';
       main.innerHTML = `
     <div class="breadcrumb"><a href="#/players">Players</a> / ${profileName}</div>
-    <section class="profile-hero"><div class="profile-header">${avatarHTML(profileName, 72)}<div><h1>${profileName}</h1><div class="rank-tag">${seasonLabel} · ${rankLabel} #${p.rank ?? '—'}</div></div></div>${profileTabs(seasonKey)}<div class="podium-banner"><div class="podium-icon">🏆</div><div><strong>${p.podiums ? 'Podium contender' : 'Building the record'}</strong>${podiumCopy} · ${p.wins} win${p.wins === 1 ? '' : 's'}</div></div></section>
+    <section class="profile-hero"><div class="profile-header">${avatarHTML(profileName, 72)}<div><h1>${profileName}</h1><div class="rank-tag">${seasonLabel} · ${rankLabel} #${p.rank ?? '—'}</div></div></div>${profileTabs(seasonKey)}<div class="podium-banner"><div><strong>${p.podiums ? 'Podium contender' : 'Building the record'}</strong>${podiumCopy} · ${p.wins} win${p.wins === 1 ? '' : 's'}</div></div></section>
     <div class="stat-grid"><div class="card"><div class="label">Total Points</div><div class="value">${p.points}</div></div><div class="card"><div class="label">Editions Played</div><div class="value">${p.played}</div></div><div class="card profile-stat-emphasis"><div class="label">Podiums</div><div class="value">${p.podiums}</div></div><div class="card"><div class="label">Wins</div><div class="value">${p.wins}</div></div><div class="card"><div class="label">Avg Placement</div><div class="value">${p.avgPlacement.toFixed(2)}</div></div><div class="card"><div class="label">Best / Worst</div><div class="value" style="font-size:20px;">${p.best} / ${p.worst}</div></div><div class="card"><div class="label">Win Rate</div><div class="value">${(p.winRate * 100).toFixed(0)}%</div></div><div class="card"><div class="label">Podium Rate</div><div class="value">${(p.podiumRate * 100).toFixed(0)}%</div></div></div>
     <section><h2 class="section-title">Performance</h2><div class="grid" style="grid-template-columns:1fr;gap:16px;"><div class="panel"><div style="font-size:13px;color:var(--muted);margin-bottom:8px;">Placement over time</div><div class="chart-box" style="height:250px;"><canvas id="chartPlacement"></canvas></div></div><div class="panel"><div style="font-size:13px;color:var(--muted);margin-bottom:8px;">Cumulative points</div><div class="chart-box" style="height:250px;"><canvas id="chartCumulative"></canvas></div></div></div></section>
     <section><h2 class="section-title">Placement History</h2><div class="panel" style="overflow:auto;"><table><thead><tr><th>Edition</th><th>Placement</th><th>Points</th></tr></thead><tbody>${history.map(h => `<tr><td>${h.edition}</td><td>${h.placement <= 3 ? medalFor(h.placement) : ''}${h.placement}</td><td style="color:var(--accent);font-weight:700">${h.points}</td></tr>`).join('')}</tbody></table></div></section>`;
@@ -3395,14 +3531,21 @@
       loadSeason1().then(s1 => {
         const s1Ranked = seasonStats(s1), s2Ranked = seasonStats(RAW), rows = comparisonRows(s1Ranked, s2Ranked), s1Board = s1Ranked.slice(0, 25), s2Board = s2Ranked.slice(0, 25);
         const mixedBoard = rows.map(r => ({name: r.name, points: r.total, played: r.played, wins: r.wins, podiums: r.podiums})).sort((a, b) => b.points - a.points || b.wins - a.wins).slice(0, 25);
-        const table = (board, label) => `<section class="panel"><h2 class="section-title">${label}</h2><div style="overflow:auto"><table class="data-table"><thead><tr><th>#</th><th>Player</th><th>Points</th><th>Played</th><th>Wins</th><th>Podiums</th></tr></thead><tbody>${board.map((p, i) => `<tr><td>${i + 1}</td><td><b>${p.name}</b></td><td style="color:var(--accent);font-weight:800">${p.points}</td><td>${p.played}</td><td>${p.wins}</td><td>${p.podiums}</td></tr>`).join('')}</tbody></table></div></section>`;
-        main.innerHTML = `<section><h2 class="section-title">Season standings</h2><p style="color:var(--muted);margin:-4px 0 18px;">Season leaderboards remain separate. The all-time table adds both seasons after alias and one-letter name matching.</p><div class="grid cards">${statCard('Season 1', s1.editions.length, 'editions')}${statCard(S2L(), RAW.editions.length, 'editions')}${statCard('Players in both', rows.filter(r => r.s1 && r.s2).length, 'after alias matching')}</div></section><div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(420px,1fr));">${table(s1Board, 'Season 1 leaderboard')}${table(s2Board, 'Season 2 leaderboard')}${table(mixedBoard, 'All-time overall')}</div>`;
+        const table = (board, label) => `<section class="panel"><h2 class="section-title">${label}</h2><div style="overflow:auto"><table class="data-table"><thead><tr><th>#</th><th>Player</th><th>Points</th><th>Played</th><th>Wins</th><th>Podiums</th></tr></thead><tbody>${board.map((p, i) => `<tr><td>${i + 1}</td><td><b>${escapeHtml(p.name)}</b></td><td style="color:var(--accent);font-weight:800">${p.points}</td><td>${p.played}</td><td>${p.wins}</td><td>${p.podiums}</td></tr>`).join('')}</tbody></table></div></section>`;
+        main.innerHTML = `<section><h2 class="section-title">Season standings</h2><p style="color:var(--muted);margin:-4px 0 18px;">Season leaderboards remain separate. The all-time table adds both seasons after alias and one-letter name matching.</p><div class="grid cards">${statCard('Season 1', s1.editions.length, 'editions')}${statCard(S2L(), RAW.editions.length, 'editions')}${statCard('Players in both', rows.filter(r => r.s1 && r.s2).length, 'after alias matching')}</div></section><div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(min(420px,100%),1fr));">${table(s1Board, 'Season 1 leaderboard')}${table(s2Board, 'Season 2 leaderboard')}${table(mixedBoard, 'All-time overall')}</div>`;
       }).catch(err => {main.innerHTML = `<div class="panel"><h2 class="section-title">All-time view unavailable</h2><p style="color:var(--muted)">${err.message}</p></div>`;});
     }
 
 
 
+    /* Wrapper keeps the nav's aria-current in step with its .active class after every route render */
     function render() {
+      renderRoute();
+      document.querySelectorAll('#nav a').forEach(a => {
+        if (a.classList.contains('active')) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
+      });
+    }
+    function renderRoute() {
       document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
       const route = currentRoute();
       if (ROUTE_GAME === 'tm20' && !DATA.tm20) {
@@ -3491,16 +3634,27 @@
         ...playerMatches.map(n => {
           const key = playerKey(n);
           const season = s2Keys.has(key) && s1Keys.has(key) ? 'all' : (s1Keys.has(key) ? 's1' : 's2');
-          return {label: `👤 ${n}`, href: `${GAME === 'tm20' ? '#/tm20' : '#'}/player/${season}/${encodeURIComponent(n)}`};
+          return {label: `Player · ${n}`, href: `${GAME === 'tm20' ? '#/tm20' : '#'}/player/${season}/${encodeURIComponent(n)}`};
         }),
-        ...editionMatches.map(e => ({label: `🏁 Edition ${e.edition} (${e.season === 's1' ? 'S1' : (GAME === 'tm20' ? 'TM20' : 'S2')})`, href: `${GAME === 'tm20' ? '#/tm20' : '#'}/edition/${e.season}/${encodeURIComponent(e.edition)}`}))
+        ...editionMatches.map(e => ({label: `Edition ${e.edition} (${e.season === 's1' ? 'S1' : (GAME === 'tm20' ? 'TM20' : 'S2')})`, href: `${GAME === 'tm20' ? '#/tm20' : '#'}/edition/${e.season}/${encodeURIComponent(e.edition)}`}))
       ];
       if (!items.length) {searchResults.style.display = 'none'; return;}
-      searchResults.innerHTML = items.map(it => `<div data-href="${it.href}">${it.label}</div>`).join('');
+      // Real links: keyboard reachable (Tab / Enter), open with the normal hash navigation
+      searchResults.innerHTML = items.map(it => `<a href="${it.href}">${escapeHtml(it.label)}</a>`).join('');
       searchResults.style.display = 'block';
-      searchResults.querySelectorAll('div').forEach(d => {
-        d.addEventListener('click', () => {location.hash = d.dataset.href.slice(1); searchResults.style.display = 'none'; searchInput.value = '';});
+      searchResults.querySelectorAll('a').forEach(a => {
+        a.addEventListener('click', () => {searchResults.style.display = 'none'; searchInput.value = '';});
       });
+    });
+    searchInput.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {searchResults.style.display = 'none';}
+      else if (e.key === 'ArrowDown') {const first = searchResults.querySelector('a'); if (first && searchResults.style.display !== 'none') {e.preventDefault(); first.focus();}}
+    });
+    searchResults.addEventListener('keydown', e => {
+      const links = [...searchResults.querySelectorAll('a')], i = links.indexOf(document.activeElement);
+      if (e.key === 'ArrowDown' && i < links.length - 1) {e.preventDefault(); links[i + 1].focus();}
+      else if (e.key === 'ArrowUp') {e.preventDefault(); (i > 0 ? links[i - 1] : searchInput).focus();}
+      else if (e.key === 'Escape') {searchResults.style.display = 'none'; searchInput.focus();}
     });
     document.addEventListener('click', e => {
       if (!e.target.closest('.search-wrap')) searchResults.style.display = 'none';
