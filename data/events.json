@@ -1,0 +1,2558 @@
+{
+ "s2": {
+  "1": {
+   "id": 40,
+   "title": "SpeedTAS Season2 #1",
+   "results": [
+    {
+     "pos": 1,
+     "entrant": "_vogtek_",
+     "time": "15.40"
+    },
+    {
+     "pos": 2,
+     "entrant": "Sneak",
+     "time": "15.70"
+    },
+    {
+     "pos": 3,
+     "entrant": "charliethepig",
+     "time": "15.76"
+    },
+    {
+     "pos": 4,
+     "entrant": "Magon_777",
+     "time": "15.84"
+    },
+    {
+     "pos": 5,
+     "entrant": "exix77",
+     "time": "15.91"
+    },
+    {
+     "pos": 6,
+     "entrant": "Leva",
+     "time": "16.06"
+    },
+    {
+     "pos": 7,
+     "entrant": "C45TXR",
+     "time": "16.06"
+    },
+    {
+     "pos": 8,
+     "entrant": "Elliott",
+     "time": "16.09"
+    },
+    {
+     "pos": 9,
+     "entrant": "GalaxyM",
+     "time": "16.34"
+    },
+    {
+     "pos": 10,
+     "entrant": "skycrafter",
+     "time": "16.55"
+    },
+    {
+     "pos": 11,
+     "entrant": "mufattmf",
+     "time": "16.58"
+    },
+    {
+     "pos": 12,
+     "entrant": "vaelyne",
+     "time": "16.70"
+    },
+    {
+     "pos": 13,
+     "entrant": "Fabi",
+     "time": "17.01"
+    },
+    {
+     "pos": 14,
+     "entrant": "Kristiano",
+     "time": "17.11"
+    },
+    {
+     "pos": 15,
+     "entrant": "DELETE_CLUB",
+     "time": "17.32"
+    },
+    {
+     "pos": 16,
+     "entrant": "CrayHax",
+     "time": "17.69"
+    },
+    {
+     "pos": 17,
+     "entrant": "Thoman",
+     "time": "26.87"
+    }
+   ],
+   "checks": 1
+  },
+  "2": {
+   "id": 41,
+   "title": "SpeedTAS Season2 #2",
+   "results": [
+    {
+     "pos": 1,
+     "entrant": "Thoman",
+     "time": "10.29"
+    },
+    {
+     "pos": 2,
+     "entrant": "charliethepig",
+     "time": "10.35"
+    },
+    {
+     "pos": 3,
+     "entrant": "skycrafter",
+     "time": "10.42"
+    },
+    {
+     "pos": 4,
+     "entrant": "vogtek",
+     "time": "13.59"
+    },
+    {
+     "pos": 5,
+     "entrant": "Bedeux",
+     "time": "13.67"
+    },
+    {
+     "pos": 6,
+     "entrant": "Leva",
+     "time": "13.97"
+    },
+    {
+     "pos": 7,
+     "entrant": "QQ_kewkew",
+     "time": "14.04"
+    },
+    {
+     "pos": 8,
+     "entrant": "C45TXR",
+     "time": "14.16"
+    },
+    {
+     "pos": 9,
+     "entrant": "Magon_777",
+     "time": "14.33"
+    },
+    {
+     "pos": 10,
+     "entrant": "Sneak",
+     "time": "16.16"
+    }
+   ],
+   "checks": 1
+  },
+  "3": {
+   "id": 42,
+   "title": "SpeedTAS Season2 #3",
+   "results": [
+    {
+     "pos": 1,
+     "entrant": "skycrafter",
+     "time": "11.95"
+    },
+    {
+     "pos": 2,
+     "entrant": "mufattmf",
+     "time": "12.51"
+    },
+    {
+     "pos": 3,
+     "entrant": "Thoman",
+     "time": "12.88"
+    },
+    {
+     "pos": 4,
+     "entrant": "vogtek",
+     "time": "12.92"
+    },
+    {
+     "pos": 5,
+     "entrant": "Rio",
+     "time": "13.07"
+    },
+    {
+     "pos": 6,
+     "entrant": "C45TXR",
+     "time": "13.20"
+    },
+    {
+     "pos": 7,
+     "entrant": "igntuL",
+     "time": "13.52"
+    },
+    {
+     "pos": 8,
+     "entrant": "Kristiano",
+     "time": "14.01"
+    },
+    {
+     "pos": 9,
+     "entrant": "QQ_kewkew",
+     "time": "14.19"
+    },
+    {
+     "pos": 10,
+     "entrant": "Elliott",
+     "time": "14.25"
+    },
+    {
+     "pos": 11,
+     "entrant": "exix77",
+     "time": "14.60"
+    },
+    {
+     "pos": 12,
+     "entrant": "Sneak",
+     "time": "15.20"
+    },
+    {
+     "pos": 13,
+     "entrant": "vaelyne",
+     "time": "15.35"
+    }
+   ],
+   "checks": 1
+  },
+  "4": {
+   "id": 44,
+   "title": "SpeedTAS Season2 #4",
+   "results": [
+    {
+     "pos": 1,
+     "entrant": "skycrafter",
+     "time": "16.08"
+    },
+    {
+     "pos": 2,
+     "entrant": "mufattmf",
+     "time": "17.96"
+    },
+    {
+     "pos": 3,
+     "entrant": "Thoman",
+     "time": "20.00"
+    },
+    {
+     "pos": 4,
+     "entrant": "charliethepig",
+     "time": "21.07"
+    },
+    {
+     "pos": 5,
+     "entrant": "vogtek",
+     "time": "21.42"
+    },
+    {
+     "pos": 6,
+     "entrant": "Magon_777",
+     "time": "22.08"
+    },
+    {
+     "pos": 7,
+     "entrant": "QQ_kewkew",
+     "time": "22.55"
+    },
+    {
+     "pos": 8,
+     "entrant": "Fabi",
+     "time": "22.60"
+    },
+    {
+     "pos": 9,
+     "entrant": "Elliott",
+     "time": "22.97"
+    },
+    {
+     "pos": 10,
+     "entrant": "Bedeux",
+     "time": "24.46"
+    }
+   ],
+   "checks": 1
+  },
+  "5": {
+   "id": 45,
+   "title": "SpeedTAS Season2 #5",
+   "results": [
+    {
+     "pos": 749,
+     "entrant": "Hidden",
+     "time": "7 February 2026 at 19:01"
+    },
+    {
+     "pos": 77,
+     "entrant": "Hidden",
+     "time": "7 February 2026 at 18:59"
+    },
+    {
+     "pos": 74,
+     "entrant": "Hidden",
+     "time": "7 February 2026 at 18:57"
+    }
+   ],
+   "checks": 1
+  },
+  "6": {
+   "id": 46,
+   "title": "SpeedTAS Season2 #6",
+   "results": [
+    {
+     "pos": 1,
+     "entrant": "mufattmf",
+     "time": "14.33"
+    },
+    {
+     "pos": 2,
+     "entrant": "vogtek",
+     "time": "14.42"
+    },
+    {
+     "pos": 3,
+     "entrant": "charliethepig",
+     "time": "14.54"
+    },
+    {
+     "pos": 4,
+     "entrant": "Sneak",
+     "time": "14.74"
+    },
+    {
+     "pos": 5,
+     "entrant": "QQ_kewkew",
+     "time": "15.98"
+    },
+    {
+     "pos": 6,
+     "entrant": "Fabi",
+     "time": "16.81"
+    },
+    {
+     "pos": 7,
+     "entrant": "Bedeux",
+     "time": "16.85"
+    }
+   ],
+   "checks": 1
+  },
+  "7": {
+   "id": 47,
+   "title": "SpeedTAS Season2 #7",
+   "results": [
+    {
+     "pos": 1,
+     "entrant": "Thoman",
+     "time": "13.37"
+    },
+    {
+     "pos": 2,
+     "entrant": "skycrafter",
+     "time": "13.68"
+    },
+    {
+     "pos": 3,
+     "entrant": "Sneak",
+     "time": "14.42"
+    },
+    {
+     "pos": 4,
+     "entrant": "CrayHax",
+     "time": "14.69"
+    },
+    {
+     "pos": 5,
+     "entrant": "vogtek",
+     "time": "14.81"
+    },
+    {
+     "pos": 6,
+     "entrant": "C45TXR",
+     "time": "15.67"
+    },
+    {
+     "pos": 7,
+     "entrant": "charliethepig",
+     "time": "15.77"
+    },
+    {
+     "pos": 8,
+     "entrant": "exix77",
+     "time": "16.05"
+    },
+    {
+     "pos": 9,
+     "entrant": "Elliott",
+     "time": "16.48"
+    },
+    {
+     "pos": 10,
+     "entrant": "naiCou",
+     "time": "16.49"
+    },
+    {
+     "pos": 11,
+     "entrant": "Fabi",
+     "time": "16.62"
+    },
+    {
+     "pos": 12,
+     "entrant": "Oogy749",
+     "time": "22.22"
+    }
+   ],
+   "checks": 1
+  },
+  "8": {
+   "id": 49,
+   "title": "SpeedTAS Season2 #8",
+   "results": [
+    {
+     "pos": 1,
+     "entrant": "Thoman",
+     "time": "16.61"
+    },
+    {
+     "pos": 2,
+     "entrant": "Rio",
+     "time": "16.71"
+    },
+    {
+     "pos": 3,
+     "entrant": "skycrafter",
+     "time": "16.80"
+    },
+    {
+     "pos": 4,
+     "entrant": "Sneak",
+     "time": "16.93"
+    },
+    {
+     "pos": 5,
+     "entrant": "C45TXR",
+     "time": "17.06"
+    },
+    {
+     "pos": 6,
+     "entrant": "CrayHax",
+     "time": "17.15"
+    },
+    {
+     "pos": 7,
+     "entrant": "Magon_777",
+     "time": "17.68"
+    },
+    {
+     "pos": 8,
+     "entrant": "vaelyne",
+     "time": "17.76"
+    },
+    {
+     "pos": 9,
+     "entrant": "QQ_kewkew",
+     "time": "22.52"
+    }
+   ],
+   "checks": 1
+  },
+  "9": {
+   "id": 50,
+   "title": "SpeedTAS Season2 #9",
+   "results": [
+    {
+     "pos": 1,
+     "entrant": "Sneak",
+     "time": "13.87"
+    },
+    {
+     "pos": 2,
+     "entrant": "Oogy749",
+     "time": "13.94"
+    },
+    {
+     "pos": 3,
+     "entrant": "Thoman",
+     "time": "14.01"
+    },
+    {
+     "pos": 4,
+     "entrant": "C45TXR",
+     "time": "14.12"
+    },
+    {
+     "pos": 5,
+     "entrant": "CrayHax",
+     "time": "14.37"
+    },
+    {
+     "pos": 6,
+     "entrant": "Rio",
+     "time": "14.41"
+    },
+    {
+     "pos": 7,
+     "entrant": "naiCou",
+     "time": "14.50"
+    }
+   ],
+   "checks": 1
+  },
+  "10": {
+   "id": 51,
+   "title": "SpeedTAS Season2 #10",
+   "results": [
+    {
+     "pos": 1,
+     "entrant": "igntuL",
+     "time": "17.31"
+    },
+    {
+     "pos": 2,
+     "entrant": "Rio",
+     "time": "17.57"
+    },
+    {
+     "pos": 3,
+     "entrant": "Bedeux",
+     "time": "17.72"
+    },
+    {
+     "pos": 4,
+     "entrant": "Magon_777",
+     "time": "17.93"
+    },
+    {
+     "pos": 5,
+     "entrant": "Thoman",
+     "time": "18.57"
+    },
+    {
+     "pos": 6,
+     "entrant": "Sneak",
+     "time": "19.01"
+    },
+    {
+     "pos": 7,
+     "entrant": "QQ_kewkew",
+     "time": "19.02"
+    }
+   ],
+   "checks": 1
+  },
+  "11": {
+   "id": 52,
+   "title": "SpeedTAS Season2 #11",
+   "results": [
+    {
+     "pos": 1,
+     "entrant": "igntuL",
+     "time": "18.07"
+    },
+    {
+     "pos": 2,
+     "entrant": "Oogy749",
+     "time": "18.78"
+    },
+    {
+     "pos": 3,
+     "entrant": "Sneak",
+     "time": "18.94"
+    },
+    {
+     "pos": 4,
+     "entrant": "CrayHax",
+     "time": "19.10"
+    },
+    {
+     "pos": 5,
+     "entrant": "Fabi",
+     "time": "19.47"
+    },
+    {
+     "pos": 6,
+     "entrant": "Elliott",
+     "time": "19.85"
+    },
+    {
+     "pos": 7,
+     "entrant": "QQ_kewkew",
+     "time": "20.02"
+    }
+   ],
+   "checks": 1
+  },
+  "12": {
+   "id": 53,
+   "title": "SpeedTAS Season2 #12",
+   "results": [
+    {
+     "pos": 1,
+     "entrant": "Rio",
+     "time": "17.60"
+    },
+    {
+     "pos": 2,
+     "entrant": "Sneak",
+     "time": "17.68"
+    },
+    {
+     "pos": 3,
+     "entrant": "mufattmf",
+     "time": "17.83"
+    },
+    {
+     "pos": 4,
+     "entrant": "Thoman",
+     "time": "17.96"
+    },
+    {
+     "pos": 5,
+     "entrant": "Sxltry",
+     "time": "18.24"
+    },
+    {
+     "pos": 6,
+     "entrant": "MidnightEuphoria",
+     "time": "18.53"
+    },
+    {
+     "pos": 7,
+     "entrant": "oeN",
+     "time": "18.59"
+    },
+    {
+     "pos": 8,
+     "entrant": "QQ_kewkew",
+     "time": "19.07"
+    },
+    {
+     "pos": 9,
+     "entrant": "bobby48",
+     "time": "19.45"
+    },
+    {
+     "pos": 10,
+     "entrant": "Oogy749",
+     "time": "19.87"
+    }
+   ],
+   "checks": 1
+  },
+  "13": {
+   "id": 55,
+   "title": "SpeedTAS Season2 #13",
+   "results": [],
+   "checks": 1
+  },
+  "14": {
+   "id": 67,
+   "title": "SpeedTAS Season2 #14",
+   "results": [
+    {
+     "pos": 1,
+     "entrant": "igntuL",
+     "time": "14.88"
+    },
+    {
+     "pos": 2,
+     "entrant": "naiCou",
+     "time": "17.03"
+    },
+    {
+     "pos": 3,
+     "entrant": "Thoman",
+     "time": "17.76"
+    },
+    {
+     "pos": 4,
+     "entrant": "faiby",
+     "time": "18.01"
+    },
+    {
+     "pos": 5,
+     "entrant": "Comfy_Ivy",
+     "time": "18.03"
+    },
+    {
+     "pos": 6,
+     "entrant": "CA1EBYT",
+     "time": "18.03"
+    },
+    {
+     "pos": 7,
+     "entrant": "MidnightEuphoria",
+     "time": "18.24"
+    },
+    {
+     "pos": 8,
+     "entrant": "QQ_kewkew",
+     "time": "20.36"
+    },
+    {
+     "pos": 9,
+     "entrant": "Sneak",
+     "time": "21.42"
+    },
+    {
+     "pos": 10,
+     "entrant": "Rio",
+     "time": "21.60"
+    },
+    {
+     "pos": 11,
+     "entrant": "Oogy749",
+     "time": "27.47"
+    },
+    {
+     "pos": 12,
+     "entrant": "Kim",
+     "time": "27.59"
+    }
+   ],
+   "checks": 1
+  },
+  "15": {
+   "id": 80,
+   "title": "SpeedTAS Season2 #15",
+   "results": [
+    {
+     "pos": 1,
+     "entrant": "Rio",
+     "time": "12.74"
+    },
+    {
+     "pos": 2,
+     "entrant": "Bedeux",
+     "time": "13.06"
+    },
+    {
+     "pos": 3,
+     "entrant": "Comfy_Ivy",
+     "time": "13.07"
+    },
+    {
+     "pos": 4,
+     "entrant": "igntuL",
+     "time": "13.12"
+    },
+    {
+     "pos": 5,
+     "entrant": "Oogy749",
+     "time": "13.43"
+    },
+    {
+     "pos": 6,
+     "entrant": "LittleD3m0",
+     "time": "13.54"
+    },
+    {
+     "pos": 7,
+     "entrant": "Sneak",
+     "time": "13.57"
+    },
+    {
+     "pos": 8,
+     "entrant": "MidnightEuphoria",
+     "time": "13.71"
+    },
+    {
+     "pos": 9,
+     "entrant": "Qwerter25c",
+     "time": "14.08"
+    },
+    {
+     "pos": 10,
+     "entrant": "QQ_kewkew",
+     "time": "14.23"
+    },
+    {
+     "pos": 11,
+     "entrant": "vaelyne",
+     "time": "14.25"
+    },
+    {
+     "pos": 12,
+     "entrant": "Kim",
+     "time": "15.06"
+    },
+    {
+     "pos": 13,
+     "entrant": "naiCou",
+     "time": "15.12"
+    },
+    {
+     "pos": 14,
+     "entrant": "Timefall",
+     "time": "15.45"
+    },
+    {
+     "pos": 15,
+     "entrant": "Fabi",
+     "time": "16.74"
+    }
+   ],
+   "checks": 1
+  },
+  "16": {
+   "id": 93,
+   "title": "SpeedTAS Season2 #16",
+   "results": [
+    {
+     "pos": 1,
+     "entrant": "igntuL",
+     "time": "12.68"
+    },
+    {
+     "pos": 2,
+     "entrant": "Rio",
+     "time": "12.86"
+    },
+    {
+     "pos": 3,
+     "entrant": "Sneak",
+     "time": "12.90"
+    },
+    {
+     "pos": 4,
+     "entrant": "skycrafter",
+     "time": "12.95"
+    },
+    {
+     "pos": 5,
+     "entrant": "CrayHax",
+     "time": "13.05"
+    },
+    {
+     "pos": 6,
+     "entrant": "Qwerter25c",
+     "time": "14.52"
+    },
+    {
+     "pos": 7,
+     "entrant": "ViRoNCZ",
+     "time": "15.63"
+    },
+    {
+     "pos": 8,
+     "entrant": "Thoman",
+     "time": "16.17"
+    },
+    {
+     "pos": 9,
+     "entrant": "_vogtek_",
+     "time": "16.39"
+    },
+    {
+     "pos": 10,
+     "entrant": "meable",
+     "time": "16.95"
+    },
+    {
+     "pos": 11,
+     "entrant": "Infra",
+     "time": "18.75"
+    },
+    {
+     "pos": 12,
+     "entrant": "Kim",
+     "time": "19.54"
+    },
+    {
+     "pos": 13,
+     "entrant": "exix77",
+     "time": "19.84"
+    },
+    {
+     "pos": 14,
+     "entrant": "Felippe",
+     "time": "21.63"
+    }
+   ],
+   "checks": 1
+  },
+  "17": {
+   "id": 99,
+   "title": "SpeedTAS Season2 #17",
+   "results": [
+    {
+     "pos": 1,
+     "entrant": "Rio",
+     "time": "15.24"
+    },
+    {
+     "pos": 2,
+     "entrant": "CA1EBYT",
+     "time": "15.42"
+    },
+    {
+     "pos": 3,
+     "entrant": "Thoman",
+     "time": "15.50"
+    },
+    {
+     "pos": 4,
+     "entrant": "Sneak",
+     "time": "16.03"
+    },
+    {
+     "pos": 5,
+     "entrant": "Fabi",
+     "time": "16.44"
+    },
+    {
+     "pos": 6,
+     "entrant": "Kim",
+     "time": "17.23"
+    },
+    {
+     "pos": 7,
+     "entrant": "Adrien",
+     "time": "17.38"
+    },
+    {
+     "pos": 8,
+     "entrant": "LittleD3m0",
+     "time": "19.28"
+    },
+    {
+     "pos": 9,
+     "entrant": "naiCou",
+     "time": "19.80"
+    },
+    {
+     "pos": 10,
+     "entrant": "MidnightEuphoria",
+     "time": "20.51"
+    },
+    {
+     "pos": 11,
+     "entrant": "QQ_kewkew",
+     "time": "21.91"
+    }
+   ],
+   "checks": 1
+  },
+  "18": {
+   "id": 104,
+   "title": "SpeedTAS Season2 #18",
+   "results": [
+    {
+     "pos": 1,
+     "entrant": "igntuL",
+     "time": "14.84"
+    },
+    {
+     "pos": 2,
+     "entrant": "Thoman",
+     "time": "15.04"
+    },
+    {
+     "pos": 3,
+     "entrant": "vogtek",
+     "time": "15.25"
+    },
+    {
+     "pos": 4,
+     "entrant": "CA1EBYT",
+     "time": "15.42"
+    },
+    {
+     "pos": 5,
+     "entrant": "MidnightEuphoria",
+     "time": "15.42"
+    },
+    {
+     "pos": 6,
+     "entrant": "Comfy_Ivy",
+     "time": "15.56"
+    },
+    {
+     "pos": 7,
+     "entrant": "LittleD3m0",
+     "time": "15.57"
+    },
+    {
+     "pos": 8,
+     "entrant": "Rio",
+     "time": "15.62"
+    },
+    {
+     "pos": 9,
+     "entrant": "Sneak",
+     "time": "15.65"
+    },
+    {
+     "pos": 10,
+     "entrant": "naiCou",
+     "time": "15.81"
+    },
+    {
+     "pos": 11,
+     "entrant": "QQ_kewkew",
+     "time": "16.33"
+    },
+    {
+     "pos": 12,
+     "entrant": "ViRoNCZ",
+     "time": "16.58"
+    },
+    {
+     "pos": 13,
+     "entrant": "Kim",
+     "time": "19.49"
+    },
+    {
+     "pos": 14,
+     "entrant": "NicoReborn",
+     "time": "21.39"
+    }
+   ],
+   "checks": 1
+  },
+  "19": {
+   "id": 108,
+   "title": "SpeedTAS Season2 #19",
+   "results": [
+    {
+     "pos": 1,
+     "entrant": "vogtek",
+     "time": "12.30"
+    },
+    {
+     "pos": 2,
+     "entrant": "skycrafter",
+     "time": "12.35"
+    },
+    {
+     "pos": 3,
+     "entrant": "Thoman",
+     "time": "12.65"
+    },
+    {
+     "pos": 4,
+     "entrant": "Fabi",
+     "time": "13.46"
+    },
+    {
+     "pos": 5,
+     "entrant": "Sneak",
+     "time": "13.93"
+    },
+    {
+     "pos": 6,
+     "entrant": "CA1EBYT",
+     "time": "13.98"
+    },
+    {
+     "pos": 7,
+     "entrant": "Kim",
+     "time": "14.05"
+    },
+    {
+     "pos": 8,
+     "entrant": "NicoReborn",
+     "time": "19.62"
+    }
+   ],
+   "checks": 1
+  },
+  "20": {
+   "id": 111,
+   "title": "SpeedTAS Season2 #20",
+   "results": [
+    {
+     "pos": 1,
+     "entrant": "Thoman",
+     "time": "15.88"
+    },
+    {
+     "pos": 2,
+     "entrant": "igntuL",
+     "time": "16.38"
+    },
+    {
+     "pos": 3,
+     "entrant": "mufattmf",
+     "time": "16.64"
+    },
+    {
+     "pos": 4,
+     "entrant": "LittleD3m0",
+     "time": "16.80"
+    },
+    {
+     "pos": 5,
+     "entrant": "Comfy_Ivy",
+     "time": "16.80"
+    },
+    {
+     "pos": 6,
+     "entrant": "Sneak",
+     "time": "17.41"
+    },
+    {
+     "pos": 7,
+     "entrant": "Rio",
+     "time": "17.80"
+    },
+    {
+     "pos": 8,
+     "entrant": "QQ_kewkew",
+     "time": "18.70"
+    },
+    {
+     "pos": 9,
+     "entrant": "Kim",
+     "time": "19.21"
+    },
+    {
+     "pos": 10,
+     "entrant": "NicoReborn",
+     "time": "20.24"
+    },
+    {
+     "pos": 11,
+     "entrant": "CA1EBYT",
+     "time": "23.65"
+    }
+   ],
+   "checks": 1
+  },
+  "21": {
+   "id": 115,
+   "title": "SpeedTAS Season2 #21",
+   "results": [
+    {
+     "pos": 1,
+     "entrant": "skycrafter",
+     "time": "15.31"
+    },
+    {
+     "pos": 2,
+     "entrant": "Rio",
+     "time": "16.26"
+    },
+    {
+     "pos": 3,
+     "entrant": "igntuL",
+     "time": "16.44"
+    },
+    {
+     "pos": 4,
+     "entrant": "Sneak",
+     "time": "16.76"
+    },
+    {
+     "pos": 5,
+     "entrant": "MidnightEuphoria",
+     "time": "17.48"
+    },
+    {
+     "pos": 6,
+     "entrant": "Oogy749",
+     "time": "19.22"
+    },
+    {
+     "pos": 7,
+     "entrant": "NicoReborn",
+     "time": "22.19"
+    },
+    {
+     "pos": 8,
+     "entrant": "Fabi",
+     "time": "30.32"
+    }
+   ],
+   "checks": 1
+  },
+  "22": {
+   "id": 121,
+   "title": "SpeedTAS Season2 #22",
+   "results": [
+    {
+     "pos": 1,
+     "entrant": "Rio",
+     "time": "16.33"
+    },
+    {
+     "pos": 2,
+     "entrant": "igntuL",
+     "time": "16.64"
+    },
+    {
+     "pos": 3,
+     "entrant": "skycrafter",
+     "time": "16.72"
+    },
+    {
+     "pos": 4,
+     "entrant": "Oogy749",
+     "time": "16.94"
+    },
+    {
+     "pos": 5,
+     "entrant": "Kristiano",
+     "time": "17.58"
+    },
+    {
+     "pos": 6,
+     "entrant": "MidnightEuphoria",
+     "time": "17.71"
+    },
+    {
+     "pos": 7,
+     "entrant": "QQ_kewkew",
+     "time": "17.84"
+    },
+    {
+     "pos": 8,
+     "entrant": "Fabi",
+     "time": "17.85"
+    },
+    {
+     "pos": 9,
+     "entrant": "Sneak",
+     "time": "18.00"
+    },
+    {
+     "pos": 10,
+     "entrant": "DELETE_CLUB",
+     "time": "18.04"
+    },
+    {
+     "pos": 11,
+     "entrant": "naiCou",
+     "time": "18.20"
+    },
+    {
+     "pos": 12,
+     "entrant": "Qwerter25c",
+     "time": "18.20"
+    },
+    {
+     "pos": 13,
+     "entrant": "NicoReborn",
+     "time": "23.82"
+    }
+   ],
+   "checks": 1
+  },
+  "23": {
+   "id": 125,
+   "title": "SpeedTAS Season2 #23",
+   "results": [
+    {
+     "pos": 1,
+     "entrant": "igntuL",
+     "time": "14.57"
+    },
+    {
+     "pos": 2,
+     "entrant": "LittleD3m0",
+     "time": "15.38"
+    },
+    {
+     "pos": 3,
+     "entrant": "Oogy749",
+     "time": "15.56"
+    },
+    {
+     "pos": 4,
+     "entrant": "exix77",
+     "time": "15.94"
+    },
+    {
+     "pos": 5,
+     "entrant": "Kim",
+     "time": "16.32"
+    },
+    {
+     "pos": 6,
+     "entrant": "Sneak",
+     "time": "16.59"
+    },
+    {
+     "pos": 7,
+     "entrant": "QQ_kewkew",
+     "time": "18.81"
+    },
+    {
+     "pos": 8,
+     "entrant": "trizzan",
+     "time": "18.91"
+    },
+    {
+     "pos": 9,
+     "entrant": "Telve",
+     "time": "18.92"
+    },
+    {
+     "pos": 10,
+     "entrant": "NicoReborn",
+     "time": "19.01"
+    },
+    {
+     "pos": 11,
+     "entrant": "casterjamar",
+     "time": "19.09"
+    },
+    {
+     "pos": 12,
+     "entrant": "MidnightEuphoria",
+     "time": "6:34:35.87"
+    }
+   ],
+   "checks": 1
+  },
+  "24": {
+   "id": 134,
+   "title": "SpeedTAS Season2 #24",
+   "results": [
+    {
+     "pos": 1,
+     "entrant": "Thoman",
+     "time": "19.79"
+    },
+    {
+     "pos": 2,
+     "entrant": "Kim",
+     "time": "19.95"
+    },
+    {
+     "pos": 3,
+     "entrant": "CA1EBYT",
+     "time": "20.35"
+    },
+    {
+     "pos": 4,
+     "entrant": "Sneak",
+     "time": "20.51"
+    },
+    {
+     "pos": 5,
+     "entrant": "TejasIsAmazing",
+     "time": "20.98"
+    },
+    {
+     "pos": 6,
+     "entrant": "Oogy749",
+     "time": "21.53"
+    },
+    {
+     "pos": 7,
+     "entrant": "trizzan",
+     "time": "22.43"
+    },
+    {
+     "pos": 8,
+     "entrant": "Telve",
+     "time": "22.58"
+    },
+    {
+     "pos": 9,
+     "entrant": "MidnightEuphoria",
+     "time": "22.82"
+    },
+    {
+     "pos": 10,
+     "entrant": "NicoReborn",
+     "time": "22.83"
+    },
+    {
+     "pos": 11,
+     "entrant": "mightbejoe",
+     "time": "23.09"
+    }
+   ],
+   "checks": 1
+  },
+  "25": {
+   "id": 160,
+   "title": "SpeedTAS Season2 #25",
+   "results": [
+    {
+     "pos": 1,
+     "entrant": "Sneak",
+     "time": "19.18"
+    },
+    {
+     "pos": 2,
+     "entrant": "MidnightEuphoria",
+     "time": "19.28"
+    },
+    {
+     "pos": 3,
+     "entrant": "Rio",
+     "time": "19.41"
+    },
+    {
+     "pos": 4,
+     "entrant": "Oogy749",
+     "time": "19.47"
+    },
+    {
+     "pos": 5,
+     "entrant": "CA1EBYT",
+     "time": "19.56"
+    },
+    {
+     "pos": 6,
+     "entrant": "Kim",
+     "time": "20.18"
+    },
+    {
+     "pos": 7,
+     "entrant": "TejasIsAmazing",
+     "time": "22.65"
+    },
+    {
+     "pos": 8,
+     "entrant": "NicoReborn",
+     "time": "22.75"
+    },
+    {
+     "pos": 9,
+     "entrant": "Kram",
+     "time": "25.57"
+    }
+   ],
+   "checks": 1
+  },
+  "26": {
+   "id": 164,
+   "title": "SpeedTAS Season2 #26",
+   "results": [
+    {
+     "pos": 1,
+     "entrant": "Sneak",
+     "time": "14.87"
+    },
+    {
+     "pos": 2,
+     "entrant": "Thoman",
+     "time": "15.61"
+    },
+    {
+     "pos": 3,
+     "entrant": "Qwerter25c",
+     "time": "15.63"
+    },
+    {
+     "pos": 4,
+     "entrant": "MidnightEuphoria",
+     "time": "16.13"
+    },
+    {
+     "pos": 5,
+     "entrant": "Rio",
+     "time": "16.19"
+    },
+    {
+     "pos": 6,
+     "entrant": "QQ_kewkew",
+     "time": "17.29"
+    },
+    {
+     "pos": 7,
+     "entrant": "TejasIsAmazing",
+     "time": "17.57"
+    },
+    {
+     "pos": 8,
+     "entrant": "Telve",
+     "time": "20.98"
+    },
+    {
+     "pos": 9,
+     "entrant": "NicoReborn",
+     "time": "22.01"
+    }
+   ],
+   "checks": 1
+  },
+  "27": {
+   "id": 166,
+   "title": "SpeedTAS Season2 #27",
+   "results": [
+    {
+     "pos": 1,
+     "entrant": "Oogy749",
+     "time": "13.77"
+    },
+    {
+     "pos": 2,
+     "entrant": "Rio",
+     "time": "13.82"
+    },
+    {
+     "pos": 3,
+     "entrant": "Thoman",
+     "time": "13.87"
+    },
+    {
+     "pos": 4,
+     "entrant": "LittleD3m0",
+     "time": "14.16"
+    },
+    {
+     "pos": 5,
+     "entrant": "MidnightEuphoria",
+     "time": "14.17"
+    },
+    {
+     "pos": 6,
+     "entrant": "TejasIsAmazing",
+     "time": "14.60"
+    },
+    {
+     "pos": 7,
+     "entrant": "Babuhken",
+     "time": "15.20"
+    },
+    {
+     "pos": 8,
+     "entrant": "Sneak",
+     "time": "16.00"
+    },
+    {
+     "pos": 9,
+     "entrant": "NicoReborn",
+     "time": "17.21"
+    },
+    {
+     "pos": 10,
+     "entrant": "exix77",
+     "time": "19.67"
+    }
+   ],
+   "checks": 1
+  },
+  "28": {
+   "id": 173,
+   "title": "SpeedTAS Season2 #28",
+   "results": [
+    {
+     "pos": 1,
+     "entrant": "Thoman",
+     "time": "11.19"
+    },
+    {
+     "pos": 2,
+     "entrant": "vogtek",
+     "time": "11.32"
+    },
+    {
+     "pos": 3,
+     "entrant": "trizzan",
+     "time": "12.02"
+    },
+    {
+     "pos": 4,
+     "entrant": "TejasIsAmazing",
+     "time": "12.19"
+    },
+    {
+     "pos": 5,
+     "entrant": "Sneak",
+     "time": "12.37"
+    },
+    {
+     "pos": 6,
+     "entrant": "Oogy749",
+     "time": "12.41"
+    },
+    {
+     "pos": 7,
+     "entrant": "Qwerter25c",
+     "time": "12.88"
+    },
+    {
+     "pos": 8,
+     "entrant": "NicoReborn",
+     "time": "16.22"
+    },
+    {
+     "pos": 9,
+     "entrant": "MidnightEuphoria",
+     "time": "16.52"
+    }
+   ],
+   "checks": 1
+  },
+  "29": {
+   "id": 187,
+   "title": "SpeedTAS Season2 #29",
+   "results": [
+    {
+     "pos": 25,
+     "entrant": "Hidden",
+     "time": "25 July 2026 at 18:02"
+    }
+   ],
+   "checks": 1
+  },
+  "30": {
+   "id": 189,
+   "title": "SpeedTAS Season2 #30",
+   "results": [
+    {
+     "pos": 1,
+     "entrant": "Sneak",
+     "time": "17.59"
+    },
+    {
+     "pos": 2,
+     "entrant": "MidnightEuphoria",
+     "time": "17.72"
+    },
+    {
+     "pos": 3,
+     "entrant": "LittleD3m0",
+     "time": "17.91"
+    },
+    {
+     "pos": 4,
+     "entrant": "CA1EBYT",
+     "time": "18.56"
+    },
+    {
+     "pos": 5,
+     "entrant": "QQ_kewkew",
+     "time": "18.61"
+    },
+    {
+     "pos": 6,
+     "entrant": "Elliott",
+     "time": "21.15"
+    },
+    {
+     "pos": 7,
+     "entrant": "NicoReborn",
+     "time": "22.46"
+    },
+    {
+     "pos": 8,
+     "entrant": "exix77",
+     "time": "1:51.71"
+    }
+   ],
+   "checks": 1
+  },
+  "33": {
+   "id": 225,
+   "title": "SpeedTAS Season2 #33",
+   "results": [
+    {
+     "pos": 1,
+     "entrant": "Sneak",
+     "time": "15.77"
+    },
+    {
+     "pos": 2,
+     "entrant": "Kristiano",
+     "time": "15.84"
+    },
+    {
+     "pos": 3,
+     "entrant": "MidnightEuphoria",
+     "time": "16.03"
+    },
+    {
+     "pos": 4,
+     "entrant": "Rio",
+     "time": "16.22"
+    },
+    {
+     "pos": 5,
+     "entrant": "QQ_kewkew",
+     "time": "16.57"
+    },
+    {
+     "pos": 6,
+     "entrant": "logout",
+     "time": "16.67"
+    },
+    {
+     "pos": 7,
+     "entrant": "cunningsquid",
+     "time": "17.67"
+    },
+    {
+     "pos": 8,
+     "entrant": "NicoReborn",
+     "time": "17.76"
+    },
+    {
+     "pos": 9,
+     "entrant": "Oogy749",
+     "time": "40.79"
+    }
+   ],
+   "checks": 1
+  },
+  "34": {
+   "id": 227,
+   "title": "SpeedTAS Season2 #34",
+   "results": [
+    {
+     "pos": 1,
+     "entrant": "Oogy749",
+     "time": "17.74"
+    },
+    {
+     "pos": 2,
+     "entrant": "Kristiano",
+     "time": "17.81"
+    },
+    {
+     "pos": 3,
+     "entrant": "MidnightEuphoria",
+     "time": "18.22"
+    },
+    {
+     "pos": 4,
+     "entrant": "Sneak",
+     "time": "18.73"
+    },
+    {
+     "pos": 5,
+     "entrant": "Thoman",
+     "time": "18.76"
+    },
+    {
+     "pos": 6,
+     "entrant": "TejasIsAmazing",
+     "time": "20.91"
+    },
+    {
+     "pos": 7,
+     "entrant": "vogtek",
+     "time": "23.46"
+    },
+    {
+     "pos": 8,
+     "entrant": "popE",
+     "time": "24.76"
+    },
+    {
+     "pos": 9,
+     "entrant": "NicoReborn",
+     "time": "26.54"
+    },
+    {
+     "pos": 10,
+     "entrant": "febstone",
+     "time": "29.81"
+    }
+   ],
+   "checks": 1
+  },
+  "35": {
+   "id": 231,
+   "title": "SpeedTAS Season2 #35",
+   "results": [
+    {
+     "pos": 1,
+     "entrant": "Thoman",
+     "time": "18.92"
+    },
+    {
+     "pos": 2,
+     "entrant": "Rio",
+     "time": "20.40"
+    },
+    {
+     "pos": 3,
+     "entrant": "Sneak",
+     "time": "22.06"
+    },
+    {
+     "pos": 4,
+     "entrant": "EmilSPlayz",
+     "time": "22.10"
+    },
+    {
+     "pos": 5,
+     "entrant": "Prow",
+     "time": "22.83"
+    },
+    {
+     "pos": 6,
+     "entrant": "MidnightEuphoria",
+     "time": "27.67"
+    },
+    {
+     "pos": 7,
+     "entrant": "Oogy749",
+     "time": "35.88"
+    }
+   ],
+   "checks": 1
+  },
+  "36": {
+   "id": 233,
+   "title": "SpeedTAS Season2 #36",
+   "results": [
+    {
+     "pos": 1,
+     "entrant": "Kim",
+     "time": "12.84"
+    },
+    {
+     "pos": 2,
+     "entrant": "MidnightEuphoria",
+     "time": "12.89"
+    },
+    {
+     "pos": 3,
+     "entrant": "Rio",
+     "time": "12.95"
+    },
+    {
+     "pos": 4,
+     "entrant": "Sneak",
+     "time": "13.53"
+    },
+    {
+     "pos": 5,
+     "entrant": "Qwerter25c",
+     "time": "13.95"
+    },
+    {
+     "pos": 6,
+     "entrant": "trizzan",
+     "time": "13.99"
+    },
+    {
+     "pos": 7,
+     "entrant": "Oogy749",
+     "time": "14.05"
+    },
+    {
+     "pos": 8,
+     "entrant": "NicoReborn",
+     "time": "15.31"
+    }
+   ],
+   "checks": 1
+  },
+  "37": {
+   "id": 237,
+   "title": "SpeedTAS Season2 #37",
+   "results": [
+    {
+     "pos": 1,
+     "entrant": "MidnightEuphoria",
+     "time": "15.27"
+    },
+    {
+     "pos": 2,
+     "entrant": "happytas",
+     "time": "15.32"
+    },
+    {
+     "pos": 3,
+     "entrant": "Kim",
+     "time": "15.42"
+    },
+    {
+     "pos": 4,
+     "entrant": "Sneak",
+     "time": "15.61"
+    },
+    {
+     "pos": 5,
+     "entrant": "Oogy749",
+     "time": "15.61"
+    },
+    {
+     "pos": 6,
+     "entrant": "Bedeux",
+     "time": "15.95"
+    }
+   ],
+   "checks": 1
+  },
+  "38": {
+   "id": 239,
+   "title": "SpeedTAS Season2 #38",
+   "results": [
+    {
+     "pos": 1,
+     "entrant": "MidnightEuphoria",
+     "time": "17.81"
+    },
+    {
+     "pos": 2,
+     "entrant": "Kim",
+     "time": "18.35"
+    },
+    {
+     "pos": 3,
+     "entrant": "Sneak",
+     "time": "18.89"
+    },
+    {
+     "pos": 4,
+     "entrant": "Rio",
+     "time": "19.10"
+    },
+    {
+     "pos": 5,
+     "entrant": "Thoman",
+     "time": "19.34"
+    },
+    {
+     "pos": 6,
+     "entrant": "Gorgman",
+     "time": "19.61"
+    }
+   ],
+   "checks": 1
+  },
+  "39": {
+   "id": 248,
+   "title": "SpeedTAS Season2 #39",
+   "results": [
+    {
+     "pos": 1,
+     "entrant": "Rio",
+     "time": "13.59"
+    },
+    {
+     "pos": 2,
+     "entrant": "Kim",
+     "time": "13.70"
+    },
+    {
+     "pos": 3,
+     "entrant": "Thoman",
+     "time": "13.75"
+    },
+    {
+     "pos": 4,
+     "entrant": "MidnightEuphoria",
+     "time": "13.88"
+    },
+    {
+     "pos": 5,
+     "entrant": "Sneak",
+     "time": "14.02"
+    },
+    {
+     "pos": 6,
+     "entrant": "Oogy749",
+     "time": "14.10"
+    },
+    {
+     "pos": 7,
+     "entrant": "TejasIsAmazing",
+     "time": "14.56"
+    },
+    {
+     "pos": 8,
+     "entrant": "NicoReborn",
+     "time": "15.52"
+    },
+    {
+     "pos": 9,
+     "entrant": "Gorgman",
+     "time": "16.39"
+    },
+    {
+     "pos": 10,
+     "entrant": "febstone",
+     "time": "16.46"
+    }
+   ],
+   "checks": 1
+  },
+  "40": {
+   "id": 250,
+   "title": "SpeedTAS Season2 #40",
+   "results": [
+    {
+     "pos": 1,
+     "entrant": "Kristiano",
+     "time": "18.77"
+    },
+    {
+     "pos": 2,
+     "entrant": "happytas",
+     "time": "19.79"
+    },
+    {
+     "pos": 3,
+     "entrant": "Rio",
+     "time": "20.70"
+    },
+    {
+     "pos": 4,
+     "entrant": "Sneak",
+     "time": "20.87"
+    },
+    {
+     "pos": 5,
+     "entrant": "Kim",
+     "time": "21.34"
+    },
+    {
+     "pos": 6,
+     "entrant": "Bedeux",
+     "time": "21.73"
+    },
+    {
+     "pos": 7,
+     "entrant": "Oogy749",
+     "time": "22.18"
+    },
+    {
+     "pos": 8,
+     "entrant": "NicoReborn",
+     "time": "22.52"
+    }
+   ],
+   "checks": 1
+  },
+  "41": {
+   "id": 255,
+   "title": "SpeedTAS Season2 #41",
+   "results": [
+    {
+     "pos": 1,
+     "entrant": "MidnightEuphoria",
+     "time": "14.61"
+    },
+    {
+     "pos": 2,
+     "entrant": "Rio",
+     "time": "15.13"
+    },
+    {
+     "pos": 3,
+     "entrant": "Sneak",
+     "time": "15.98"
+    },
+    {
+     "pos": 4,
+     "entrant": "Qwerter25c",
+     "time": "16.45"
+    },
+    {
+     "pos": 5,
+     "entrant": "CA1EBYT",
+     "time": "16.84"
+    },
+    {
+     "pos": 6,
+     "entrant": "Thoman",
+     "time": "17.01"
+    },
+    {
+     "pos": 7,
+     "entrant": "Kim",
+     "time": "18.29"
+    },
+    {
+     "pos": 8,
+     "entrant": "febstone",
+     "time": "18.48"
+    },
+    {
+     "pos": 9,
+     "entrant": "Gorgman",
+     "time": "19.87"
+    },
+    {
+     "pos": 10,
+     "entrant": "NicoReborn",
+     "time": "23.54"
+    }
+   ],
+   "checks": 1
+  },
+  "42": {
+   "id": 257,
+   "title": "SpeedTAS Season2 #42",
+   "results": [
+    {
+     "pos": 1,
+     "entrant": "Rio",
+     "time": "17.25"
+    },
+    {
+     "pos": 2,
+     "entrant": "Kristiano",
+     "time": "17.49"
+    },
+    {
+     "pos": 3,
+     "entrant": "Kim",
+     "time": "17.66"
+    },
+    {
+     "pos": 4,
+     "entrant": "Sneak",
+     "time": "17.94"
+    },
+    {
+     "pos": 5,
+     "entrant": "MidnightEuphoria",
+     "time": "18.13"
+    },
+    {
+     "pos": 6,
+     "entrant": "happytas",
+     "time": "18.17"
+    },
+    {
+     "pos": 7,
+     "entrant": "Gorgman",
+     "time": "19.88"
+    },
+    {
+     "pos": 8,
+     "entrant": "NicoReborn",
+     "time": "20.61"
+    },
+    {
+     "pos": 9,
+     "entrant": "Oogy749",
+     "time": "29.47"
+    }
+   ],
+   "checks": 1
+  },
+  "43": {
+   "id": 260,
+   "title": "SpeedTAS Season2 #43",
+   "results": [
+    {
+     "pos": 1,
+     "entrant": "MidnightEuphoria",
+     "time": "13.31"
+    },
+    {
+     "pos": 2,
+     "entrant": "Rio",
+     "time": "14.66"
+    },
+    {
+     "pos": 3,
+     "entrant": "Oogy749",
+     "time": "14.79"
+    },
+    {
+     "pos": 4,
+     "entrant": "Gorgman",
+     "time": "15.42"
+    },
+    {
+     "pos": 5,
+     "entrant": "happytas",
+     "time": "15.42"
+    },
+    {
+     "pos": 6,
+     "entrant": "Kim",
+     "time": "16.14"
+    },
+    {
+     "pos": 7,
+     "entrant": "Sneak",
+     "time": "16.17"
+    },
+    {
+     "pos": 8,
+     "entrant": "Thoman",
+     "time": "16.67"
+    },
+    {
+     "pos": 9,
+     "entrant": "NicoReborn",
+     "time": "17.85"
+    },
+    {
+     "pos": 10,
+     "entrant": "febstone",
+     "time": "19.84"
+    }
+   ],
+   "checks": 1
+  },
+  "44": {
+   "id": 263,
+   "title": "SpeedTAS Season2 #44",
+   "results": [
+    {
+     "pos": 1,
+     "entrant": "Rio",
+     "time": "20.43"
+    },
+    {
+     "pos": 2,
+     "entrant": "Kim",
+     "time": "20.80"
+    },
+    {
+     "pos": 3,
+     "entrant": "Sneak",
+     "time": "20.95"
+    },
+    {
+     "pos": 4,
+     "entrant": "MidnightEuphoria",
+     "time": "21.10"
+    },
+    {
+     "pos": 5,
+     "entrant": "Oogy749",
+     "time": "21.19"
+    },
+    {
+     "pos": 6,
+     "entrant": "Gorgman",
+     "time": "22.47"
+    }
+   ],
+   "checks": 1
+  }
+ },
+ "tm20": {
+  "1": {
+   "id": 229,
+   "title": "SpeedTAS TM20 #1",
+   "results": [
+    {
+     "pos": 1,
+     "entrant": "Thoman",
+     "time": "12.17"
+    },
+    {
+     "pos": 2,
+     "entrant": "SmithyTM",
+     "time": "12.20"
+    },
+    {
+     "pos": 3,
+     "entrant": "Glimse5678",
+     "time": "12.28"
+    },
+    {
+     "pos": 4,
+     "entrant": "rockskater89",
+     "time": "12.30"
+    },
+    {
+     "pos": 5,
+     "entrant": "FrankTheHamster",
+     "time": "12.34"
+    },
+    {
+     "pos": 6,
+     "entrant": "lasyopp",
+     "time": "12.46"
+    },
+    {
+     "pos": 7,
+     "entrant": "Elliott",
+     "time": "12.55"
+    },
+    {
+     "pos": 8,
+     "entrant": "vogtek",
+     "time": "12.70"
+    },
+    {
+     "pos": 9,
+     "entrant": "NewcastleBagel93",
+     "time": "12.77"
+    },
+    {
+     "pos": 10,
+     "entrant": "Razzer",
+     "time": "12.78"
+    },
+    {
+     "pos": 11,
+     "entrant": "yhomas",
+     "time": "12.80"
+    },
+    {
+     "pos": 12,
+     "entrant": "QQ_kewkew",
+     "time": "12.80"
+    },
+    {
+     "pos": 13,
+     "entrant": "Magubv",
+     "time": "12.89"
+    },
+    {
+     "pos": 14,
+     "entrant": "Qwerter25c",
+     "time": "13.29"
+    },
+    {
+     "pos": 15,
+     "entrant": "jakoblgn",
+     "time": "13.39"
+    },
+    {
+     "pos": 16,
+     "entrant": "Sneak",
+     "time": "13.50"
+    },
+    {
+     "pos": 17,
+     "entrant": "pena1g",
+     "time": "13.52"
+    },
+    {
+     "pos": 18,
+     "entrant": "NicoReborn",
+     "time": "14.01"
+    },
+    {
+     "pos": 19,
+     "entrant": "Jooff",
+     "time": "14.28"
+    },
+    {
+     "pos": 20,
+     "entrant": "jicbo",
+     "time": "14.94"
+    },
+    {
+     "pos": 21,
+     "entrant": "Dinoob",
+     "time": "48.21"
+    }
+   ],
+   "checks": 1
+  },
+  "2": {
+   "id": 240,
+   "title": "SpeedTAS TM20 #2",
+   "results": [
+    {
+     "pos": 1,
+     "entrant": "Elliott",
+     "time": "15.98"
+    },
+    {
+     "pos": 2,
+     "entrant": "Glimse5678",
+     "time": "16.03"
+    },
+    {
+     "pos": 3,
+     "entrant": "yhomas",
+     "time": "16.05"
+    },
+    {
+     "pos": 4,
+     "entrant": "Thoman",
+     "time": "16.06"
+    },
+    {
+     "pos": 5,
+     "entrant": "Sneak",
+     "time": "16.08"
+    },
+    {
+     "pos": 6,
+     "entrant": "jicbo",
+     "time": "16.09"
+    },
+    {
+     "pos": 7,
+     "entrant": "QQ_kewkew",
+     "time": "16.20"
+    },
+    {
+     "pos": 8,
+     "entrant": "nyameless",
+     "time": "16.43"
+    },
+    {
+     "pos": 9,
+     "entrant": "MidnightEuphoria",
+     "time": "16.58"
+    },
+    {
+     "pos": 10,
+     "entrant": "NewcastleBagel93",
+     "time": "16.60"
+    },
+    {
+     "pos": 11,
+     "entrant": "Gorgman",
+     "time": "17.00"
+    },
+    {
+     "pos": 12,
+     "entrant": "NicoReborn",
+     "time": "17.00"
+    }
+   ],
+   "checks": 1
+  },
+  "3": {
+   "id": 251,
+   "title": "SpeedTAS TM20 #3",
+   "results": [
+    {
+     "pos": 1,
+     "entrant": "Sneak",
+     "time": "16.91"
+    },
+    {
+     "pos": 2,
+     "entrant": "Kristiano",
+     "time": "16.93"
+    },
+    {
+     "pos": 3,
+     "entrant": "pena1g",
+     "time": "17.14"
+    },
+    {
+     "pos": 4,
+     "entrant": "Thoman",
+     "time": "17.22"
+    },
+    {
+     "pos": 5,
+     "entrant": "QQ_kewkew",
+     "time": "17.42"
+    },
+    {
+     "pos": 6,
+     "entrant": "Glimse5678",
+     "time": "17.53"
+    },
+    {
+     "pos": 7,
+     "entrant": "rockskater89",
+     "time": "17.66"
+    },
+    {
+     "pos": 8,
+     "entrant": "Elliott",
+     "time": "17.67"
+    },
+    {
+     "pos": 9,
+     "entrant": "yhomas",
+     "time": "17.68"
+    },
+    {
+     "pos": 10,
+     "entrant": "Magubv",
+     "time": "17.73"
+    },
+    {
+     "pos": 11,
+     "entrant": "jicbo",
+     "time": "18.08"
+    },
+    {
+     "pos": 12,
+     "entrant": "KunamiTM",
+     "time": "18.17"
+    },
+    {
+     "pos": 13,
+     "entrant": "EmilSPlayz",
+     "time": "18.37"
+    },
+    {
+     "pos": 14,
+     "entrant": "Gorgman",
+     "time": "18.74"
+    },
+    {
+     "pos": 15,
+     "entrant": "NicoReborn",
+     "time": "19.42"
+    }
+   ],
+   "checks": 1
+  },
+  "4": {
+   "id": 258,
+   "title": "SpeedTAS TM20 #4",
+   "results": [
+    {
+     "pos": 1,
+     "entrant": "Sneak",
+     "time": "15.73"
+    },
+    {
+     "pos": 2,
+     "entrant": "Thoman",
+     "time": "15.88"
+    },
+    {
+     "pos": 3,
+     "entrant": "QQ_kewkew",
+     "time": "16.40"
+    },
+    {
+     "pos": 4,
+     "entrant": "Qwerter25c",
+     "time": "16.48"
+    },
+    {
+     "pos": 5,
+     "entrant": "Razzer",
+     "time": "16.50"
+    },
+    {
+     "pos": 6,
+     "entrant": "rockskater89",
+     "time": "17.11"
+    },
+    {
+     "pos": 7,
+     "entrant": "yhomas",
+     "time": "17.58"
+    },
+    {
+     "pos": 8,
+     "entrant": "NewcastleBagel93",
+     "time": "17.95"
+    },
+    {
+     "pos": 9,
+     "entrant": "Glimse5678",
+     "time": "18.10"
+    },
+    {
+     "pos": 10,
+     "entrant": "Magubv",
+     "time": "18.13"
+    },
+    {
+     "pos": 11,
+     "entrant": "NicoReborn",
+     "time": "19.72"
+    },
+    {
+     "pos": 12,
+     "entrant": "jicbo",
+     "time": "21.76"
+    }
+   ],
+   "checks": 1
+  }
+ },
+ "updatedAt": "2026-11-22T17:39:17.800Z"
+}

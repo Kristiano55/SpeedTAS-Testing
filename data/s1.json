@@ -1,0 +1,791 @@
+{
+ "season": "s1",
+ "editions": [
+  {
+   "edition": "2",
+   "results": {
+    "Thoman": 1,
+    "Mufat": 2,
+    "Demo": 3,
+    "NaiCou": 4,
+    "sebik": 5,
+    "Faasquit": 6,
+    "Skycrafter": 7,
+    "Frusty": 8
+   }
+  },
+  {
+   "edition": "3",
+   "results": {
+    "Thoman": 2,
+    "Demo": 4,
+    "NaiCou": 8,
+    "Faasquit": 5,
+    "Skycrafter": 3,
+    "Frusty": 6,
+    "Vogtek": 1,
+    "Tails": 7,
+    "obbybigfast": 9,
+    "Logout": 10
+   }
+  },
+  {
+   "edition": "4",
+   "results": {
+    "NaiCou": 2,
+    "Skycrafter": 1
+   }
+  },
+  {
+   "edition": "5",
+   "results": {
+    "Thoman": 5,
+    "Mufat": 1,
+    "Demo": 6,
+    "Skycrafter": 3,
+    "Vogtek": 2,
+    "Galaxy": 4
+   }
+  },
+  {
+   "edition": "6",
+   "results": {
+    "Thoman": 3,
+    "Mufat": 2,
+    "Demo": 5,
+    "Faasquit": 6,
+    "Vogtek": 1,
+    "Galaxy": 4,
+    "Charlie": 7,
+    "Dora": 8
+   }
+  },
+  {
+   "edition": "7",
+   "results": {
+    "Demo": 3,
+    "Skycrafter": 5,
+    "Vogtek": 1,
+    "Galaxy": 2,
+    "Charlie": 4
+   }
+  },
+  {
+   "edition": "8",
+   "results": {
+    "Faasquit": 2,
+    "Vogtek": 1
+   }
+  },
+  {
+   "edition": "9",
+   "results": {
+    "Demo": 8,
+    "Faasquit": 3,
+    "Skycrafter": 6,
+    "Vogtek": 9,
+    "Tails": 6,
+    "Galaxy": 1,
+    "Charlie": 2,
+    "Stuntlover": 4,
+    "Magon": 5
+   }
+  },
+  {
+   "edition": "10",
+   "results": {
+    "Skycrafter": 2,
+    "Vogtek": 1,
+    "Tails": 3,
+    "Charlie": 6,
+    "Stuntlover": 4,
+    "Prodi": 5,
+    "peter_file": 7
+   }
+  },
+  {
+   "edition": "11",
+   "results": {
+    "Faasquit": 7,
+    "Skycrafter": 9,
+    "Vogtek": 1,
+    "Tails": 4,
+    "Galaxy": 2,
+    "Magon": 5,
+    "peter_file": 6,
+    "Krogntek": 3,
+    "BDcap": 8
+   }
+  },
+  {
+   "edition": "12",
+   "results": {
+    "Vogtek": 1
+   }
+  },
+  {
+   "edition": "13",
+   "results": {
+    "Faasquit": 7,
+    "Skycrafter": 1,
+    "Vogtek": 2,
+    "Tails": 4,
+    "Logout": 8,
+    "Galaxy": 3,
+    "Charlie": 5,
+    "Magon": 6
+   }
+  },
+  {
+   "edition": "14",
+   "results": {
+    "Thoman": 4,
+    "Skycrafter": 1,
+    "Tails": 2,
+    "Prodi": 3
+   }
+  },
+  {
+   "edition": "15",
+   "results": {
+    "Frusty": 4,
+    "Vogtek": 2,
+    "Tails": 1,
+    "Charlie": 5,
+    "Prodi": 3
+   }
+  },
+  {
+   "edition": "16",
+   "results": {
+    "Vogtek": 1,
+    "Tails": 5,
+    "Charlie": 2,
+    "Magon": 7,
+    "Prodi": 3,
+    "specular": 4,
+    "GoldenOwl": 6
+   }
+  },
+  {
+   "edition": "17",
+   "results": {
+    "Vogtek": 1,
+    "Tails": 3,
+    "Magon": 4,
+    "peter_file": 2
+   }
+  },
+  {
+   "edition": "18",
+   "results": {
+    "Thoman": 1,
+    "Faasquit": 4,
+    "Skycrafter": 3,
+    "Vogtek": 2,
+    "Logout": 6,
+    "Magon": 5
+   }
+  },
+  {
+   "edition": "19",
+   "results": {
+    "Faasquit": 3,
+    "Charlie": 1,
+    "Magon": 4,
+    "Blev": 2
+   }
+  },
+  {
+   "edition": "20",
+   "results": {
+    "Frusty": 1,
+    "Vogtek": 3,
+    "Magon": 2,
+    "Prodi": 4
+   }
+  },
+  {
+   "edition": "21",
+   "results": {
+    "Frusty": 1,
+    "Logout": 3,
+    "Magon": 2,
+    "Prodi": 4
+   }
+  },
+  {
+   "edition": "22",
+   "results": {
+    "Frusty": 4,
+    "Vogtek": 1,
+    "Tails": 2,
+    "Magon": 3
+   }
+  },
+  {
+   "edition": "23",
+   "results": {
+    "Demo": 4,
+    "Skycrafter": 1,
+    "Frusty": 6,
+    "Vogtek": 1,
+    "Tails": 5,
+    "Magon": 7,
+    "Prodi": 3
+   }
+  },
+  {
+   "edition": "24",
+   "results": {
+    "Demo": 1,
+    "Skycrafter": 4,
+    "Vogtek": 2,
+    "Magon": 2,
+    "Prodi": 5
+   }
+  },
+  {
+   "edition": "25",
+   "results": {
+    "Thoman": 4,
+    "Skycrafter": 2,
+    "Vogtek": 1,
+    "Prodi": 3
+   }
+  },
+  {
+   "edition": "26",
+   "results": {
+    "Thoman": 3,
+    "Demo": 1,
+    "Skycrafter": 2,
+    "Caleb": 4
+   }
+  },
+  {
+   "edition": "27",
+   "results": {
+    "Thoman": 1,
+    "Skycrafter": 2,
+    "Frusty": 3,
+    "Vogtek": 4
+   }
+  },
+  {
+   "edition": "28",
+   "results": {
+    "Thoman": 1,
+    "Faasquit": 5,
+    "Skycrafter": 2,
+    "Frusty": 4,
+    "Vogtek": 3,
+    "Prodi": 6
+   }
+  },
+  {
+   "edition": "29",
+   "results": {
+    "Thoman": 4,
+    "Skycrafter": 1,
+    "Vogtek": 3,
+    "Charlie": 2
+   }
+  },
+  {
+   "edition": "30",
+   "results": {
+    "Mufat": 2,
+    "Frusty": 5,
+    "Vogtek": 1,
+    "Tails": 3,
+    "Magon": 5,
+    "Inferno": 4,
+    "Fabi": 7
+   }
+  },
+  {
+   "edition": "31",
+   "results": {
+    "Thoman": 3,
+    "Skycrafter": 4,
+    "Charlie": 1,
+    "Magon": 7,
+    "Fabi": 8,
+    "IgntuL": 2,
+    "happytas": 5,
+    "Magnus": 6,
+    "Exa": 9
+   }
+  },
+  {
+   "edition": "32",
+   "results": {
+    "Skycrafter": 2,
+    "Frusty": 4,
+    "Vogtek": 1,
+    "Fabi": 5,
+    "Magnus": 3,
+    "Chicken": 6
+   }
+  },
+  {
+   "edition": "33",
+   "results": {
+    "Skycrafter": 1,
+    "Charlie": 2,
+    "Magon": 3,
+    "Fabi": 4
+   }
+  },
+  {
+   "edition": "34",
+   "results": {
+    "Thoman": 8,
+    "Skycrafter": 1,
+    "Vogtek": 2,
+    "Logout": 7,
+    "Magon": 5,
+    "Fabi": 4,
+    "happytas": 3,
+    "Exa": 6
+   }
+  },
+  {
+   "edition": "35",
+   "results": {
+    "Thoman": 1,
+    "Vogtek": 2,
+    "Galaxy": 6,
+    "Charlie": 5,
+    "Magon": 7,
+    "Fabi": 3,
+    "happytas": 4,
+    "Exa": 8
+   }
+  },
+  {
+   "edition": "36",
+   "results": {
+    "Thoman": 1,
+    "NaiCou": 4,
+    "Faasquit": 5,
+    "Skycrafter": 3,
+    "Vogtek": 2
+   }
+  },
+  {
+   "edition": "37",
+   "results": {
+    "Thoman": 2,
+    "Skycrafter": 1,
+    "Charlie": 4,
+    "Magnus": 5,
+    "Jsap": 3
+   }
+  },
+  {
+   "edition": "38",
+   "results": {
+    "NaiCou": 2,
+    "Skycrafter": 1,
+    "Vogtek": 3,
+    "BananKing": 4
+   }
+  },
+  {
+   "edition": "39",
+   "results": {
+    "Thoman": 1,
+    "Skycrafter": 3,
+    "Prodi": 2
+   }
+  },
+  {
+   "edition": "40",
+   "results": {
+    "Thoman": 2,
+    "NaiCou": 4,
+    "Skycrafter": 1,
+    "Frusty": 5,
+    "Fabi": 6,
+    "Kristiano": 3
+   }
+  },
+  {
+   "edition": "41",
+   "results": {
+    "Thoman": 1,
+    "Vogtek": 3,
+    "Prodi": 2,
+    "Fabi": 4
+   }
+  },
+  {
+   "edition": "42",
+   "results": {
+    "Vogtek": 2,
+    "Kristiano": 1,
+    "Kram": 3
+   }
+  },
+  {
+   "edition": "43",
+   "results": {
+    "NaiCou": 1,
+    "Vogtek": 2
+   }
+  },
+  {
+   "edition": "44",
+   "results": {
+    "Thoman": 1,
+    "NaiCou": 2,
+    "Skycrafter": 3,
+    "Vogtek": 4
+   }
+  },
+  {
+   "edition": "45",
+   "results": {
+    "Thoman": 1,
+    "Vogtek": 4,
+    "Kristiano": 2,
+    "Kram": 3
+   }
+  },
+  {
+   "edition": "46",
+   "results": {
+    "Thoman": 1,
+    "NaiCou": 4,
+    "Frusty": 2,
+    "Prodi": 3
+   }
+  },
+  {
+   "edition": "47",
+   "results": {
+    "Skycrafter": 2,
+    "Frusty": 3,
+    "Vogtek": 1,
+    "Fabi": 4,
+    "Kram": 5,
+    "Elliot": 6
+   }
+  },
+  {
+   "edition": "48",
+   "results": {
+    "Thoman": 2,
+    "NaiCou": 7,
+    "Vogtek": 1,
+    "Fabi": 3,
+    "Elliot": 5,
+    "Asphalt": 4,
+    "Verstial": 6
+   }
+  },
+  {
+   "edition": "49",
+   "results": {
+    "Skycrafter": 1,
+    "Vogtek": 3,
+    "Prodi": 2,
+    "Fabi": 6,
+    "Asphalt": 5,
+    "Qwerter25c": 4,
+    "Lucy": 7
+   }
+  },
+  {
+   "edition": "50",
+   "results": {
+    "Thoman": 2,
+    "Faasquit": 13,
+    "Skycrafter": 1,
+    "Frusty": 7,
+    "Vogtek": 6,
+    "Tails": 4,
+    "Charlie": 3,
+    "Magnus": 5,
+    "Elliot": 10,
+    "Qwerter25c": 12,
+    "Lucy": 14,
+    "Fluffy": 8,
+    "Rio": 9,
+    "Costco": 11
+   }
+  },
+  {
+   "edition": "51",
+   "results": {
+    "Thoman": 1,
+    "Skycrafter": 2,
+    "Vogtek": 3,
+    "Tails": 4,
+    "Fabi": 10,
+    "Kram": 6,
+    "Qwerter25c": 9,
+    "Lucy": 8,
+    "Costco": 7,
+    "TGhost": 5
+   }
+  },
+  {
+   "edition": "52",
+   "results": {
+    "Skycrafter": 6,
+    "Vogtek": 2,
+    "Charlie": 4,
+    "Magon": 5,
+    "happytas": 1,
+    "Kram": 3
+   }
+  },
+  {
+   "edition": "53",
+   "results": {
+    "NaiCou": 3,
+    "Faasquit": 6,
+    "Skycrafter": 1,
+    "Vogtek": 4,
+    "Tails": 5,
+    "BananKing": 2
+   }
+  },
+  {
+   "edition": "54",
+   "results": {
+    "Skycrafter": 2,
+    "Frusty": 5,
+    "Vogtek": 1,
+    "Tails": 6,
+    "happytas": 3,
+    "Magnus": 3,
+    "Kakker": 7
+   }
+  },
+  {
+   "edition": "55",
+   "results": {
+    "Mufat": 2,
+    "Skycrafter": 3,
+    "Frusty": 6,
+    "Vogtek": 1,
+    "Fabi": 4,
+    "happytas": 5,
+    "Elliot": 8,
+    "Kakker": 7
+   }
+  },
+  {
+   "edition": "56",
+   "results": {
+    "Thoman": 2,
+    "Tails": 5,
+    "Fabi": 1,
+    "Elliot": 3,
+    "Edgewort": 4
+   }
+  },
+  {
+   "edition": "57",
+   "results": {
+    "Thoman": 5,
+    "Skycrafter": 1,
+    "Vogtek": 4,
+    "Kram": 3,
+    "Elliot": 6,
+    "Edgewort": 7,
+    "Arkes": 2
+   }
+  },
+  {
+   "edition": "58",
+   "results": {
+    "Skycrafter": 1,
+    "Vogtek": 4,
+    "Blev": 8,
+    "Fabi": 7,
+    "Elliot": 9,
+    "Qwerter25c": 5,
+    "Edgewort": 10,
+    "Arkes": 3,
+    "Faiby": 2,
+    "Huqert": 6
+   }
+  },
+  {
+   "edition": "59",
+   "results": {
+    "Demo": 1,
+    "Vogtek": 3,
+    "Charlie": 6,
+    "Blev": 2,
+    "Elliot": 7,
+    "Edgewort": 8,
+    "Faiby": 4,
+    "Huqert": 5
+   }
+  },
+  {
+   "edition": "60",
+   "results": {
+    "Magon": 6,
+    "Blev": 1,
+    "Fabi": 5,
+    "Qwerter25c": 2,
+    "Edgewort": 4,
+    "Huqert": 2
+   }
+  },
+  {
+   "edition": "61",
+   "results": {
+    "Mufat": 1,
+    "Blev": 2,
+    "Elliot": 6,
+    "Qwerter25c": 4,
+    "Rio": 3,
+    "Exix": 5
+   }
+  },
+  {
+   "edition": "62",
+   "results": {
+    "Blev": 1,
+    "Qwerter25c": 3,
+    "Exix": 2
+   }
+  },
+  {
+   "edition": "63",
+   "results": {
+    "Blev": 1,
+    "Qwerter25c": 4,
+    "Edgewort": 5,
+    "Exix": 2,
+    "Bedeux": 3,
+    "Ambrey": 6
+   }
+  },
+  {
+   "edition": "64",
+   "results": {
+    "Mufat": 2,
+    "Blev": 1,
+    "Exix": 4,
+    "Vertex": 3
+   }
+  },
+  {
+   "edition": "65",
+   "results": {
+    "Vogtek": 1,
+    "Rio": 3,
+    "Exix": 4,
+    "Crayhax": 2,
+    "C4ster": 5
+   }
+  },
+  {
+   "edition": "66",
+   "results": {
+    "Mufat": 3,
+    "Skycrafter": 2,
+    "Vogtek": 1,
+    "IgntuL": 4,
+    "Elliot": 7,
+    "Exix": 4,
+    "Bedeux": 6,
+    "Crayhax": 8
+   }
+  },
+  {
+   "edition": "67",
+   "results": {
+    "Mufat": 4,
+    "Skycrafter": 3,
+    "Vogtek": 2,
+    "Magon": 5,
+    "Prodi": 6,
+    "Elliot": 8,
+    "Qwerter25c": 1,
+    "Lucy": 8
+   }
+  },
+  {
+   "edition": "68",
+   "results": {
+    "Mufat": 1,
+    "Skycrafter": 2,
+    "Vogtek": 3,
+    "Magon": 7,
+    "Krogntek": 5,
+    "Elliot": 8,
+    "Lucy": 6,
+    "Crayhax": 4
+   }
+  }
+ ],
+ "players": [
+  "Thoman",
+  "Mufat",
+  "Demo",
+  "NaiCou",
+  "sebik",
+  "Faasquit",
+  "Skycrafter",
+  "Frusty",
+  "Vogtek",
+  "Tails",
+  "obbybigfast",
+  "Logout",
+  "Galaxy",
+  "Charlie",
+  "Dora",
+  "Stuntlover",
+  "Magon",
+  "Prodi",
+  "peter_file",
+  "Krogntek",
+  "BDcap",
+  "specular",
+  "GoldenOwl",
+  "Blev",
+  "Caleb",
+  "Inferno",
+  "Fabi",
+  "IgntuL",
+  "happytas",
+  "Magnus",
+  "Exa",
+  "Chicken",
+  "Jsap",
+  "BananKing",
+  "Kristiano",
+  "Kram",
+  "Elliot",
+  "Asphalt",
+  "Verstial",
+  "Qwerter25c",
+  "Lucy",
+  "Fluffy",
+  "Rio",
+  "Costco",
+  "TGhost",
+  "Kakker",
+  "Edgewort",
+  "Arkes",
+  "Faiby",
+  "Huqert",
+  "Exix",
+  "Bedeux",
+  "Ambrey",
+  "Vertex",
+  "Crayhax",
+  "C4ster"
+ ],
+ "updatedAt": "2026-11-22T17:39:17.800Z"
+}

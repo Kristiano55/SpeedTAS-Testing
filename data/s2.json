@@ -1,0 +1,715 @@
+{
+ "season": "s2",
+ "editions": [
+  {
+   "edition": "1",
+   "results": {
+    "Vogtek": 1,
+    "Sneak": 2,
+    "Charlie": 3,
+    "Magon": 4,
+    "Exix": 5,
+    "C4ster": 6,
+    "Leva": 7,
+    "Elliott": 8,
+    "Galaxy": 9,
+    "Skycrafter": 10,
+    "Mufat": 11,
+    "Lucy": 12,
+    "Fabi": 13,
+    "QQ": 14,
+    "DeleteC": 15,
+    "Crayhax": 16,
+    "Thoman": 17
+   }
+  },
+  {
+   "edition": "2",
+   "results": {
+    "Vogtek": 4,
+    "Sneak": 10,
+    "Charlie": 2,
+    "Magon": 9,
+    "C4ster": 8,
+    "Leva": 6,
+    "Skycrafter": 3,
+    "QQ": 7,
+    "Thoman": 1,
+    "Bedeux": 5
+   }
+  },
+  {
+   "edition": "3",
+   "results": {
+    "Vogtek": 4,
+    "Sneak": 12,
+    "Charlie": 8,
+    "Exix": 11,
+    "C4ster": 6,
+    "Elliott": 10,
+    "Skycrafter": 1,
+    "Mufat": 2,
+    "Lucy": 13,
+    "QQ": 9,
+    "Thoman": 3,
+    "Rio": 5,
+    "IgntuL": 7
+   }
+  },
+  {
+   "edition": "4",
+   "results": {
+    "Vogtek": 5,
+    "Charlie": 4,
+    "Magon": 6,
+    "Elliott": 9,
+    "Skycrafter": 1,
+    "Mufat": 2,
+    "Fabi": 8,
+    "QQ": 7,
+    "Thoman": 3,
+    "Bedeux": 10
+   }
+  },
+  {
+   "edition": "5",
+   "results": {
+    "Vogtek": 3,
+    "Sneak": 6,
+    "Exix": 5,
+    "Skycrafter": 1,
+    "Mufat": 4,
+    "Fabi": 10,
+    "QQ": 9,
+    "Thoman": 2,
+    "Frusty": 7,
+    "Oogy749": 8
+   }
+  },
+  {
+   "edition": "6",
+   "results": {
+    "Vogtek": 2,
+    "Sneak": 4,
+    "Charlie": 3,
+    "Mufat": 1,
+    "Fabi": 6,
+    "QQ": 5,
+    "Bedeux": 7
+   }
+  },
+  {
+   "edition": "7",
+   "results": {
+    "Vogtek": 5,
+    "Sneak": 3,
+    "Charlie": 7,
+    "Exix": 8,
+    "C4ster": 6,
+    "Elliott": 9,
+    "Skycrafter": 2,
+    "Fabi": 11,
+    "Crayhax": 4,
+    "Thoman": 1,
+    "Oogy749": 12,
+    "NaiCou": 10
+   }
+  },
+  {
+   "edition": "8",
+   "results": {
+    "Sneak": 4,
+    "C4ster": 5,
+    "Skycrafter": 3,
+    "Lucy": 8,
+    "QQ": 9,
+    "Crayhax": 6,
+    "Thoman": 1,
+    "Rio": 2
+   }
+  },
+  {
+   "edition": "9",
+   "results": {
+    "Sneak": 1,
+    "C4ster": 4,
+    "Crayhax": 5,
+    "Thoman": 3,
+    "Rio": 6,
+    "Oogy749": 2,
+    "NaiCou": 7
+   }
+  },
+  {
+   "edition": "10",
+   "results": {
+    "Sneak": 6,
+    "Magon": 4,
+    "QQ": 7,
+    "Thoman": 5,
+    "Bedeux": 3,
+    "Rio": 2,
+    "IgntuL": 1
+   }
+  },
+  {
+   "edition": "11",
+   "results": {
+    "Sneak": 3,
+    "Elliott": 6,
+    "Fabi": 5,
+    "QQ": 7,
+    "Crayhax": 4,
+    "IgntuL": 1,
+    "Oogy749": 2
+   }
+  },
+  {
+   "edition": "12",
+   "results": {
+    "Sneak": 2,
+    "Mufat": 3,
+    "QQ": 8,
+    "Thoman": 4,
+    "Rio": 1,
+    "Oogy749": 10,
+    "Salty": 5,
+    "Midnight": 6,
+    "oeN": 7,
+    "wasgud": 9
+   }
+  },
+  {
+   "edition": "13",
+   "results": {
+    "Sneak": 1,
+    "Fabi": 4,
+    "QQ": 3,
+    "Rio": 2
+   }
+  },
+  {
+   "edition": "14",
+   "results": {
+    "Sneak": 9,
+    "QQ": 8,
+    "Thoman": 3,
+    "Rio": 10,
+    "IgntuL": 1,
+    "Oogy749": 11,
+    "NaiCou": 2,
+    "Midnight": 7,
+    "Faiby": 4,
+    "Caleb": 5,
+    "Comfy": 6,
+    "Kim": 12
+   }
+  },
+  {
+   "edition": "15",
+   "results": {
+    "Sneak": 7,
+    "Lucy": 11,
+    "Fabi": 15,
+    "QQ": 10,
+    "Bedeux": 2,
+    "Rio": 1,
+    "IgntuL": 4,
+    "Oogy749": 5,
+    "NaiCou": 13,
+    "Midnight": 8,
+    "Comfy": 3,
+    "Kim": 11,
+    "Qwerter25c": 9,
+    "LilDemo": 6,
+    "Timefall": 14
+   }
+  },
+  {
+   "edition": "16",
+   "results": {
+    "Vogtek": 9,
+    "Sneak": 3,
+    "Exix": 13,
+    "Skycrafter": 4,
+    "Crayhax": 5,
+    "Thoman": 8,
+    "Rio": 2,
+    "IgntuL": 1,
+    "Kim": 12,
+    "Qwerter25c": 6,
+    "Felipe": 14,
+    "Meable": 10,
+    "Viron": 7,
+    "Infra": 11
+   }
+  },
+  {
+   "edition": "17",
+   "results": {
+    "Sneak": 4,
+    "Fabi": 5,
+    "QQ": 11,
+    "Thoman": 3,
+    "Rio": 1,
+    "NaiCou": 9,
+    "Midnight": 10,
+    "Caleb": 2,
+    "Kim": 6,
+    "LilDemo": 8,
+    "Adrien": 7
+   }
+  },
+  {
+   "edition": "18",
+   "results": {
+    "Vogtek": 3,
+    "Sneak": 9,
+    "QQ": 11,
+    "Thoman": 2,
+    "Rio": 8,
+    "IgntuL": 1,
+    "NaiCou": 10,
+    "Midnight": 4,
+    "Caleb": 5,
+    "Comfy": 6,
+    "Kim": 13,
+    "LilDemo": 7,
+    "Viron": 12,
+    "NicoReborn": 14
+   }
+  },
+  {
+   "edition": "19",
+   "results": {
+    "Vogtek": 1,
+    "Sneak": 5,
+    "Skycrafter": 2,
+    "Fabi": 4,
+    "Thoman": 3,
+    "Caleb": 6,
+    "Kim": 7,
+    "NicoReborn": 8
+   }
+  },
+  {
+   "edition": "20",
+   "results": {
+    "Sneak": 6,
+    "Mufat": 3,
+    "QQ": 8,
+    "Thoman": 1,
+    "Rio": 7,
+    "IgntuL": 2,
+    "Caleb": 11,
+    "Comfy": 5,
+    "Kim": 9,
+    "LilDemo": 4,
+    "NicoReborn": 10
+   }
+  },
+  {
+   "edition": "21",
+   "results": {
+    "Sneak": 4,
+    "Skycrafter": 1,
+    "Fabi": 8,
+    "Rio": 2,
+    "IgntuL": 3,
+    "Oogy749": 6,
+    "Midnight": 5,
+    "NicoReborn": 7
+   }
+  },
+  {
+   "edition": "22",
+   "results": {
+    "Sneak": 9,
+    "Skycrafter": 3,
+    "Fabi": 8,
+    "QQ": 7,
+    "DeleteC": 10,
+    "Rio": 1,
+    "IgntuL": 2,
+    "Oogy749": 4,
+    "NaiCou": 11,
+    "Midnight": 6,
+    "NicoReborn": 12,
+    "Magnus": 5
+   }
+  },
+  {
+   "edition": "23",
+   "results": {
+    "Sneak": 6,
+    "Exix": 4,
+    "QQ": 7,
+    "IgntuL": 1,
+    "Oogy749": 3,
+    "Midnight": 12,
+    "Kim": 5,
+    "LilDemo": 2,
+    "NicoReborn": 10,
+    "casterjamar": 11,
+    "Telve": 9,
+    "Trizzan": 8
+   }
+  },
+  {
+   "edition": "24",
+   "results": {
+    "Sneak": 4,
+    "Thoman": 1,
+    "Oogy749": 6,
+    "Midnight": 9,
+    "Caleb": 3,
+    "Kim": 2,
+    "NicoReborn": 10,
+    "Telve": 8,
+    "Trizzan": 7,
+    "TejasIsAmazing": 5,
+    "MigthBeJoe": 11
+   }
+  },
+  {
+   "edition": "25",
+   "results": {
+    "Sneak": 1,
+    "Rio": 3,
+    "Oogy749": 4,
+    "Midnight": 2,
+    "Caleb": 5,
+    "Kim": 6,
+    "NicoReborn": 8,
+    "TejasIsAmazing": 7,
+    "Kram": 9
+   }
+  },
+  {
+   "edition": "26",
+   "results": {
+    "Sneak": 1,
+    "QQ": 6,
+    "Thoman": 2,
+    "Rio": 5,
+    "Midnight": 4,
+    "Qwerter25c": 3,
+    "NicoReborn": 9,
+    "Telve": 8,
+    "TejasIsAmazing": 7
+   }
+  },
+  {
+   "edition": "27",
+   "results": {
+    "Sneak": 8,
+    "Exix": 10,
+    "Thoman": 3,
+    "Rio": 2,
+    "Oogy749": 1,
+    "Midnight": 5,
+    "LilDemo": 4,
+    "NicoReborn": 9,
+    "TejasIsAmazing": 6,
+    "Bobas": 7
+   }
+  },
+  {
+   "edition": "28",
+   "results": {
+    "Vogtek": 2,
+    "Sneak": 5,
+    "Thoman": 1,
+    "Oogy749": 6,
+    "Midnight": 9,
+    "Qwerter25c": 7,
+    "NicoReborn": 8,
+    "Trizzan": 3,
+    "TejasIsAmazing": 4
+   }
+  },
+  {
+   "edition": "29",
+   "results": {
+    "Vogtek": 3,
+    "Sneak": 5,
+    "Fabi": 7,
+    "Thoman": 4,
+    "Midnight": 2,
+    "Kim": 11,
+    "Qwerter25c": 1,
+    "NicoReborn": 9,
+    "TejasIsAmazing": 6,
+    "Logout": 8,
+    "Prodi": 10,
+    "Emil": 12
+   }
+  },
+  {
+   "edition": "30",
+   "results": {
+    "Sneak": 1,
+    "Exix": 8,
+    "Elliott": 6,
+    "QQ": 5,
+    "Midnight": 2,
+    "Caleb": 4,
+    "LilDemo": 3,
+    "NicoReborn": 7
+   }
+  },
+  {
+   "edition": "100",
+   "results": {
+    "Vogtek": 8,
+    "Sneak": 7,
+    "QQ": 11,
+    "Thoman": 9,
+    "Rio": 1,
+    "Oogy749": 10,
+    "Midnight": 5,
+    "Caleb": 2,
+    "Kim": 6,
+    "LilDemo": 14,
+    "NicoReborn": 13,
+    "Emil": 15,
+    "Kristiano": 3,
+    "happytas": 4,
+    "xinferno": 12,
+    "popE": 16
+   }
+  },
+  {
+   "edition": "32",
+   "results": {
+    "Oogy749": 6,
+    "Midnight": 1,
+    "Caleb": 3,
+    "Qwerter25c": 2,
+    "happytas": 4,
+    "popE": 5
+   }
+  },
+  {
+   "edition": "33",
+   "results": {
+    "Sneak": 1,
+    "QQ": 5,
+    "Rio": 4,
+    "Oogy749": 9,
+    "Midnight": 3,
+    "NicoReborn": 8,
+    "Logout": 6,
+    "Kristiano": 2,
+    "popE": 7
+   }
+  },
+  {
+   "edition": "34",
+   "results": {
+    "Vogtek": 7,
+    "Sneak": 4,
+    "Thoman": 5,
+    "Oogy749": 1,
+    "Midnight": 3,
+    "NicoReborn": 9,
+    "TejasIsAmazing": 6,
+    "Kristiano": 2,
+    "popE": 8,
+    "Febstone": 10
+   }
+  },
+  {
+   "edition": "35",
+   "results": {
+    "Sneak": 3,
+    "Thoman": 1,
+    "Rio": 2,
+    "Oogy749": 7,
+    "Midnight": 6,
+    "Emil": 4,
+    "Prow": 5
+   }
+  },
+  {
+   "edition": "36",
+   "results": {
+    "Sneak": 4,
+    "Rio": 3,
+    "Oogy749": 7,
+    "Midnight": 2,
+    "Kim": 1,
+    "Qwerter25c": 5,
+    "NicoReborn": 8,
+    "Trizzan": 6
+   }
+  },
+  {
+   "edition": "37",
+   "results": {
+    "Sneak": 5,
+    "Bedeux": 6,
+    "Oogy749": 4,
+    "Midnight": 1,
+    "Kim": 3,
+    "happytas": 2
+   }
+  },
+  {
+   "edition": "38",
+   "results": {
+    "Sneak": 3,
+    "Thoman": 5,
+    "Rio": 4,
+    "Midnight": 1,
+    "Kim": 2,
+    "Gorgman": 6
+   }
+  },
+  {
+   "edition": "39",
+   "results": {
+    "Sneak": 5,
+    "Thoman": 3,
+    "Rio": 1,
+    "Oogy749": 6,
+    "Midnight": 4,
+    "Kim": 2,
+    "NicoReborn": 8,
+    "TejasIsAmazing": 7,
+    "Febstone": 10,
+    "Gorgman": 9
+   }
+  },
+  {
+   "edition": "40",
+   "results": {
+    "Sneak": 4,
+    "Bedeux": 6,
+    "Rio": 3,
+    "Oogy749": 7,
+    "Kim": 5,
+    "NicoReborn": 8,
+    "Kristiano": 1,
+    "happytas": 2
+   }
+  },
+  {
+   "edition": "41",
+   "results": {
+    "Sneak": 3,
+    "Thoman": 6,
+    "Rio": 2,
+    "Midnight": 1,
+    "Caleb": 5,
+    "Kim": 7,
+    "Qwerter25c": 4,
+    "NicoReborn": 10,
+    "Febstone": 8,
+    "Gorgman": 9
+   }
+  },
+  {
+   "edition": "42",
+   "results": {
+    "Sneak": 4,
+    "Thoman": 2,
+    "Rio": 1,
+    "Oogy749": 9,
+    "Midnight": 5,
+    "Kim": 3,
+    "NicoReborn": 8,
+    "happytas": 6,
+    "Gorgman": 7
+   }
+  },
+  {
+   "edition": "43",
+   "results": {
+    "Sneak": 7,
+    "Thoman": 8,
+    "Rio": 2,
+    "Oogy749": 3,
+    "Midnight": 1,
+    "Kim": 6,
+    "NicoReborn": 9,
+    "happytas": 5,
+    "Febstone": 10,
+    "Gorgman": 4
+   }
+  },
+  {
+   "edition": "44",
+   "results": {
+    "Sneak": 3,
+    "Rio": 1,
+    "Oogy749": 5,
+    "Midnight": 4,
+    "Kim": 2,
+    "Gorgman": 6
+   }
+  }
+ ],
+ "players": [
+  "Vogtek",
+  "Sneak",
+  "Charlie",
+  "Magon",
+  "Exix",
+  "C4ster",
+  "Leva",
+  "Elliott",
+  "Galaxy",
+  "Skycrafter",
+  "Mufat",
+  "Lucy",
+  "Fabi",
+  "QQ",
+  "DeleteC",
+  "Crayhax",
+  "Thoman",
+  "Bedeux",
+  "Rio",
+  "IgntuL",
+  "Frusty",
+  "Oogy749",
+  "NaiCou",
+  "Salty",
+  "Midnight",
+  "oeN",
+  "wasgud",
+  "Faiby",
+  "Caleb",
+  "Comfy",
+  "Kim",
+  "Qwerter25c",
+  "LilDemo",
+  "Timefall",
+  "Felipe",
+  "Meable",
+  "Viron",
+  "Infra",
+  "Adrien",
+  "NicoReborn",
+  "Magnus",
+  "casterjamar",
+  "Telve",
+  "Trizzan",
+  "TejasIsAmazing",
+  "MigthBeJoe",
+  "Kram",
+  "Bobas",
+  "Logout",
+  "Prodi",
+  "Emil",
+  "Kristiano",
+  "happytas",
+  "xinferno",
+  "popE",
+  "popE",
+  "Febstone",
+  "Prow",
+  "Gorgman"
+ ],
+ "updatedAt": "2026-11-22T17:39:17.800Z"
+}

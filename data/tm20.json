@@ -1,0 +1,114 @@
+{
+ "season": "tm20",
+ "editions": [
+  {
+   "edition": "1",
+   "results": {
+    "Thoman": 1,
+    "SmithyTM": 2,
+    "Glimse5678": 3,
+    "rockskater89": 4,
+    "FrankTheHamster": 5,
+    "lasyopp": 6,
+    "Elliott": 7,
+    "vogtek": 8,
+    "NewcastleBagel93": 9,
+    "Razzer": 10,
+    "yhomas": 11,
+    "QQ_kewkew": 12,
+    "Magubv": 13,
+    "Qwerter25c": 14,
+    "jakoblgn": 15,
+    "Sneak": 16,
+    "pena1g": 17,
+    "NicoReborn": 18,
+    "Jooff": 19,
+    "jicbo": 20,
+    "Dinoob": 21
+   }
+  },
+  {
+   "edition": "2",
+   "results": {
+    "Thoman": 4,
+    "Glimse5678": 2,
+    "Elliott": 1,
+    "NewcastleBagel93": 10,
+    "yhomas": 3,
+    "QQ_kewkew": 7,
+    "Sneak": 5,
+    "NicoReborn": 12,
+    "jicbo": 6,
+    "nyameless": 8,
+    "MidnightEuphoria": 9,
+    "Gorgman": 11
+   }
+  },
+  {
+   "edition": "3",
+   "results": {
+    "Thoman": 4,
+    "Glimse5678": 6,
+    "rockskater89": 7,
+    "Elliott": 8,
+    "Razzer": 2,
+    "yhomas": 9,
+    "QQ_kewkew": 5,
+    "Magubv": 10,
+    "Sneak": 1,
+    "pena1g": 3,
+    "NicoReborn": 15,
+    "jicbo": 11,
+    "Gorgman": 14,
+    "KunamiTM": 12,
+    "EmilSPlayz": 13
+   }
+  },
+  {
+   "edition": "4",
+   "results": {
+    "Thoman": 2,
+    "Glimse5678": 9,
+    "rockskater89": 6,
+    "NewcastleBagel93": 8,
+    "Razzer": 5,
+    "yhomas": 7,
+    "QQ_kewkew": 3,
+    "Magubv": 10,
+    "Qwerter25c": 4,
+    "Sneak": 1,
+    "NicoReborn": 11,
+    "jicbo": 12
+   }
+  }
+ ],
+ "players": [
+  "Thoman",
+  "SmithyTM",
+  "Glimse5678",
+  "rockskater89",
+  "FrankTheHamster",
+  "lasyopp",
+  "Elliott",
+  "vogtek",
+  "NewcastleBagel93",
+  "Razzer",
+  "yhomas",
+  "QQ_kewkew",
+  "Magubv",
+  "Qwerter25c",
+  "jakoblgn",
+  "Sneak",
+  "pena1g",
+  "NicoReborn",
+  "Jooff",
+  "jicbo",
+  "Dinoob",
+  "nyameless",
+  "MidnightEuphoria",
+  "Gorgman",
+  "KunamiTM",
+  "EmilSPlayz"
+ ],
+ "updatedAt": "2026-11-22T17:39:17.800Z"
+}

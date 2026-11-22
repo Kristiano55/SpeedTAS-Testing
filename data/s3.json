@@ -1,1 +1,35 @@
-{"season":"s3","editions":[],"players":[],"updatedAt":null}
+{
+ "season": "s3",
+ "editions": [
+  {
+   "edition": "1",
+   "results": {
+    "Kris": 1,
+    "Thoman": 2,
+    "Sneak": 3
+   }
+  },
+  {
+   "edition": "2",
+   "results": {
+    "Kris": 1,
+    "Thoman": 3,
+    "Sneak": 2
+   }
+  },
+  {
+   "edition": "3",
+   "results": {
+    "Kris": 1,
+    "Thoman": 2,
+    "Sneak": 3
+   }
+  }
+ ],
+ "players": [
+  "Kris",
+  "Thoman",
+  "Sneak"
+ ],
+ "updatedAt": "2026-11-22T17:39:17.800Z"
+}
