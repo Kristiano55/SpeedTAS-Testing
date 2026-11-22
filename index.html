@@ -8,7 +8,7 @@
   <meta name="description" content="Standings, results, records and rivalries for SpeedTAS, the one-hour Trackmania tool-assisted speedrun competition.">
   <meta name="color-scheme" content="dark">
   <meta name="theme-color" content="#0a0b0d">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230a0b0d'/%3E%3Cpath d='M9 6h17l-4 9h-7l-2 5h7l-3 6H5l4-9h7l2-5h-9z' fill='%23e9fb59'/%3E%3C/svg%3E">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230a0b0d'/%3E%3Cpath d='M9 6h17l-4 9h-7l-2 5h7l-3 6H5l4-9h7l2-5h-9z' fill='%23b388ff'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:ital,wght@0,600;0,700;1,600;1,700;1,800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
@@ -16,8 +16,9 @@
   <style>
     /* ============ TOKENS ============ */
     :root {
-      --accent: #e9fb59;
-      --accent-rgb: 233,251,89;
+      /* TMNF accent = the current season's colour. Season 3: purple (Seasons 1-2 were acid lime #e9fb59). */
+      --accent: #b388ff;
+      --accent-rgb: 179,136,255;
       --on-accent: #0a0b0d;
       --bg: #0a0b0d;
       --bg2: #0f1013;
@@ -558,6 +559,17 @@
       .chart-box { height: 280px; }
       th, td { padding-left: 10px; padding-right: 10px; }
     }
+
+    /* ============ SEASON 3: BEST-OF SCORING & PRE-SEASON ============ */
+    .fc.dropped { opacity: .38; text-decoration: line-through; }
+    s.dropped-pts { color: var(--dim); text-decoration-thickness: 1px; }
+    .table-foot { margin: 10px 2px 0; font-size: 12.5px; color: var(--muted); }
+    .dim-note { font-weight: 500; color: var(--dim); text-transform: none; letter-spacing: 0; }
+    .scored-note { display: block; margin-top: 4px; font-family: var(--font-mono); font-size: 11px; font-weight: 500; color: var(--muted); }
+    .latest-sub { margin: 6px 0 0; font-size: 13.5px; color: var(--muted); }
+    .next-up .break-note { display: block; margin-top: 6px; color: var(--muted); }
+    tr.empty-row td { padding: 28px 16px; text-align: center; color: var(--muted); }
+    tr.empty-row:hover { background: none; }
   </style>
 </head>
 
@@ -610,7 +622,8 @@
   </footer>
   <script>
     /* ============ CONFIG ============ */
-    const SHEET_ID = "1g7M1IWvDlqmUkUWB6oSX-HKf7tCpAmaQK_nvNGBEppw";
+    const SHEET_ID = "1g7M1IWvDlqmUkUWB6oSX-HKf7tCpAmaQK_nvNGBEppw"; // Season 2 (archive)
+    const SEASON_3_SHEET_ID = "1Ylmj87seG1TF7ZRlnx8puwTFt39tAKdPF0JEpfhcTOc"; // Season 3 (current)
     const SHEET_NAME = "Editions";
     const PLAYER_SHEET_NAME = "Players"; // columns: Players, Id (the Discord ID)
     /* After deploying outputs/speedtas-api-worker.js, paste its public URL here.
@@ -632,7 +645,35 @@
     const TM20_EDITIONS_GID = "";
     let GAME = 'tmnf', ROUTE_GAME = 'tmnf';
     const DATA = {tmnf: null, tm20: null};
-    const S2L = () => GAME === 'tm20' ? 'TM2020' : 'Season ' + '2'; // label of the "current" data set
+    /* ============ SEASONS ============
+       RAW always holds the CURRENT season of the active game: Season 3 for TMNF, the TM2020 data for TM2020.
+       Earlier TMNF seasons are archives, loaded on demand (loadSeason1 / loadSeason2).
+       bestOf: only that many of a player's best results count towards the championship (null = all count).
+       Seasons 1 and 2 count every result, exactly as they always have. */
+    const CURRENT_TMNF_SEASON = 's3';
+    const SEASON_INFO = {
+      s1: {label: 'Season 1', short: 'S1', bestOf: null},
+      s2: {label: 'Season 2', short: 'S2', bestOf: null},
+      s3: {label: 'Season 3', short: 'S3', bestOf: 9, editions: 12, start: '2027-02-06'}
+    };
+    const TMNF_SEASON_ORDER = ['s3', 's2', 's1']; // newest first, as shown in the season pickers
+    /* Saturdays without a points edition (mid-season and off-season breaks), Lisbon dates. */
+    const SCHEDULE_BREAKS = ['2027-03-20', '2027-05-08', '2027-05-15', '2027-05-22', '2027-05-29', '2027-07-17', '2027-09-04', '2027-09-11', '2027-09-18', '2027-11-06', '2027-12-25', '2028-01-01', '2028-01-08', '2028-01-15', '2028-01-22'];
+    const EDITION_HOUR_LISBON = 20;
+    const curKey = () => GAME === 'tm20' ? 's2' : CURRENT_TMNF_SEASON; // TM2020 keeps its existing #/tm20/.../s2/... links
+    const isSeasonKey = k => k === 's1' || k === 's2' || k === 's3';
+    const S2L = () => GAME === 'tm20' ? 'TM2020' : SEASON_INFO[CURRENT_TMNF_SEASON].label; // label of the "current" data set
+    function labelFor(key) {
+      if (key === curKey()) return S2L();
+      if (key === 'both' || key === 'all') return 'All seasons';
+      return SEASON_INFO[key] ? SEASON_INFO[key].label : S2L();
+    }
+    /* Picker options: current season first, then the archives, then an optional combined view. */
+    function seasonOptions(combinedKey, combinedLabel = 'All seasons') {
+      if (GAME === 'tm20') return [[curKey(), S2L()]];
+      const opts = TMNF_SEASON_ORDER.map(k => [k, SEASON_INFO[k].label]);
+      return combinedKey ? opts.concat([[combinedKey, combinedLabel]]) : opts;
+    }
 
     /* Last-resort snapshot of the real sheet — used only if BOTH the Worker's
        cached /data endpoint and a direct browser connection to Google Sheets
@@ -706,10 +747,13 @@
 
         season1Promise = viaWorker
           .catch(err => {
-            console.warn('Season 1 via Worker failed; trying direct sheet fetch.', err);
-            return fetch(SEASON_1_CSV_URL)
-              .then(r => {if (!r.ok) throw new Error('Season 1 sheet could not be reached.'); return r.text();})
-              .then(text => parseDelimitedText(text));
+            console.warn('Season 1 via Worker failed; trying the repo data file.', err);
+            return fetchRepoData('s1').catch(err2 => {
+              console.warn('Season 1 repo data file unavailable; trying direct sheet fetch.', err2);
+              return fetch(SEASON_1_CSV_URL)
+                .then(r => {if (!r.ok) throw new Error('Season 1 sheet could not be reached.'); return r.text();})
+                .then(text => parseDelimitedText(text));
+            });
           })
           .then(data => SEASON_1 = data)
           .catch(async err => {console.warn('Season 1 live fetch failed; using saved snapshot.', err); return SEASON_1 = await loadSeason1Snapshot();});
@@ -744,9 +788,12 @@
           : Promise.reject(new Error('No SPEEDTAS_API_URL configured.'));
         tm20Promise = viaWorker
           .catch(err => {
-            console.warn('TM2020 via Worker failed; trying the published sheet directly.', err);
-            return fetch(tm20CsvUrl()).then(r => {if (!r.ok) throw new Error('The TM2020 sheet could not be reached.'); return r.text();}).then(parseTM20Text);
+            console.warn('TM2020 via Worker failed; trying the repo data file.', err);
+            return fetchRepoData('tm20').catch(err2 => {console.warn('TM2020 repo data file unavailable; trying the published sheet directly.', err2); return null;});
           })
+          .then(d => d || fetch(tm20CsvUrl()).then(r => {if (!r.ok) throw new Error('The TM2020 sheet could not be reached.'); return r.text();}).then(parseTM20Text))
+          /* Name merging looks at the TMNF seasons, so wait for the archives (which preload anyway) before canonicalising. */
+          .then(d => Promise.all([loadSeason2().catch(() => null), loadSeason1().catch(() => null)]).then(() => d))
           .then(d => DATA.tm20 = canonicalizeDataset(d))
           .finally(() => {tm20Promise = null;});
       }
@@ -757,13 +804,19 @@
     /* The Worker's /events-index finds which tmtas.exchange event is "edition N" by reading event titles.
        EVENT_PATTERN is a regular expression matched against the event title (the title must contain "#N").
        If an edition can't be found automatically, pin it by hand: EVENT_ID_OVERRIDES.tm20 = {"5": 260}. */
-    const EVENT_PATTERN = {tmnf: 'SpeedTAS Season2', tm20: 'SpeedTAS TM20'}; // titles look like "SpeedTAS TM20 #4"
-    const EVENT_ID_RANGE = {tmnf: [40, 300], tm20: [200, 600]};
-    const EVENT_ID_OVERRIDES = {tmnf: {}, tm20: {"1": 229, "2": 240, "3": 251, "4": 258}}; // known events always win; later ones are found automatically
+    /* Keys: 's2' / 's3' = TMNF seasons, 'tm20' = TM2020. Season 1 has no TAS Exchange events. */
+    const EVENT_PATTERN = {s2: 'SpeedTAS Season2', s3: 'SpeedTAS (Season ?3|S3)\\b', tm20: 'SpeedTAS TM20'}; // titles look like "SpeedTAS TM20 #4"
+    const EVENT_ID_RANGE = {s2: [40, 300], s3: [260, 860], tm20: [200, 600]};
+    const EVENT_ID_OVERRIDES = {s2: {}, s3: {}, tm20: {"1": 229, "2": 240, "3": 251, "4": 258}}; // known events always win; later ones are found automatically
+    const eventKeyFor = seasonKey => GAME === 'tm20' ? 'tm20' : seasonKey;
+    const hasEvents = seasonKey => GAME === 'tm20' || seasonKey === 's2' || seasonKey === 's3';
+    /* data/events.json is written by the GitHub Action: {"s3": {"1": {id, title, results: [{pos, entrant, time}]}}, ...} */
+    let REPO_EVENTS = null;
+    const repoEvents = () => REPO_EVENTS || (REPO_EVENTS = fetch('data/events.json', {cache: 'no-cache'}).then(r => r.ok ? r.json() : {}).catch(() => ({})));
     /* Hosts sometimes upload a competitor's run under their own name. Their entry is then handed to the competitor
        who has no time of their own - unless the sheet shows the host competed (then it's the host's own run). */
-    const EVENT_HOSTS = {tmnf: ['Kristiano'], tm20: ['Kristiano']};
-    const EVENT_INDEX = {tmnf: null, tm20: null};
+    const EVENT_HOSTS = {s2: ['Kristiano'], s3: ['Kristiano'], tm20: ['Kristiano']};
+    const EVENT_INDEX = {s2: null, s3: null, tm20: null};
     const eventPromises = {};
     const eventUrl = id => 'https://tmtas.exchange/events/' + id;
     function eventFor(game, edition) {
@@ -783,6 +836,9 @@
           eventPromises[game] = Promise.resolve(cached.events);
         } else {
           eventPromises[game] = (async () => {
+            /* The repo's events.json (GitHub Action) answers without touching TAS Exchange; the Worker scan is the backup. */
+            const fromRepo = (await repoEvents())[game];
+            if (fromRepo && Object.keys(fromRepo).length) {EVENT_INDEX[game] = fromRepo; return fromRepo;}
             const [from, to] = EVENT_ID_RANGE[game];
             for (let i = 0; i < 12; i++) {
               const r = await fetch(`${proxyUrl}/events-index?pattern=${encodeURIComponent(EVENT_PATTERN[game])}&from=${from}&to=${to}`);
@@ -800,7 +856,7 @@
     }
     function fillHistoryEventLinks() {
       document.querySelectorAll('.history-event[data-edition]').forEach(el => {
-        const ev = eventFor(GAME, el.dataset.edition);
+        const ev = eventFor(el.dataset.eventKey || eventKeyFor(curKey()), el.dataset.edition);
         if (ev && !el.firstChild) el.innerHTML = `<span class="ext-link" data-ext="${eventUrl(ev.id)}" title="Open this event on TAS Exchange">TAS Exchange ↗</span>`;
       });
     }
@@ -839,8 +895,8 @@
       return out;
     }
     function attachEditionEvent(ed, seasonKey) {
-      if (seasonKey === 's1') return;
-      const edition = ed.edition, game = GAME;
+      if (!hasEvents(seasonKey)) return;
+      const edition = ed.edition, game = eventKeyFor(seasonKey);
       const stillHere = () => document.getElementById('eventLink') && document.getElementById('eventLink').dataset.edition === String(edition);
       loadEventIndex(game).then(() => {
         const ev = eventFor(game, edition);
@@ -848,7 +904,11 @@
         const link = document.getElementById('eventLink');
         link.href = eventUrl(ev.id); link.style.display = '';
         const proxyUrl = (SPEEDTAS_API_URL || '').replace(/\/+$/, '');
-        return fetch(`${proxyUrl}/event-results?id=${ev.id}`).then(r => r.ok ? r.json() : null).then(data => {
+        return repoEvents().then(repo => {
+          const saved = repo[game] && repo[game][String(edition)];
+          if (saved && saved.id === ev.id && Array.isArray(saved.results) && saved.results.length) return saved;
+          return fetch(`${proxyUrl}/event-results?id=${ev.id}`).then(r => r.ok ? r.json() : null);
+        }).then(data => {
           if (!data || !data.results || !stillHere()) return;
           const matched = matchEntrantsToPlayers(data.results, Object.keys(ed.results), {placements: ed.results, hosts: EVENT_HOSTS[game]});
           const secs = Object.values(matched).map(en => parseTimeSeconds(en.time)).filter(x => x != null);
@@ -1032,24 +1092,71 @@
       return buildDatasetFromGrid(grid);
     }
 
-    async function loadData() {
+    /* Results files committed to this repo by the GitHub Action (.github/workflows/update-data.yml).
+       Same shape as the Worker's /data: {season, editions, players, updatedAt}. */
+    async function fetchRepoData(key) {
+      const res = await fetch(`data/${key}.json`, {cache: 'no-cache'});
+      if (!res.ok) throw new Error(`data/${key}.json: HTTP ${res.status}`);
+      const payload = await res.json();
+      if (!payload || !Array.isArray(payload.editions) || !Array.isArray(payload.players)) throw new Error(`data/${key}.json has an unexpected shape`);
+      return {editions: payload.editions, players: payload.players};
+    }
+    async function fetchWorkerData(key) {
       const proxyUrl = (SPEEDTAS_API_URL || '').replace(/\/+$/, '');
-      if (proxyUrl) {
-        try {
-          const res = await fetch(proxyUrl + '/data?season=s2');
-          if (!res.ok) {
-            let msg = `Worker responded with ${res.status}`;
-            try {const errBody = await res.json(); if (errBody && errBody.error) msg = errBody.error;} catch (e) {}
-            throw new Error(msg);
-          }
-          const payload = await res.json();
-          return {editions: payload.editions, players: payload.players};
-        } catch (err) {
-          console.warn('Season 2 via Worker failed; trying direct Google Sheets connection.', err);
-        }
+      if (!proxyUrl) throw new Error('No SPEEDTAS_API_URL configured.');
+      const res = await fetch(proxyUrl + '/data?season=' + key);
+      if (!res.ok) {
+        let msg = `Worker responded with ${res.status}`;
+        try {const errBody = await res.json(); if (errBody && errBody.error) msg = errBody.error;} catch (e) {}
+        throw new Error(msg);
       }
+      const payload = await res.json();
+      return {editions: payload.editions, players: payload.players};
+    }
+
+    /* Season 2 (archive): Worker -> repo file -> direct Google Sheets -> built-in snapshot. */
+    async function loadSeason2Live() {
+      try {return await fetchWorkerData('s2');}
+      catch (err) {console.warn('Season 2 via Worker failed; trying the repo data file.', err);}
+      try {return await fetchRepoData('s2');}
+      catch (err) {console.warn('Season 2 repo data file unavailable; trying direct Google Sheets connection.', err);}
       const response = await fetchViaJSONP(SHEET_NAME);
       return parseGvizResponse(response);
+    }
+    let SEASON_2 = null, season2Promise = null;
+    function loadSeason2() {
+      if (SEASON_2) return Promise.resolve(SEASON_2);
+      if (!season2Promise) {
+        season2Promise = loadSeason2Live()
+          .then(data => SEASON_2 = data)
+          .catch(err => {console.warn('Season 2 live fetch failed; using saved snapshot.', err); return SEASON_2 = parseDelimitedText(FALLBACK_CSV_TEXT);});
+      }
+      return season2Promise;
+    }
+
+    /* Current TMNF season (Season 3): repo file (written by the GitHub Action) -> Worker.
+       Before the first edition there is nothing to show yet, which is a normal state, not an error. */
+    async function loadData() {
+      try {return await fetchRepoData(CURRENT_TMNF_SEASON);}
+      catch (err) {console.warn(`${SEASON_INFO[CURRENT_TMNF_SEASON].label} repo data file unavailable; trying the Worker.`, err);}
+      return fetchWorkerData(CURRENT_TMNF_SEASON);
+    }
+    function withBestOf(data, key) {
+      if (data) data.bestOf = (SEASON_INFO[key] && SEASON_INFO[key].bestOf) || null;
+      return data;
+    }
+
+    /* Data for a season key: current season, an archive, or every TMNF season combined. */
+    function loadSeasonData(key) {
+      if (key === curKey()) return Promise.resolve(RAW);
+      if (key === 's1') return loadSeason1();
+      if (key === 's2') return loadSeason2();
+      if (key === 'both' || key === 'all') return loadAllTmnfSeasons().then(combinedSeasonData);
+      return Promise.resolve(RAW);
+    }
+    /* [[key, data], ...] oldest first, for every TMNF season. */
+    function loadAllTmnfSeasons() {
+      return Promise.all([loadSeason1(), loadSeason2()]).then(([s1, s2]) => [['s1', s1], ['s2', s2], ['s3', GAME === 'tmnf' ? RAW : DATA.tmnf]]);
     }
 
     /* Retries a flaky async call a few times with a short, growing pause
@@ -1180,12 +1287,28 @@
         });
       });
 
+      /* Best-of scoring (Season 3: best 9 of 12, old F1 style). Only a player's `bestOf` highest-scoring results
+         count; the others are marked dropped (lowest points first, the earliest among equals).
+         p.points = counted total, p.scored = every point scored. Datasets without bestOf are untouched. */
+      const bestOf = data.bestOf || null;
+      const countedSum = pts => bestOf ? [...pts].sort((a, b) => b - a).slice(0, bestOf).reduce((a, b) => a + b, 0) : pts.reduce((a, b) => a + b, 0);
+      if (bestOf) {
+        Object.values(players).forEach(p => {
+          p.scored = p.points;
+          const order = p.history.map((h, i) => i).sort((a, b) => p.history[a].points - p.history[b].points || a - b);
+          order.slice(0, Math.max(0, p.history.length - bestOf)).forEach(i => {p.history[i].dropped = true;});
+          p.points = p.history.reduce((a, h) => a + (h.dropped ? 0 : h.points), 0);
+          p.droppedPoints = p.scored - p.points;
+        });
+      }
+
       // cumulative points per player aligned to edition order
       const editionOrder = data.editions.map(e => e.edition);
       Object.values(players).forEach(p => {
         let running = 0;
         const map = {};
-        p.history.forEach(h => {running += h.points; map[h.edition] = running;});
+        if (bestOf) p.history.forEach((h, i) => {map[h.edition] = countedSum(p.history.slice(0, i + 1).map(x => x.points));});
+        else p.history.forEach(h => {running += h.points; map[h.edition] = running;});
         let last = 0;
         p.cumulative = editionOrder.map(e => {if (map[e] !== undefined) last = map[e]; return last;});
       });
@@ -1198,7 +1321,7 @@
         p.top10 = p.placements.filter(x => x <= 10).length;
         p.winRate = p.played ? p.wins / p.played : 0;
         p.podiumRate = p.played ? p.podiums / p.played : 0;
-        p.avgPoints = p.played ? p.points / p.played : 0;
+        p.avgPoints = p.played ? (bestOf ? p.scored : p.points) / p.played : 0; // true average per race, dropped results included
       });
 
       // Streaks — computed over the FULL edition order (not just the player's
@@ -1233,7 +1356,11 @@
 
       const editionsMinusLast = data.editions.slice(0, -1);
       const prevPoints = {};
-      editionsMinusLast.forEach(ed => Object.entries(ed.results).forEach(([name, place]) => {
+      if (bestOf) {
+        const prevLists = {};
+        editionsMinusLast.forEach(ed => Object.entries(ed.results).forEach(([name, place]) => {(prevLists[name] = prevLists[name] || []).push(pointsFor(place));}));
+        Object.entries(prevLists).forEach(([name, pts]) => {prevPoints[name] = countedSum(pts);});
+      } else editionsMinusLast.forEach(ed => Object.entries(ed.results).forEach(([name, place]) => {
         prevPoints[name] = (prevPoints[name] || 0) + pointsFor(place);
       }));
       const prevRanked = Object.entries(prevPoints).sort((a, b) => b[1] - a[1]).map(x => x[0]);
@@ -1373,11 +1500,11 @@
       return `<div class="seg" data-tmnf-only role="group" aria-label="Season">${options.map(([key, label]) => `<button type="button" class="filter-btn ${active === key ? 'active' : ''}" data-${attr}="${key}" aria-pressed="${active === key}">${escapeHtml(label)}</button>`).join('')}</div>`;
     }
     function seasonError(err) {
-      main.innerHTML = `<div class="empty-state"><b>Season 1 unavailable</b>${escapeHtml(err.message)}</div>`;
+      main.innerHTML = `<div class="empty-state"><b>That season is unavailable right now</b>${escapeHtml(err && err.message ? err.message : String(err))}</div>`;
     }
     /* One placement as a small square: podium colours for 1-3, brighter when it scored points. */
-    function formChip(place, title, href) {
-      const cls = place <= 3 ? 'p' + place : (pointsFor(place) > 0 ? 'pts' : '');
+    function formChip(place, title, href, dropped = false) {
+      const cls = (place <= 3 ? 'p' + place : (pointsFor(place) > 0 ? 'pts' : '')) + (dropped ? ' dropped' : '');
       const attrs = `class="fc ${cls}" title="${escapeHtml(title)}"`;
       return href ? `<a ${attrs} href="${href}">${place}</a>` : `<span ${attrs}>${place}</span>`;
     }
@@ -1581,7 +1708,7 @@
 
       const filteredEditions = leaderboardFilter === 'all' ? RAW.editions :
         RAW.editions.slice(-parseInt(leaderboardFilter));
-      const filteredData = {editions: filteredEditions, players: RAW.players};
+      const filteredData = {editions: filteredEditions, players: RAW.players, bestOf: RAW.bestOf};
       const filteredComputed = leaderboardFilter === 'all' ? {players, ranked} : computeAll(filteredData);
       const board = leaderboardFilter === 'all' ? ranked : filteredComputed.ranked;
 
@@ -1595,21 +1722,25 @@
       const playerLink = n => `<a href="#/player/${enc(n)}">${E(n)}</a>`;
       const notes = [
         leader ? `<div class="note"><div><div class="panel-label">Championship leader</div><div class="note-title">${playerLink(leader.name)}</div></div><div class="note-fig">${leader.points} pts</div><div class="note-detail">${runnerUp ? (leader.points - runnerUp.points) + ' pt lead over ' + E(runnerUp.name) : 'No challenger yet'} · ${plural(leader.wins, 'win')}</div></div>` : '',
-        `<div class="note"><div><div class="panel-label">Closest battle</div><div class="note-title">${closestPair ? `<a href="#/versus/s2/${enc(closestPair[0].name)}/${enc(closestPair[1].name)}">${E(closestPair[0].name)} vs ${E(closestPair[1].name)}</a>` : 'Not yet'}</div></div><div class="note-fig">${closestPair ? closestGap + ' pt gap' : ''}</div><div class="note-detail">${closestPair ? 'P' + closestPair[0].rank + ' against P' + closestPair[1].rank + ' in the standings' : 'Needs two players on ' + CLOSEST_MIN_POINTS + '+ points'}</div></div>`,
+        `<div class="note"><div><div class="panel-label">Closest battle</div><div class="note-title">${closestPair ? `<a href="#/versus/${curKey()}/${enc(closestPair[0].name)}/${enc(closestPair[1].name)}">${E(closestPair[0].name)} vs ${E(closestPair[1].name)}</a>` : 'Not yet'}</div></div><div class="note-fig">${closestPair ? closestGap + ' pt gap' : ''}</div><div class="note-detail">${closestPair ? 'P' + closestPair[0].rank + ' against P' + closestPair[1].rank + ' in the standings' : 'Needs two players on ' + CLOSEST_MIN_POINTS + '+ points'}</div></div>`,
         `<div class="note"><div><div class="panel-label">Biggest climber</div><div class="note-title">${climber ? playerLink(climber.name) : 'No movement yet'}</div></div><div class="note-fig up">${climber ? '▲ ' + climber.movement : ''}</div><div class="note-detail">${climber ? plural(climber.movement, 'place') + ' gained after Edition ' + E(latestEdition?.edition || '—') : 'Rank shifts appear after another edition'}</div></div>`,
-        `<div class="note"><div><div class="panel-label">First-timers</div><div class="note-title">${debutants.length ? debutants.map(E).join(', ') : 'No debuts'}</div></div><div class="note-avs">${debutants.slice(0, 4).map(name => avatarHTML(name, 26)).join('')}</div><div class="note-detail">${debutants.length ? 'Welcome to the SpeedTAS grid' : 'Every racer in the latest edition had competed before'}</div></div>`
+        `<div class="note"><div><div class="panel-label">First-timers</div><div class="note-title">${debutants.length ? debutants.map(E).join(', ') : (latestEdition ? 'No debuts' : 'Not yet')}</div></div><div class="note-avs">${debutants.slice(0, 4).map(name => avatarHTML(name, 26)).join('')}</div><div class="note-detail">${debutants.length ? 'Welcome to the SpeedTAS grid' : (latestEdition ? 'Every racer in the latest edition had competed before' : 'New names show up here after each edition')}</div></div>`
       ].join('');
+      const info = GAME === 'tmnf' ? SEASON_INFO[CURRENT_TMNF_SEASON] : null;
+      const next = GAME === 'tmnf' ? nextEditionLisbon() : null;
+      const preSeason = info && !totalEditions;
+      const bestOfNote = info && info.bestOf ? `Only each player's best ${info.bestOf} of ${info.editions} results count.` : '';
       main.innerHTML = `
     <header class="page-head">
-      <div class="kicker">${gameName} · ${plural(totalEditions, 'edition')} run</div>
+      <div class="kicker">${gameName} · ${info && info.editions ? `${totalEditions} of ${info.editions} editions run` : plural(totalEditions, 'edition') + ' run'}</div>
       <h1>${E(S2L())} <em>standings</em></h1>
-      <p>One hour to TAS a map, fastest run wins. Live championship standings, the latest result and every battle worth watching.</p>
+      <p>One hour to TAS a map, fastest run wins. Live championship standings, the latest result and every battle worth watching.${bestOfNote ? ' ' + E(bestOfNote) : ''}</p>
     </header>
 
     <div class="home-grid">
       <article class="panel latest" aria-label="Latest edition result">
         <div class="latest-head">
-          <div><div class="panel-label">Latest result</div><h2>${latestEdition ? 'Edition ' + E(latestEdition.edition) : 'Waiting for the first result'}</h2></div>
+          <div><div class="panel-label">Latest result</div><h2>${latestEdition ? 'Edition ' + E(latestEdition.edition) : (preSeason && info.start ? `${E(info.label)} starts ${E(fmtLisbonDay(info.start))}` : 'Waiting for the first result')}</h2>${preSeason ? `<p class="latest-sub">The opening edition's podium appears here right after the race.</p>` : ''}</div>
           ${latestEdition ? `<a class="btn" href="#/edition/${enc(latestEdition.edition)}">Full results →</a>` : ''}
         </div>
         ${latestEntries.length > 3 ? `<ol class="latest-rest" aria-label="Other finishers">${latestEntries.filter(([, place]) => place > 3).slice(0, 7).map(([n, place]) => `<li><a href="#/player/${enc(n)}"><span class="num">P${place}</span>${E(n)}</a></li>`).join('')}${latestEntries.length > 10 ? `<li class="more">+${latestEntries.length - 10} more</li>` : ''}</ol>` : ''}
@@ -1617,9 +1748,10 @@
       </article>
       <aside class="home-side">
         ${GAME === 'tm20' ? '' : `<div class="panel next-up" aria-label="Next edition">
-          <div class="panel-label">Next SpeedTAS starts in</div>
+          <div class="panel-label">${next && next.iso === (info && info.start) ? E(info.label) + ' opener starts in' : 'Next SpeedTAS starts in'}</div>
           <div class="countdown" id="countdown"></div>
-          <small>Every Saturday · 18:00 Lisbon time</small>
+          <small>${next ? E(fmtLisbonDay(next.iso)) + ' · ' : 'Every Saturday · '}${EDITION_HOUR_LISBON}:00 Lisbon time</small>
+          ${next && next.skipped.length ? `<small class="break-note">No edition on ${next.skipped.map(fmtLisbonDay).map(E).join(', ')} (break)</small>` : ''}
         </div>`}
         <div class="panel notes">${notes}</div>
       </aside>
@@ -1634,7 +1766,7 @@
 
     <section>
       <div class="head-row">
-        <h2 class="section-title">Championship table</h2>
+        <h2 class="section-title">Championship table</h2>${info && info.bestOf ? `<span class="head-note">Best ${info.bestOf} of ${info.editions} count · dropped results are faded</span>` : ''}
         <div class="toolbar-group">
           <div class="seg" role="group" aria-label="Leaderboard range">
             <button type="button" class="filter-btn ${leaderboardFilter === 'all' ? 'active' : ''}" data-filter="all" aria-pressed="${leaderboardFilter === 'all'}">All editions</button>
@@ -1660,18 +1792,19 @@
               <th data-key="points" class="r"><span class="full">Points</span><span class="abbr" aria-hidden="true">Pts</span></th>
             </tr></thead>
             <tbody>
+              ${sorted.length ? '' : `<tr class="empty-row"><td colspan="10">No results yet. The table fills in after the first edition.</td></tr>`}
               ${sorted.map(p => `
                 <tr class="${p.rank <= 3 ? 'p' + p.rank : ''}">
                   <td class="rank-cell">${p.rank}</td>
                   <td class="col-move">${moveIcon(p.movement || 0)}</td>
                   <td><a href="#/player/${enc(p.name)}"><div class="player-cell">${avatarHTML(p.name)}<b>${E(p.name)}</b><span class="move-inline">${moveIcon(p.movement || 0)}</span></div></a></td>
-                  <td class="col-form"><span class="form">${p.history.slice(-5).map(h => formChip(h.placement, 'Edition ' + h.edition + ': P' + h.placement)).join('')}</span></td>
+                  <td class="col-form"><span class="form">${p.history.slice(-5).map(h => formChip(h.placement, 'Edition ' + h.edition + ': P' + h.placement + (h.dropped ? ' (dropped)' : ''), null, h.dropped)).join('')}</span></td>
                   <td class="numc r">${p.wins}</td>
                   <td class="numc r">${p.podiums}</td>
                   <td class="numc r col-avg">${p.avgPlacement ? p.avgPlacement.toFixed(2) : '—'}</td>
                   <td class="numc r col-played">${p.played}</td>
                   <td class="numc r col-gap">${p.points === boardTop ? '—' : '−' + (boardTop - p.points)}</td>
-                  <td class="pts-cell r"><b>${p.points}</b><span class="pts-bar" style="width:${boardTop ? Math.round(p.points / boardTop * 100) : 0}%"></span></td>
+                  <td class="pts-cell r"${p.droppedPoints ? ` title="${p.scored} scored, ${p.droppedPoints} dropped"` : ''}><b>${p.points}</b><span class="pts-bar" style="width:${boardTop ? Math.round(p.points / boardTop * 100) : 0}%"></span></td>
                 </tr>
               `).join('')}
             </tbody>
@@ -1747,38 +1880,36 @@
 
     /* ============ COUNTDOWN ============ */
     let countdownTimer = null;
-    function nextSaturday18Lisbon() {
-      const now = new Date();
-      // Get current time components in Europe/Lisbon
-      const fmt = new Intl.DateTimeFormat('en-US', {
-        timeZone: 'Europe/Lisbon', hour12: false,
-        year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', weekday: 'short'
-      });
-      const parts = fmt.formatToParts(now);
-      const map = {}; parts.forEach(p => map[p.type] = p.value);
-      const weekdayMap = {Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6};
-      const curDow = weekdayMap[map.weekday];
-      let daysUntil = (6 - curDow + 7) % 7;
-      const curHour = parseInt(map.hour), curMin = parseInt(map.minute), curSec = parseInt(map.second);
-      if (daysUntil === 0 && (curHour > 18 || (curHour === 18 && (curMin > 0 || curSec > 0)))) daysUntil = 7;
-
-      // Build target date string in Lisbon local time, then convert properly
-      const target = new Date(now.getTime());
-      target.setUTCDate(target.getUTCDate()); // placeholder
-      // Simplify: construct via Lisbon offset estimate using Intl
-      const y = parseInt(map.year), mo = parseInt(map.month), d = parseInt(map.day);
-      const baseLocal = new Date(Date.UTC(y, mo - 1, d, curHour, curMin, curSec));
-      const targetLocalMidnightOffset = daysUntil * 24 * 3600 * 1000;
-      // offset between "now" real UTC and the Lisbon wall-clock reading
-      const wallClockUTC = Date.UTC(y, mo - 1, d, curHour, curMin, curSec);
-      const offsetMs = now.getTime() - wallClockUTC; // Lisbon local -> real UTC offset
-      const targetWallClockUTC = Date.UTC(y, mo - 1, d, 18, 0, 0) + targetLocalMidnightOffset;
-      return new Date(targetWallClockUTC + offsetMs);
+    /* Real moment of a Lisbon wall-clock time (handles summer/winter time). */
+    function lisbonMoment(y, m, d, hour) {
+      const guess = Date.UTC(y, m - 1, d, hour, 0, 0);
+      const parts = Object.fromEntries(new Intl.DateTimeFormat('en-US', {timeZone: 'Europe/Lisbon', hour12: false, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit'}).formatToParts(new Date(guess)).map(p => [p.type, p.value]));
+      const shown = Date.UTC(+parts.year, +parts.month - 1, +parts.day, +parts.hour % 24, +parts.minute, +parts.second);
+      return new Date(guess - (shown - guess));
     }
+    const isoDay = t => new Date(t).toISOString().slice(0, 10);
+    /* Next points edition: Saturdays at 20:00 Lisbon, skipping the breaks and anything before the season starts.
+       Returns {at: Date, skipped: [break dates passed over]}. An edition counts as "next" until its hour is over. */
+    function nextEditionLisbon() {
+      const now = Date.now();
+      const today = Object.fromEntries(new Intl.DateTimeFormat('en-US', {timeZone: 'Europe/Lisbon', year: 'numeric', month: '2-digit', day: '2-digit'}).formatToParts(new Date(now)).map(p => [p.type, p.value]));
+      let day = Date.UTC(+today.year, +today.month - 1, +today.day);
+      day += ((6 - new Date(day).getUTCDay() + 7) % 7) * 86400000; // this or next Saturday
+      const start = SEASON_INFO[CURRENT_TMNF_SEASON].start;
+      const skipped = [];
+      for (let i = 0; i < 60; i++) {
+        const iso = isoDay(day), [y, m, d] = iso.split('-').map(Number), at = lisbonMoment(y, m, d, EDITION_HOUR_LISBON);
+        if (at.getTime() + 3600e3 <= now) {day += 7 * 86400000; continue;} // still "next" during the hour it runs
+        if ((start && iso < start) || SCHEDULE_BREAKS.includes(iso)) {if (!(start && iso < start)) skipped.push(iso); day += 7 * 86400000; continue;}
+        return {at, skipped, iso};
+      }
+      return {at: lisbonMoment(...isoDay(day).split('-').map(Number), EDITION_HOUR_LISBON), skipped, iso: isoDay(day)};
+    }
+    const fmtLisbonDay = iso => new Date(iso + 'T12:00:00Z').toLocaleDateString('en-GB', {weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC'});
     function startCountdown() {
       if (countdownTimer) clearInterval(countdownTimer);
       function tick() {
-        const target = nextSaturday18Lisbon();
+        const target = nextEditionLisbon().at;
         const diff = target.getTime() - Date.now();
         const el = document.getElementById('countdown');
         if (!el) {clearInterval(countdownTimer); return;}
@@ -1799,9 +1930,9 @@
     }
 
     /* ============ CHARTS ============ */
-    const accentHex = () => GAME === 'tm20' ? '#59d6fb' : '#e9fb59';
+    const accentHex = () => GAME === 'tm20' ? '#59d6fb' : '#b388ff';
     /* Series colours for the top-six chart: the game accent leads, the rest stay clearly apart from it. */
-    const seriesColors = () => [accentHex(), '#ff4f79', '#4d8dff', '#ffb347', '#b08bff', GAME === 'tm20' ? '#e9fb59' : '#59d6fb'];
+    const seriesColors = () => GAME === 'tm20' ? [accentHex(), '#ff4f79', '#4d8dff', '#ffb347', '#b08bff', '#e9fb59'] : [accentHex(), '#ff4f79', '#4d8dff', '#ffb347', '#e9fb59', '#59d6fb'];
     function chartOptions(extra = {}) {
       const tick = {color: '#9094a0', font: {family: "'JetBrains Mono', monospace", size: 11}};
       const grid = {color: '#1c1f25'};
@@ -1846,22 +1977,27 @@
     }
 
     /* ============ RENDER: PLAYERS DIRECTORY ============ */
-    function renderPlayers(seasonKey = 's2', season1Data = null) {
-      if ((seasonKey === 's1' || seasonKey === 'both') && !season1Data) {main.innerHTML = `<div class="loader"><div class="spinner"></div> Loading player directory…</div>`; loadSeason1().then(data => renderPlayers(seasonKey, data)).catch(seasonError); return;}
+    function renderPlayers(seasonKey = curKey(), seasonData = null) {
+      if (seasonKey !== curKey() && !seasonData) {
+        main.innerHTML = `<div class="loader"><div class="spinner"></div> Loading player directory…</div>`;
+        (seasonKey === 'both' ? loadAllTmnfSeasons() : loadSeasonData(seasonKey)).then(data => renderPlayers(seasonKey, data)).catch(seasonError);
+        return;
+      }
       let ranked, label;
-      if (seasonKey === 's1') {ranked = seasonStats(season1Data); label = 'Season 1';}
-      else if (seasonKey === 'both') {
-        const rows = comparisonRows(seasonStats(season1Data), seasonStats(RAW));
-        ranked = rows.map(r => ({name: r.name, points: r.total, played: r.played, wins: r.wins, podiums: r.podiums})).sort((a, b) => b.points - a.points || b.wins - a.wins).map((p, i) => ({...p, rank: i + 1})); label = 'Both seasons';
-      } else {ranked = seasonStats(RAW); label = S2L();}
+      if (seasonKey === 'both') {
+        /* seasonData = [[key, data], ...]: each season's own championship points, added up */
+        const rows = comparisonRows(...seasonData.map(([key, data]) => seasonStats(key === curKey() ? RAW : data)));
+        ranked = rows.map(r => ({name: r.name, points: r.total, played: r.played, wins: r.wins, podiums: r.podiums})).sort((a, b) => b.points - a.points || b.wins - a.wins).map((p, i) => ({...p, rank: i + 1})); label = 'All seasons';
+      } else {ranked = seasonStats(seasonKey === curKey() ? RAW : seasonData); label = labelFor(seasonKey);}
       const linkSeason = seasonKey === 'both' ? 'all' : seasonKey;
       const E = escapeHtml;
       main.innerHTML = `
     <header class="page-head"><div class="kicker">${E(label)} · ${plural(ranked.length, 'player')}</div><h1>Player <em>directory</em></h1><p>Everyone who has entered a SpeedTAS edition, in championship order.</p></header>
-    <div class="toolbar">${seasonSeg(seasonKey, 'directory-season', [['s2', S2L()], ['s1', 'Season 1'], ['both', 'Both']])}<input id="dirSearch" class="field" type="search" placeholder="Filter players" aria-label="Filter players" autocomplete="off"></div>
+    <div class="toolbar">${seasonSeg(seasonKey, 'directory-season', seasonOptions('both'))}<input id="dirSearch" class="field" type="search" placeholder="Filter players" aria-label="Filter players" autocomplete="off"></div>
     <div class="directory" id="directoryGrid">${ranked.map(p => `<a href="#/player/${linkSeason}/${enc(p.name)}" class="player-card-link" data-name="${E(p.name.toLowerCase())}"><div class="player-card ${p.rank <= 3 ? 'top r' + p.rank : ''}">${avatarHTML(p.name, 44)}<div><div class="pname">${E(p.name)}</div><div class="pmeta"><b>${p.points}</b> pts · ${plural(p.played, 'race')}</div></div><span class="prank" aria-label="Rank ${p.rank}">${p.rank}</span></div></a>`).join('')}</div>
-    <div class="empty-state" id="dirEmpty" hidden>No player matches that filter.</div>`;
-      main.querySelectorAll('[data-directory-season]').forEach(btn => btn.addEventListener('click', () => renderPlayers(btn.dataset.directorySeason, season1Data)));
+    <div class="empty-state" id="dirEmpty" hidden>No player matches that filter.</div>
+    ${ranked.length ? '' : `<div class="empty-state"><b>No players yet</b>Players appear here after their first ${E(label)} edition.</div>`}`;
+      main.querySelectorAll('[data-directory-season]').forEach(btn => btn.addEventListener('click', () => renderPlayers(btn.dataset.directorySeason)));
       document.getElementById('dirSearch').addEventListener('input', e => {
         const q = e.target.value.trim().toLowerCase(); let shown = 0;
         document.querySelectorAll('#directoryGrid .player-card-link').forEach(link => {const hit = link.dataset.name.includes(q); link.style.display = hit ? '' : 'none'; if (hit) shown++;});
@@ -1878,37 +2014,40 @@
       const found = Object.values(computed.players).find(p => playerKey(p.name) === key || oneLetterApart(playerKey(p.name), key));
       return {player: found, computed};
     }
-    function renderPlayerProfileEnhanced(name, seasonKey = 's2', season1Data = null) {
+    function renderPlayerProfileEnhanced(name, seasonKey = curKey(), seasonData = null) {
       let decoded = name;
       try {decoded = decodeURIComponent(name);} catch (e) {}
       const E = escapeHtml;
-      if ((seasonKey === 's1' || seasonKey === 'all') && !season1Data) {
+      if (seasonKey !== curKey() && !seasonData) {
         main.innerHTML = `<div class="loader"><div class="spinner"></div> Loading player profile…</div>`;
-        loadSeason1().then(data => renderPlayerProfileEnhanced(decoded, seasonKey, data)).catch(seasonError);
+        (seasonKey === 'all' ? loadAllTmnfSeasons() : loadSeasonData(seasonKey)).then(data => renderPlayerProfileEnhanced(decoded, seasonKey, data)).catch(seasonError);
         return;
       }
       const notFound = msg => {main.innerHTML = `<div class="breadcrumb"><a href="#/players">Players</a> / ${E(decoded)}</div><div class="empty-state"><b>No results</b>${msg}</div>`;};
-      const s2 = profilePlayerFor(RAW, decoded), s1 = season1Data ? profilePlayerFor(season1Data, decoded) : null;
-      let p, profileName, history, rankLabel, seasonLabel;
+      let p, profileName, history, rankLabel, seasonLabel, selected = null;
       if (seasonKey === 'all') {
-        const p1 = s1?.player, p2 = s2.player;
-        if (!p1 && !p2) {notFound(`Player "${E(decoded)}" was not found.`); return;}
-        history = [...(p1 ? p1.history.map(h => ({...h, edition: `S1 · ${h.edition}`, season: 's1', raw: h.edition})) : []), ...(p2 ? p2.history.map(h => ({...h, edition: `S2 · ${h.edition}`, season: 's2', raw: h.edition})) : [])];
-        const points = (p1?.points || 0) + (p2?.points || 0), played = history.length, wins = (p1?.wins || 0) + (p2?.wins || 0), podiums = (p1?.podiums || 0) + (p2?.podiums || 0);
-        const placements = history.map(h => h.placement), allRows = comparisonRows(s1.computed.ranked, s2.computed.ranked), own = allRows.find(r => r.key === playerKey((p2 || p1).name));
-        p = {name: (p2 || p1).name, points, played, wins, podiums, placements, best: Math.min(...placements), worst: Math.max(...placements), avgPlacement: placements.reduce((a, b) => a + b, 0) / played, winRate: wins / played, podiumRate: podiums / played, avgPoints: points / played, maxWinStreak: Math.max(p1?.maxWinStreak || 0, p2?.maxWinStreak || 0), maxPodiumStreak: Math.max(p1?.maxPodiumStreak || 0, p2?.maxPodiumStreak || 0), rank: own ? allRows.indexOf(own) + 1 : null, badges: []};
+        /* seasonData = [[key, data], ...] oldest first; each season's own standings, added up */
+        const per = seasonData.map(([key, data]) => ({key, ...profilePlayerFor(key === curKey() ? RAW : data, decoded)}));
+        const found = per.filter(x => x.player && x.player.played);
+        if (!found.length) {notFound(`Player "${E(decoded)}" was not found.`); return;}
+        const latest = found[found.length - 1].player;
+        history = found.flatMap(x => x.player.history.map(h => ({...h, edition: `${SEASON_INFO[x.key].short} · ${h.edition}`, season: x.key, raw: h.edition})));
+        const sumOf = f => found.reduce((a, x) => a + (x.player[f] || 0), 0), maxOf = f => Math.max(...found.map(x => x.player[f] || 0));
+        const points = sumOf('points'), played = history.length, wins = sumOf('wins'), podiums = sumOf('podiums');
+        const placements = history.map(h => h.placement), allRows = comparisonRows(...per.map(x => x.computed.ranked)), own = allRows.find(r => r.key === playerKey(latest.name));
+        p = {name: latest.name, points, played, wins, podiums, placements, best: Math.min(...placements), worst: Math.max(...placements), avgPlacement: placements.reduce((a, b) => a + b, 0) / played, winRate: wins / played, podiumRate: podiums / played, avgPoints: points / played, maxWinStreak: maxOf('maxWinStreak'), maxPodiumStreak: maxOf('maxPodiumStreak'), rank: own ? allRows.indexOf(own) + 1 : null, badges: []};
         profileName = p.name; rankLabel = 'All-time'; seasonLabel = 'All-time';
       } else {
-        const selected = seasonKey === 's1' ? s1 : s2;
-        p = selected?.player;
-        seasonLabel = seasonKey === 's1' ? 'Season 1' : S2L();
-        if (!p || !p.played) {notFound(`${E(decoded)} has no results in ${E(seasonLabel)}.${GAME === 'tm20' ? '' : ' Try another season below.'}<div style="margin-top:14px">${profileTabs(seasonKey)}</div>`); bindProfileTabs(decoded, season1Data); return;}
+        selected = profilePlayerFor(seasonKey === curKey() ? RAW : seasonData, decoded);
+        p = selected.player;
+        seasonLabel = labelFor(seasonKey);
+        if (!p || !p.played) {notFound(`${E(decoded)} has no results in ${E(seasonLabel)}.${GAME === 'tm20' ? '' : ' Try another season below.'}<div style="margin-top:14px">${profileTabs(seasonKey)}</div>`); bindProfileTabs(decoded); return;}
         history = p.history.map(h => ({...h, season: seasonKey, raw: h.edition})); profileName = p.name; rankLabel = seasonLabel;
       }
       /* "Compare" pairs the player with their nearest neighbour in the same standings. */
       let compare = '';
       if (seasonKey !== 'all') {
-        const table = (seasonKey === 's1' ? s1 : s2).computed.ranked, at = table.findIndex(x => x.name === p.name), other = table[at - 1] || table[at + 1];
+        const table = selected.computed.ranked, at = table.findIndex(x => x.name === p.name), other = table[at - 1] || table[at + 1];
         if (other) compare = `<a class="btn" href="#/versus/${seasonKey}/${enc(p.name)}/${enc(other.name)}">Compare with ${E(other.name)} →</a>`;
       }
       const pct = x => (x * 100).toFixed(0) + '%';
@@ -1919,18 +2058,18 @@
       ${avatarHTML(profileName, 96)}
       <div>
         <h1>${E(profileName)}</h1>
-        <div class="rank-tag"><span class="pos">P${p.rank ?? '—'}</span><span>${E(rankLabel)} standings</span>${seasonKey === 's2' && p.movement ? moveIcon(p.movement) : ''}</div>
+        <div class="rank-tag"><span class="pos">P${p.rank ?? '—'}</span><span>${E(rankLabel)} standings</span>${seasonKey === curKey() && p.movement ? moveIcon(p.movement) : ''}</div>
       </div>
       <div class="profile-actions">${profileTabs(seasonKey)}${compare}</div>
     </div>
-    <div class="key-stats">${stat('Points', p.points)}${stat('Wins', p.wins)}${stat('Podiums', p.podiums)}${stat('Editions', p.played)}</div>
+    <div class="key-stats">${stat(p.droppedPoints ? `Points <span class="dim-note">best ${SEASON_INFO[seasonKey].bestOf}</span>` : 'Points', p.droppedPoints ? `${p.points}<small class="scored-note">${p.scored} scored</small>` : p.points)}${stat('Wins', p.wins)}${stat('Podiums', p.podiums)}${stat('Editions', p.played)}</div>
     <div class="stat-grid">
       ${stat('Avg placement', p.avgPlacement.toFixed(2))}${stat('Best finish', 'P' + p.best)}${stat('Worst finish', 'P' + p.worst)}${stat('Win rate', pct(p.winRate))}${stat('Podium rate', pct(p.podiumRate))}${stat('Avg pts / edition', p.avgPoints.toFixed(2))}${stat('Best win streak', p.maxWinStreak)}${stat('Best podium streak', p.maxPodiumStreak)}
     </div>
     ${p.badges && p.badges.length ? `<section><h2 class="section-title">Achievements</h2><div class="badge-list">${p.badges.map(b => `<span class="badge">${E(b.label)}</span>`).join('')}</div></section>` : ''}
     <section>
       <div class="head-row"><h2 class="section-title">Results strip</h2><span class="head-note">Every finish, oldest to newest</span></div>
-      <div class="strip">${history.map(h => formChip(h.placement, 'Edition ' + h.edition + ': P' + h.placement + ' · ' + h.points + ' pts', `#/edition/${h.season}/${enc(h.raw)}`)).join('')}</div>
+      <div class="strip">${history.map(h => formChip(h.placement, 'Edition ' + h.edition + ': P' + h.placement + ' · ' + h.points + ' pts' + (h.dropped ? ' (dropped)' : ''), `#/edition/${h.season}/${enc(h.raw)}`, h.dropped)).join('')}</div>
     </section>
     <section>
       <h2 class="section-title">Performance</h2>
@@ -1941,9 +2080,9 @@
     </section>
     <section>
       <h2 class="section-title">Placement history</h2>
-      <div class="panel flush"><div class="table-wrap"><table><thead><tr><th>Edition</th><th>Placement</th><th class="r">Points</th></tr></thead><tbody>${[...history].reverse().map(h => `<tr><td><a href="#/edition/${h.season}/${enc(h.raw)}">Edition ${E(h.edition)}</a></td><td>${h.placement <= 3 ? medalFor(h.placement) : ''}P${h.placement}</td><td class="ptsc r">${h.points}</td></tr>`).join('')}</tbody></table></div></div>
+      <div class="panel flush"><div class="table-wrap"><table><thead><tr><th>Edition</th><th>Placement</th><th class="r">Points</th></tr></thead><tbody>${[...history].reverse().map(h => `<tr><td><a href="#/edition/${h.season}/${enc(h.raw)}">Edition ${E(h.edition)}</a></td><td>${h.placement <= 3 ? medalFor(h.placement) : ''}P${h.placement}</td><td class="ptsc r">${h.dropped ? `<s class="dropped-pts" title="Dropped: only a player's best ${SEASON_INFO[h.season] ? SEASON_INFO[h.season].bestOf : ''} results count">${h.points}</s>` : h.points}</td></tr>`).join('')}</tbody></table></div></div>${history.some(h => h.dropped) ? `<p class="table-foot">Struck-through points are dropped results: only the best ${SEASON_INFO[seasonKey].bestOf} count towards the ${E(seasonLabel)} championship.</p>` : ''}
     </section>`;
-      bindProfileTabs(decoded, season1Data);
+      bindProfileTabs(decoded);
       profileCharts.forEach(c => c.destroy()); profileCharts = [];
       if (!window.Chart) return;
       const labels = history.map(h => h.edition), placements = history.map(h => h.placement), cumulative = []; let running = 0; history.forEach(h => {running += h.points; cumulative.push(running);});
@@ -1954,22 +2093,22 @@
       profileCharts.push(new Chart(document.getElementById('chartPlacement'), {type: 'line', data: {labels, datasets: [{label: 'Placement', data: placements, borderColor: color, borderWidth: 2, tension: .25, pointRadius: 4, pointHoverRadius: 6, pointBackgroundColor: placements.map(medalColor), pointBorderColor: '#14161a', pointBorderWidth: 1.5}]}, options: placeOpts}));
       profileCharts.push(new Chart(document.getElementById('chartCumulative'), {type: 'line', data: {labels, datasets: [{label: 'Points', data: cumulative, borderColor: color, backgroundColor: color + '22', fill: true, borderWidth: 2, tension: .25, pointRadius: 0, pointHoverRadius: 5}]}, options: chartOptions()}));
     }
-    function profileTabs(active) {return seasonSeg(active, 'profile-season', [['s2', S2L()], ['s1', 'Season 1'], ['all', 'All-time']]);}
-    function bindProfileTabs(decoded, season1Data) {
-      main.querySelectorAll('[data-profile-season]').forEach(btn => btn.addEventListener('click', () => renderPlayerProfileEnhanced(decoded, btn.dataset.profileSeason, season1Data)));
+    function profileTabs(active) {return seasonSeg(active, 'profile-season', seasonOptions('all', 'All-time'));}
+    function bindProfileTabs(decoded) {
+      main.querySelectorAll('[data-profile-season]').forEach(btn => btn.addEventListener('click', () => renderPlayerProfileEnhanced(decoded, btn.dataset.profileSeason)));
     }
 
     /* ============ RENDER: HISTORY ============ */
-    function renderHistory(seasonKey = 's2') {
-      main.innerHTML = `<div class="loader"><div class="spinner"></div> Loading ${seasonKey === 's1' ? 'Season 1' : S2L()} editions…</div>`;
-      const dataPromise = seasonKey === 's1' ? loadSeason1() : Promise.resolve(RAW);
-      dataPromise.then(data => {
+    function renderHistory(seasonKey = curKey()) {
+      main.innerHTML = `<div class="loader"><div class="spinner"></div> Loading ${escapeHtml(labelFor(seasonKey))} editions…</div>`;
+      loadSeasonData(seasonKey).then(data => {
         const E = escapeHtml;
         const editionsDesc = [...data.editions].reverse();
-        const seasonLabel = seasonKey === 's1' ? 'Season 1' : S2L();
+        const seasonLabel = labelFor(seasonKey);
         main.innerHTML = `
     <header class="page-head"><div class="kicker">${E(seasonLabel)} · ${plural(data.editions.length, 'edition')}</div><h1>Competition <em>history</em></h1><p>Every SpeedTAS edition, newest first. Open one for the full classification.</p></header>
-    <div class="toolbar">${seasonSeg(seasonKey, 'history-season', [['s2', S2L()], ['s1', 'Season 1']])}</div>
+    <div class="toolbar">${seasonSeg(seasonKey, 'history-season', seasonOptions())}</div>
+    ${editionsDesc.length ? '' : `<div class="empty-state"><b>No editions yet</b>${E(seasonLabel)} editions appear here as soon as they are run.</div>`}
     <div class="history-grid">
       ${editionsDesc.map((ed, i) => {
         const entries = Object.entries(ed.results).sort((a, b) => a[1] - b[1]);
@@ -1980,25 +2119,28 @@
           <div class="history-card">
             <div class="history-top"><div class="history-edition"><small>#</small>${E(ed.edition)}</div><span class="history-tag ${i === 0 ? 'live' : ''}">${i === 0 ? 'Latest' : plural(entries.length, 'racer')}</span></div>
             <div class="history-winner">${winner ? avatarHTML(winner[0], 36) : ''}<div style="min-width:0"><div class="history-winner-label">Winner</div><div class="history-winner-name">${winner ? E(winner[0]) : 'Result pending'}</div></div></div>
-            <div class="history-foot"><span class="also">${others.length ? others.map(([n]) => avatarHTML(n, 22)).join('') + '<span>completed the podium</span>' : plural(entries.length, 'racer')}</span>${seasonKey !== 's1' ? `<span class="history-event" data-edition="${E(ed.edition)}"></span>` : ''}</div>
+            <div class="history-foot"><span class="also">${others.length ? others.map(([n]) => avatarHTML(n, 22)).join('') + '<span>completed the podium</span>' : plural(entries.length, 'racer')}</span>${hasEvents(seasonKey) ? `<span class="history-event" data-edition="${E(ed.edition)}" data-event-key="${eventKeyFor(seasonKey)}"></span>` : ''}</div>
           </div>
         </a>`;
       }).join('')}
     </div>`;
         main.querySelectorAll('[data-history-season]').forEach(btn => btn.addEventListener('click', () => renderHistory(btn.dataset.historySeason)));
-        if (seasonKey !== 's1') loadEventIndex(GAME, fillHistoryEventLinks);
+        if (hasEvents(seasonKey)) loadEventIndex(eventKeyFor(seasonKey), fillHistoryEventLinks);
       }).catch(seasonError);
     }
 
-    function renderEditionDetail(editionId, seasonKey = 's2', data = RAW) {
-      if (seasonKey === 's1' && data === RAW) {main.innerHTML = `<div class="loader"><div class="spinner"></div> Loading Season 1 edition…</div>`; loadSeason1().then(s1 => renderEditionDetail(editionId, 's1', s1)).catch(seasonError); return;}
+    function renderEditionDetail(editionId, seasonKey = curKey(), data = null) {
+      if (!data) {
+        if (seasonKey === curKey()) data = RAW;
+        else {main.innerHTML = `<div class="loader"><div class="spinner"></div> Loading ${escapeHtml(labelFor(seasonKey))} edition…</div>`; loadSeasonData(seasonKey).then(d => renderEditionDetail(editionId, seasonKey, d)).catch(seasonError); return;}
+      }
       const E = escapeHtml;
       let decoded = editionId;
       try {decoded = decodeURIComponent(editionId);} catch (e) {}
       const at = data.editions.findIndex(e => String(e.edition) === decoded), ed = data.editions[at];
       if (!ed) {main.innerHTML = `<div class="breadcrumb"><a href="#/history">History</a></div><div class="empty-state"><b>Edition not found</b>There is no edition ${E(decoded)} in this season.</div>`; return;}
       const entries = Object.entries(ed.results).sort((a, b) => a[1] - b[1]);
-      const seasonLabel = seasonKey === 's1' ? 'Season 1' : S2L();
+      const seasonLabel = labelFor(seasonKey);
       const prev = data.editions[at - 1], next = data.editions[at + 1];
       main.innerHTML = `
     <div class="breadcrumb"><a href="#/history">History</a> / ${E(seasonLabel)} / Edition ${E(ed.edition)}</div>
@@ -2007,7 +2149,7 @@
       <div class="race-actions">
         ${prev ? `<a class="btn" href="#/edition/${seasonKey}/${enc(prev.edition)}" aria-label="Previous edition, ${E(prev.edition)}">← #${E(prev.edition)}</a>` : ''}
         ${next ? `<a class="btn" href="#/edition/${seasonKey}/${enc(next.edition)}" aria-label="Next edition, ${E(next.edition)}">#${E(next.edition)} →</a>` : ''}
-        ${seasonKey !== 's1' ? `<a class="btn" id="eventLink" data-edition="${E(ed.edition)}" target="_blank" rel="noopener" style="display:none">TAS Exchange ↗</a>` : ''}
+        ${hasEvents(seasonKey) ? `<a class="btn" id="eventLink" data-edition="${E(ed.edition)}" target="_blank" rel="noopener" style="display:none">TAS Exchange ↗</a>` : ''}
         <a class="btn" href="#/history">All editions</a>
       </div>
     </div>
@@ -2043,34 +2185,44 @@
       return `<div class="h2h-avatar-big" style="background:${colorForName(name)};${ring}">${escapeHtml(initials(name))}</div>`;
     }
 
-    function combinedSeasonData(s1) {
+    /* Every TMNF season as one dataset. seasons = [[key, data], ...] oldest first (see loadAllTmnfSeasons).
+       Editions are labelled "S1 · 12"; the newest spelling of a player's name wins. Every result counts here. */
+    function combinedSeasonData(seasons) {
+      const list = seasons.filter(([, data]) => data);
       const preferred = {}, players = [];
-      [...s1.players, ...RAW.players].forEach(name => {const key = playerKey(name); preferred[key] = name;});
+      list.forEach(([, data]) => data.players.forEach(name => {const key = playerKey(name); preferred[key] = name;}));
       Object.values(preferred).forEach(name => players.push(name));
       const convert = (data, prefix) => data.editions.map(ed => {
         const results = {};
         Object.entries(ed.results).forEach(([name, place]) => {results[preferred[playerKey(name)]] = place;});
         return {edition: `${prefix} ${ed.edition}`, results};
       });
-      return {players, editions: [...convert(s1, 'S1 ·'), ...convert(RAW, 'S2 ·')]};
+      return {players, editions: list.flatMap(([key, data]) => convert(data, `${SEASON_INFO[key].short} ·`))};
     }
 
-    function renderVersus(p1name, p2name, seasonKey = 's2', suppliedData = null) {
-      if ((seasonKey === 's1' || seasonKey === 'both') && !suppliedData) {
-        main.innerHTML = `<div class="loader"><div class="spinner"></div> Loading Season 1 Head-to-Head…</div>`;
-        loadSeason1().then(data => renderVersus(p1name, p2name, seasonKey, data)).catch(err => {main.innerHTML = `<div class="panel"><h2 class="section-title">Season 1 unavailable</h2><p style="color:var(--muted)">${err.message}</p></div>`;});
+    function renderVersus(p1name, p2name, seasonKey = curKey(), suppliedData = null) {
+      if (seasonKey !== curKey() && !suppliedData) {
+        main.innerHTML = `<div class="loader"><div class="spinner"></div> Loading ${escapeHtml(labelFor(seasonKey))} Head-to-Head…</div>`;
+        loadSeasonData(seasonKey).then(data => renderVersus(p1name, p2name, seasonKey, data)).catch(err => {main.innerHTML = `<div class="panel"><h2 class="section-title">${escapeHtml(labelFor(seasonKey))} unavailable</h2><p style="color:var(--muted)">${escapeHtml(err.message)}</p></div>`;});
         return;
       }
-      const activeData = seasonKey === 'both' ? combinedSeasonData(suppliedData) : (suppliedData || RAW);
+      const activeData = seasonKey === curKey() ? RAW : suppliedData;
       const {players, ranked} = computeAll(activeData);
       const names = ranked.map(p => p.name);
+      if (!names.length) {
+        main.innerHTML = `<header class="page-head"><div class="kicker">Player A against Player B</div><h1>Head<em>2</em>Head</h1></header>
+    <div class="versus-controls">${seasonSeg(seasonKey, 'h2h-season', seasonOptions('both'))}</div>
+    <div class="empty-state"><b>No results yet</b>Head-to-heads open up once ${escapeHtml(labelFor(seasonKey))} has its first edition. Try an earlier season.</div>`;
+        main.querySelectorAll('[data-h2h-season]').forEach(btn => btn.addEventListener('click', () => renderVersus(undefined, undefined, btn.dataset.h2hSeason)));
+        return;
+      }
       const a = p1name || names[0];
       const b = p2name || names[1] || names[0];
 
       main.innerHTML = `
     <header class="page-head"><div class="kicker">Player A against Player B</div><h1>Head<em>2</em>Head</h1><p>Pick two racers and compare their shared editions, form and results.</p></header>
     <div class="versus-controls">
-      ${seasonSeg(seasonKey, 'h2h-season', [['s2', S2L()], ['s1', 'Season 1'], ['both', 'Both']])}
+      ${seasonSeg(seasonKey, 'h2h-season', seasonOptions('both'))}
       <div class="versus-selectors"><select id="selA" class="sel-a" aria-label="Player A">${names.map(n => `<option value="${escapeHtml(n)}" ${n === a ? 'selected' : ''}>${escapeHtml(n)}</option>`).join('')}</select><span class="versus-vs" aria-hidden="true">VS</span><select id="selB" class="sel-b" aria-label="Player B">${names.map(n => `<option value="${escapeHtml(n)}" ${n === b ? 'selected' : ''}>${escapeHtml(n)}</option>`).join('')}</select><button class="icon-btn" id="swapH2H" type="button" title="Swap players" aria-label="Swap players"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 5h11M10 2l3 3-3 3M14 11H3M6 8l-3 3 3 3"/></svg></button></div>
     </div>
     <div id="versusResult"></div>
@@ -2170,7 +2322,7 @@
       }
       document.getElementById('selA').addEventListener('change', draw);
       document.getElementById('selB').addEventListener('change', draw);
-      main.querySelectorAll('[data-h2h-season]').forEach(btn => btn.addEventListener('click', () => renderVersus(undefined, undefined, btn.dataset.h2hSeason, suppliedData)));
+      main.querySelectorAll('[data-h2h-season]').forEach(btn => btn.addEventListener('click', () => renderVersus(undefined, undefined, btn.dataset.h2hSeason)));
       document.getElementById('swapH2H').addEventListener('click', () => {
         const selA = document.getElementById('selA'), selB = document.getElementById('selB');
         const oldA = selA.value; selA.value = selB.value; selB.value = oldA; draw();
@@ -2179,10 +2331,7 @@
     }
 
     /* ============ RECORDS & RIVALRIES ============ */
-    function seasonSource(key) {
-      if (key === 's2') return Promise.resolve(RAW);
-      return loadSeason1().then(s1 => key === 'both' ? combinedSeasonData(s1) : s1);
-    }
+    function seasonSource(key) {return loadSeasonData(key);}
 
     function recordDefinitions(ranked) {
       const eligible = ranked.filter(p => p.played > 0);
@@ -2228,10 +2377,10 @@
       return `<div class="record-card shared">${head}${value}<div class="record-shared">Shared by ${holders.length} players</div><div class="record-holders">${chips}${more}</div><div class="record-note">${E(record.note)}</div></div>`;
     }
 
-    function renderRecords(season = 's2') {
+    function renderRecords(season = curKey()) {
       main.innerHTML = `
     <header class="page-head"><div class="kicker">The record book</div><h1>Season <em>records</em></h1><p>Who leads for wins, streaks, consistency and more.</p></header>
-    <div class="toolbar" data-tmnf-only>${seasonSeg(season, 'record-season', [['s2', S2L()], ['s1', 'Season 1'], ['both', 'Both']])}</div>
+    <div class="toolbar" data-tmnf-only>${seasonSeg(season, 'record-season', seasonOptions('both'))}</div>
     <div id="recordContent" class="record-grid"><div class="loader"><div class="spinner"></div> Opening the record book…</div></div>`;
       main.querySelectorAll('[data-record-season]').forEach(b => b.addEventListener('click', () => renderRecords(b.dataset.recordSeason)));
       seasonSource(season).then(data => {
@@ -2288,11 +2437,11 @@
       </article>`;
     }
 
-    function renderRivalries(season = 's2', minShared = 3, selectedPlayer = '') {
+    function renderRivalries(season = curKey(), minShared = 3, selectedPlayer = '') {
       main.innerHTML = `
     <header class="page-head"><div class="kicker">Repeat matchups</div><h1>Rival<em>ries</em></h1><p>Pairs who keep meeting on track, ranked by how evenly matched they are.</p></header>
     <div class="toolbar">
-      <span class="toolbar-group" data-tmnf-only>${seasonSeg(season, 'rival-season', [['s2', S2L()], ['s1', 'Season 1'], ['both', 'Both']])}</span>
+      <span class="toolbar-group" data-tmnf-only>${seasonSeg(season, 'rival-season', seasonOptions('both'))}</span>
       <span class="toolbar-group"><label class="toolbar-label" for="rivalPlayer">Player</label><select id="rivalPlayer"><option>Loading players…</option></select></span>
       <span class="toolbar-group"><span class="toolbar-label">Shared races</span><div class="seg" role="group" aria-label="Minimum shared races">${[3, 5, 8].map(n => `<button type="button" class="filter-btn ${minShared === n ? 'active' : ''}" data-rival-min="${n}" aria-pressed="${minShared === n}">${n}+</button>`).join('')}</div></span>
     </div>
@@ -2507,6 +2656,7 @@
       const addKnown = list => (list || []).forEach(n => {const k = playerKey(n); if (!known[k]) known[k] = n;});
       const tmnf = GAME === 'tmnf' ? RAW : DATA.tmnf;
       if (tmnf) addKnown(tmnf.players);
+      if (typeof SEASON_2 !== 'undefined' && SEASON_2) addKnown(SEASON_2.players);
       if (typeof SEASON_1 !== 'undefined' && SEASON_1) addKnown(SEASON_1.players);
       const display = {};
       const nameFor = n => {
@@ -2540,14 +2690,17 @@
     }
     function seasonStats(data) {return computeAll(data).ranked;}
     function rankMap(ranked, knownKeys = []) {const map = {}; ranked.forEach((p, i) => {let key = playerKey(p.name); if (!knownKeys.includes(key)) {const close = knownKeys.find(k => oneLetterApart(k, key)); if (close) key = close;} map[key] = {...p, rank: i + 1};}); return map;}
-    function comparisonRows(s1Ranked, s2Ranked) {
-      const a = rankMap(s1Ranked), b = rankMap(s2Ranked, Object.keys(a)), keys = [...new Set([...Object.keys(a), ...Object.keys(b)])];
-      return keys.map(k => {
-        const x = a[k], y = b[k];
+    /* One row per player across several seasons' standings (oldest first). A one-letter rename in a later
+       season is matched to the earlier spelling; the newest spelling is shown. */
+    function comparisonRows(...rankedLists) {
+      const maps = []; let known = [];
+      rankedLists.forEach(ranked => {const m = rankMap(ranked, known); maps.push(m); known = [...new Set([...known, ...Object.keys(m)])];});
+      const sum = (xs, f) => xs.reduce((a, x) => a + (x ? x[f] : 0), 0);
+      return known.map(k => {
+        const xs = maps.map(m => m[k]), latest = [...xs].reverse().find(Boolean);
         return {
-          key: k, name: (y || x).name, s1: x, s2: y, delta: x && y ? x.rank - y.rank : null,
-          total: (x ? x.points : 0) + (y ? y.points : 0), played: (x ? x.played : 0) + (y ? y.played : 0),
-          wins: (x ? x.wins : 0) + (y ? y.wins : 0), podiums: (x ? x.podiums : 0) + (y ? y.podiums : 0)
+          key: k, name: latest.name, seasons: xs, s1: xs[0], s2: xs[1], delta: xs[0] && xs[1] ? xs[0].rank - xs[1].rank : null,
+          total: sum(xs, 'points'), played: sum(xs, 'played'), wins: sum(xs, 'wins'), podiums: sum(xs, 'podiums')
         };
       }).sort((x, y) => y.total - x.total || y.played - x.played);
     }
@@ -2586,7 +2739,7 @@
         document.querySelector('nav a[data-route="/players"]').classList.add('active');
         renderPlayers();
       } else if (route[0] === 'player' && route[1]) {
-        if ((route[1] === 's1' || route[1] === 's2' || route[1] === 'all') && route[2]) renderPlayerProfileEnhanced(route[2], route[1]);
+        if ((isSeasonKey(route[1]) || route[1] === 'all') && route[2]) renderPlayerProfileEnhanced(route[2], route[1]);
         else renderPlayerProfileEnhanced(route[1]);
       } else if (route[0] === 'history') {
         document.querySelector('nav a[data-route="/history"]').classList.add('active');
@@ -2598,11 +2751,11 @@
         document.querySelector('nav a[data-route="/rivalries"]').classList.add('active');
         renderRivalries();
       } else if (route[0] === 'edition' && route[1]) {
-        if ((route[1] === 's1' || route[1] === 's2') && route[2]) renderEditionDetail(route[2], route[1]);
+        if (isSeasonKey(route[1]) && route[2]) renderEditionDetail(route[2], route[1]);
         else renderEditionDetail(route[1]);
       } else if (route[0] === 'versus') {
         document.querySelector('nav a[data-route="/versus"]').classList.add('active');
-        if ((route[1] === 's1' || route[1] === 's2' || route[1] === 'both') && route[2] && route[3]) renderVersus(route[2], route[3], route[1]);
+        if ((isSeasonKey(route[1]) || route[1] === 'both') && route[2] && route[3]) renderVersus(route[2], route[3], route[1]);
         else renderVersus(route[1], route[2]);
       } else if (route[0] === 'videos') {
         document.querySelector('nav a[data-route="/videos"]').classList.add('active');
@@ -2619,31 +2772,27 @@
       const q = searchInput.value.trim().toLowerCase();
       if (!q || !RAW) {searchResults.style.display = 'none'; return;}
 
-      // SEASON_1 may not have finished its background preload yet - search
-      // just covers Season 2 until it has, then quietly starts covering both.
-      const s2Keys = new Set(RAW.players.map(playerKey));
-      const s1Keys = SEASON_1 && GAME !== 'tm20' ? new Set(SEASON_1.players.map(playerKey)) : new Set();
+      // Archived seasons may not have finished their background preload yet - search
+      // covers whatever is loaded and quietly widens once the rest arrives. Newest season first.
+      const sources = GAME === 'tm20' ? [[curKey(), RAW]] : [[CURRENT_TMNF_SEASON, RAW], ['s2', SEASON_2], ['s1', SEASON_1]].filter(([, d]) => d);
+      const keySets = sources.map(([key, d]) => [key, new Set(d.players.map(playerKey))]);
       const nameByKey = {};
-      RAW.players.forEach(n => nameByKey[playerKey(n)] = n);
-      if (SEASON_1 && GAME !== 'tm20') SEASON_1.players.forEach(n => {if (!(playerKey(n) in nameByKey)) nameByKey[playerKey(n)] = n;});
+      sources.forEach(([, d]) => d.players.forEach(n => {if (!(playerKey(n) in nameByKey)) nameByKey[playerKey(n)] = n;}));
 
-      const playerMatches = [...new Set([...s2Keys, ...s1Keys])]
+      const playerMatches = [...new Set(keySets.flatMap(([, set]) => [...set]))]
         .map(k => nameByKey[k])
         .filter(n => n.toLowerCase().includes(q))
         .slice(0, 6);
 
-      const editionMatches = [
-        ...RAW.editions.filter(e => String(e.edition).toLowerCase().includes(q)).map(e => ({edition: e.edition, season: 's2'})),
-        ...(SEASON_1 && GAME !== 'tm20' ? SEASON_1.editions.filter(e => String(e.edition).toLowerCase().includes(q)).map(e => ({edition: e.edition, season: 's1'})) : [])
-      ].slice(0, 4);
+      const editionMatches = sources.flatMap(([key, d]) => d.editions.filter(e => String(e.edition).toLowerCase().includes(q)).map(e => ({edition: e.edition, season: key}))).slice(0, 4);
 
       const items = [
         ...playerMatches.map(n => {
-          const key = playerKey(n);
-          const season = s2Keys.has(key) && s1Keys.has(key) ? 'all' : (s1Keys.has(key) ? 's1' : 's2');
+          const key = playerKey(n), inSeasons = keySets.filter(([, set]) => set.has(key)).map(([k]) => k);
+          const season = inSeasons.length > 1 ? 'all' : (inSeasons[0] || curKey());
           return {label: `Player · ${n}`, href: `${GAME === 'tm20' ? '#/tm20' : '#'}/player/${season}/${encodeURIComponent(n)}`};
         }),
-        ...editionMatches.map(e => ({label: `Edition ${e.edition} (${e.season === 's1' ? 'S1' : (GAME === 'tm20' ? 'TM20' : 'S2')})`, href: `${GAME === 'tm20' ? '#/tm20' : '#'}/edition/${e.season}/${encodeURIComponent(e.edition)}`}))
+        ...editionMatches.map(e => ({label: `Edition ${e.edition} (${GAME === 'tm20' ? 'TM20' : SEASON_INFO[e.season].short})`, href: `${GAME === 'tm20' ? '#/tm20' : '#'}/edition/${e.season}/${encodeURIComponent(e.edition)}`}))
       ];
       if (!items.length) {searchResults.style.display = 'none'; return;}
       // Real links: keyboard reachable (Tab / Enter), open with the normal hash navigation
@@ -2689,14 +2838,14 @@
       banner.id = 'statusBanner';
       banner.setAttribute('role', 'status');
       const label = dataSourceStatus === 'fallback'
-        ? "Couldn't reach the live sheet. Showing a saved snapshot that may be out of date."
+        ? `Couldn't load the ${SEASON_INFO[CURRENT_TMNF_SEASON].label} results. The table stays empty until the connection is back.`
         : "Showing manually loaded data.";
       banner.innerHTML = `
     <span>${label}</span>
     <button class="btn" id="bannerRetry" type="button">Retry live</button>
     <button class="btn" id="bannerManual" type="button">Load newer data</button>
     <span class="spacer"></span>
-    <a href="https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:html&sheet=${encodeURIComponent(SHEET_NAME)}" target="_blank" rel="noopener">Check raw sheet ↗</a>
+    <a href="https://docs.google.com/spreadsheets/d/${SEASON_3_SHEET_ID}/gviz/tq?tqx=out:html&sheet=${encodeURIComponent(SHEET_NAME)}" target="_blank" rel="noopener">Check raw sheet ↗</a>
   `;
       main.parentNode.insertBefore(banner, main);
       document.getElementById('bannerRetry').addEventListener('click', init);
@@ -2726,7 +2875,7 @@
         const errEl = document.getElementById('manualError');
         try {
           if (!text.trim()) throw new Error('Paste some data first.');
-          RAW = parseDelimitedText(text);
+          RAW = withBestOf(parseDelimitedText(text), CURRENT_TMNF_SEASON);
           dataSourceStatus = 'manual';
           render(); renderStatusBanner();
         } catch (e) {errEl.textContent = e.message;}
@@ -2737,7 +2886,7 @@
         const reader = new FileReader();
         reader.onload = () => {
           try {
-            RAW = parseDelimitedText(reader.result);
+            RAW = withBestOf(parseDelimitedText(reader.result), CURRENT_TMNF_SEASON);
             dataSourceStatus = 'manual';
             render(); renderStatusBanner();
           } catch (err2) {document.getElementById('manualError').textContent = err2.message;}
@@ -2756,7 +2905,7 @@
       const existingBanner = document.getElementById('statusBanner');
       if (existingBanner) existingBanner.remove();
       try {
-        RAW = await loadData();
+        RAW = withBestOf(await loadData(), CURRENT_TMNF_SEASON);
         dataSourceStatus = 'live';
         render();
         // Progressive enhancement, not blocking: avatarHTML() already has a
@@ -2770,11 +2919,14 @@
         // Season-1-aware page - loadSeason1() already caches its own result,
         // so this costs nothing extra later.
         loadSeason1().catch(err => console.warn('Background Season 1 preload failed (will retry when a page needs it):', err));
+        loadSeason2().catch(err => console.warn('Background Season 2 preload failed (will retry when a page needs it):', err));
       } catch (err) {
-        console.error('Live connection failed, using fallback snapshot:', err);
+        console.error(`${SEASON_INFO[CURRENT_TMNF_SEASON].label} results unavailable:`, err);
         try {
-          RAW = parseDelimitedText(FALLBACK_CSV_TEXT);
+          // The built-in snapshot is Season 2 data, so it is never shown as the current season: show an empty season instead.
+          RAW = withBestOf({editions: [], players: []}, CURRENT_TMNF_SEASON);
           dataSourceStatus = 'fallback';
+          loadSeason1().catch(() => {}); loadSeason2().catch(() => {});
           render();
           renderStatusBanner();
           loadDiscordProfiles().then(() => render()); // pictures don't depend on the sheet being live

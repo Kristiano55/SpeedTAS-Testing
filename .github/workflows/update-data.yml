@@ -1,0 +1,48 @@
+name: Update results data
+
+# Rebuilds data/*.json (the website reads these first) from the Google Sheets and TAS Exchange.
+# Schedules only run on the default branch, so on a feature branch use "Run workflow" by hand.
+on:
+  schedule:
+    - cron: '0 22 * * 6'   # Saturday 22:00 UTC (22:00 / 23:00 Lisbon), after the edition
+    - cron: '0 12 * * 0'   # Sunday 12:00 UTC, backup run in case times were still hidden
+  workflow_dispatch:
+    inputs:
+      sheets_only:
+        description: 'Only refresh the Google Sheets (skip TAS Exchange)'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-data
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Check the parsers
+        run: node scripts/update-data.mjs --selftest
+      - name: Fetch sheets and events
+        run: node scripts/update-data.mjs ${{ inputs.sheets_only && '--sheets' || '' }}
+      - name: Commit changed data
+        run: |
+          git config user.name "speedtas-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add data
+          # updated.json changes on every run; only commit when results actually changed
+          if git diff --cached --quiet -- data ':!data/updated.json'; then
+            echo "No result changes."
+          else
+            git commit -m "data: refresh $(date -u +'%F %H:%M') UTC"
+            git pull --rebase origin "${GITHUB_REF_NAME}"
+            git push origin "HEAD:${GITHUB_REF_NAME}"
+          fi
