@@ -894,15 +894,41 @@
       }
       return out;
     }
+    /* Times from the results posts in the SpeedTAS Discord (#results-tmnf), collected into data/times.json:
+       {"s1": {"5": {"Mufat": "20.18", ...}}, "s2": {...}}, keyed by the sheet's player names. TMNF only.
+       Each was checked against the sheet's placements. When TAS Exchange also has a time, TAS Exchange wins. */
+    let POSTED_TIMES = null;
+    const postedTimes = () => POSTED_TIMES || (POSTED_TIMES = fetch('data/times.json', {cache: 'no-cache'}).then(r => r.ok ? r.json() : {}).catch(() => ({})));
+    /* times = {player: {time, viaHost?}}: fills the Time column with each time and its gap to the fastest. */
+    function paintTimes(times) {
+      const secs = Object.values(times).map(en => parseTimeSeconds(en.time)).filter(x => x != null);
+      const best = secs.length ? Math.min(...secs) : null;
+      let filled = 0;
+      document.querySelectorAll('.time-cell[data-player]').forEach(cell => {
+        const en = times[cell.dataset.player];
+        if (!en) return;
+        const t = parseTimeSeconds(en.time), gap = (t != null && best != null && t - best > 0.0001) ? `<small>+${(t - best).toFixed(2)}</small>` : '';
+        const via = en.viaHost ? `<small title="Uploaded by ${escapeHtml(en.viaHost)} on this player's behalf" style="cursor:help">ⓘ</small>` : '';
+        cell.innerHTML = escapeHtml(en.time) + gap + via; filled++;
+      });
+      if (filled) document.querySelector('.results-table').classList.remove('no-times');
+    }
     function attachEditionEvent(ed, seasonKey) {
+      const edition = ed.edition, times = {};
+      const stillHere = () => {const t = document.querySelector('.results-table'); return !!t && t.dataset.edition === String(edition) && t.dataset.season === seasonKey;};
+      const usable = en => en && en.time && parseTimeSeconds(en.time) != null; // skips "Hidden" and other non-times
+      if (GAME === 'tmnf') postedTimes().then(all => {
+        const posted = (all[seasonKey] || {})[String(edition)] || {};
+        Object.entries(posted).forEach(([name, time]) => {if (name in ed.results && !times[name] && usable({time})) times[name] = {time};});
+        if (stillHere()) paintTimes(times);
+      });
       if (!hasEvents(seasonKey)) return;
-      const edition = ed.edition, game = eventKeyFor(seasonKey);
-      const stillHere = () => document.getElementById('eventLink') && document.getElementById('eventLink').dataset.edition === String(edition);
+      const game = eventKeyFor(seasonKey);
       loadEventIndex(game).then(() => {
         const ev = eventFor(game, edition);
         if (!ev || !stillHere()) return;
         const link = document.getElementById('eventLink');
-        link.href = eventUrl(ev.id); link.style.display = '';
+        if (link) {link.href = eventUrl(ev.id); link.style.display = '';}
         const proxyUrl = (SPEEDTAS_API_URL || '').replace(/\/+$/, '');
         return repoEvents().then(repo => {
           const saved = repo[game] && repo[game][String(edition)];
@@ -911,17 +937,8 @@
         }).then(data => {
           if (!data || !data.results || !stillHere()) return;
           const matched = matchEntrantsToPlayers(data.results, Object.keys(ed.results), {placements: ed.results, hosts: EVENT_HOSTS[game]});
-          const secs = Object.values(matched).map(en => parseTimeSeconds(en.time)).filter(x => x != null);
-          const best = secs.length ? Math.min(...secs) : null;
-          let filled = 0;
-          document.querySelectorAll('.time-cell[data-player]').forEach(cell => {
-            const en = matched[cell.dataset.player];
-            if (!en || !en.time) return;
-            const t = parseTimeSeconds(en.time), gap = (t != null && best != null && t - best > 0.0001) ? `<small>+${(t - best).toFixed(2)}</small>` : '';
-            const via = en.viaHost ? `<small title="Uploaded by ${escapeHtml(en.viaHost)} on this player's behalf" style="cursor:help">ⓘ</small>` : '';
-            cell.innerHTML = escapeHtml(en.time) + gap + via; filled++;
-          });
-          if (filled) document.querySelector('.results-table').classList.remove('no-times');
+          Object.entries(matched).forEach(([name, en]) => {if (usable(en)) times[name] = en;}); // replay-backed times win
+          paintTimes(times);
         });
       }).catch(err => console.warn('Event times unavailable', err));
     }
@@ -2062,7 +2079,7 @@
       </div>
       <div class="profile-actions">${profileTabs(seasonKey)}${compare}</div>
     </div>
-    <div class="key-stats">${stat(p.droppedPoints ? `Points <span class="dim-note">best ${SEASON_INFO[seasonKey].bestOf}</span>` : 'Points', p.droppedPoints ? `${p.points}<small class="scored-note">${p.scored} scored</small>` : p.points)}${stat('Wins', p.wins)}${stat('Podiums', p.podiums)}${stat('Editions', p.played)}</div>
+    <div class="key-stats">${stat(p.droppedPoints && SEASON_INFO[seasonKey] ? `Points <span class="dim-note">best ${SEASON_INFO[seasonKey].bestOf}</span>` : 'Points', p.droppedPoints ? `${p.points}<small class="scored-note">${p.scored} scored</small>` : p.points)}${stat('Wins', p.wins)}${stat('Podiums', p.podiums)}${stat('Editions', p.played)}</div>
     <div class="stat-grid">
       ${stat('Avg placement', p.avgPlacement.toFixed(2))}${stat('Best finish', 'P' + p.best)}${stat('Worst finish', 'P' + p.worst)}${stat('Win rate', pct(p.winRate))}${stat('Podium rate', pct(p.podiumRate))}${stat('Avg pts / edition', p.avgPoints.toFixed(2))}${stat('Best win streak', p.maxWinStreak)}${stat('Best podium streak', p.maxPodiumStreak)}
     </div>
@@ -2080,7 +2097,7 @@
     </section>
     <section>
       <h2 class="section-title">Placement history</h2>
-      <div class="panel flush"><div class="table-wrap"><table><thead><tr><th>Edition</th><th>Placement</th><th class="r">Points</th></tr></thead><tbody>${[...history].reverse().map(h => `<tr><td><a href="#/edition/${h.season}/${enc(h.raw)}">Edition ${E(h.edition)}</a></td><td>${h.placement <= 3 ? medalFor(h.placement) : ''}P${h.placement}</td><td class="ptsc r">${h.dropped ? `<s class="dropped-pts" title="Dropped: only a player's best ${SEASON_INFO[h.season] ? SEASON_INFO[h.season].bestOf : ''} results count">${h.points}</s>` : h.points}</td></tr>`).join('')}</tbody></table></div></div>${history.some(h => h.dropped) ? `<p class="table-foot">Struck-through points are dropped results: only the best ${SEASON_INFO[seasonKey].bestOf} count towards the ${E(seasonLabel)} championship.</p>` : ''}
+      <div class="panel flush"><div class="table-wrap"><table><thead><tr><th>Edition</th><th>Placement</th><th class="r">Points</th></tr></thead><tbody>${[...history].reverse().map(h => `<tr><td><a href="#/edition/${h.season}/${enc(h.raw)}">Edition ${E(h.edition)}</a></td><td>${h.placement <= 3 ? medalFor(h.placement) : ''}P${h.placement}</td><td class="ptsc r">${h.dropped ? `<s class="dropped-pts" title="Dropped: only a player's best ${SEASON_INFO[h.season] ? SEASON_INFO[h.season].bestOf : ''} results count">${h.points}</s>` : h.points}</td></tr>`).join('')}</tbody></table></div></div>${(() => {const d = history.find(h => h.dropped); return d && SEASON_INFO[d.season] ? `<p class="table-foot">Struck-through points are dropped results: only the best ${SEASON_INFO[d.season].bestOf} count towards the ${E(SEASON_INFO[d.season].label)} championship.</p>` : '';})()}
     </section>`;
       bindProfileTabs(decoded);
       profileCharts.forEach(c => c.destroy()); profileCharts = [];
@@ -2157,7 +2174,7 @@
     <div class="panel flush">
       <div class="results-head"><b>Full classification</b><span class="head-note">Points by placement</span></div>
       <div class="table-wrap">
-        <table class="results-table no-times">
+        <table class="results-table no-times" data-edition="${E(ed.edition)}" data-season="${seasonKey}">
           <thead><tr><th>Pos</th><th>Player</th><th class="time-th">Time</th><th class="r">Points</th></tr></thead>
           <tbody>
             ${entries.map(([name, place]) => `
