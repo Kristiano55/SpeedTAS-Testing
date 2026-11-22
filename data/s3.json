@@ -24,6 +24,78 @@
     "Thoman": 2,
     "Sneak": 3
    }
+  },
+  {
+   "edition": "4",
+   "results": {
+    "Kris": 1,
+    "Thoman": 2.33333333333333,
+    "Sneak": 2.66666666666667
+   }
+  },
+  {
+   "edition": "5",
+   "results": {
+    "Kris": 1,
+    "Thoman": 2.33333333333333,
+    "Sneak": 2.66666666666667
+   }
+  },
+  {
+   "edition": "6",
+   "results": {
+    "Kris": 1,
+    "Thoman": 2.33333333333333,
+    "Sneak": 2.66666666666667
+   }
+  },
+  {
+   "edition": "7",
+   "results": {
+    "Kris": 1,
+    "Thoman": 2.33333333333333,
+    "Sneak": 2.66666666666667
+   }
+  },
+  {
+   "edition": "8",
+   "results": {
+    "Kris": 1,
+    "Thoman": 2.33333333333333,
+    "Sneak": 2.66666666666667
+   }
+  },
+  {
+   "edition": "9",
+   "results": {
+    "Kris": 1,
+    "Thoman": 2.33333333333333,
+    "Sneak": 2.66666666666667
+   }
+  },
+  {
+   "edition": "10",
+   "results": {
+    "Kris": 1,
+    "Thoman": 2.33333333333333,
+    "Sneak": 2.66666666666667
+   }
+  },
+  {
+   "edition": "11",
+   "results": {
+    "Kris": 1,
+    "Thoman": 2.33333333333333,
+    "Sneak": 2.66666666666667
+   }
+  },
+  {
+   "edition": "12",
+   "results": {
+    "Kris": 1,
+    "Thoman": 2.33333333333333,
+    "Sneak": 2.66666666666667
+   }
   }
  ],
  "players": [
@@ -31,5 +103,5 @@
   "Thoman",
   "Sneak"
  ],
- "updatedAt": "2026-11-22T17:39:17.800Z"
+ "updatedAt": "2026-11-22T17:42:21.973Z"
 }
