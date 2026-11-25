@@ -1,0 +1,14 @@
+name: tmp compare extractor
+on: workflow_dispatch
+jobs:
+  cmp:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with: { dotnet-version: '8.0.x' }
+      - run: |
+          mkdir -p /tmp/out
+          echo '[{"event":263,"replay":2004,"game":"tmnf"},{"event":258,"replay":1953,"game":"tm20"}]' > /tmp/todo.json
+          dotnet run --project tools/extract -c Release -- /tmp/todo.json /tmp/out /tmp/missing.json
+          for id in 2004 1953; do echo "== $id"; diff <(head -400 data/inputs/$id.txt) <(head -400 /tmp/out/$id.txt) | head -12; echo "lines api $(wc -l < data/inputs/$id.txt) gbx $(wc -l < /tmp/out/$id.txt)"; done
