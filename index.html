@@ -47,6 +47,8 @@
       --gutter: clamp(16px, 4vw, 32px);
     }
     body.game-tm20 { --accent: #59d6fb; --accent-rgb: 89,214,251; }
+    /* Viewing Season 1 or 2 on TMNF: back to their original acid lime */
+    body.season-legacy:not(.game-tm20) { --accent: #e9fb59; --accent-rgb: 233,251,89; }
 
     /* ============ BASE ============ */
     * { box-sizing: border-box; }
@@ -1124,6 +1126,7 @@
       });
     }
     function renderMaps(seasonKey = curKey()) {
+      setSeasonTheme(seasonKey);
       main.innerHTML = `<div class="loader"><div class="spinner"></div> Loading maps…</div>`;
       loadSeasonData(seasonKey).then(data => Promise.all([repoMaps(), winnerTimes(seasonKey, data)]).then(([all, wins]) => {
         const E = escapeHtml, maps = all[mapKeyFor(seasonKey)] || {}, base = GAME === 'tm20' ? '#/tm20' : '#';
@@ -1363,6 +1366,13 @@
       if (fmt(here, hm) === fmt('Europe/Lisbon', hm)) return '';
       const sameDay = fmt(here, {weekday: 'short'}) === fmt('Europe/Lisbon', {weekday: 'short'});
       return ` · ${sameDay ? '' : fmt(here, {weekday: 'short'}) + ' '}${fmt(here, hm)} your time`;
+    }
+
+    /* ============ SEASON THEME ============
+       TMNF pages take the colour of the season being viewed (S1/S2 lime, S3 purple). All-time and
+       comparison views keep the current season's colour. */
+    function setSeasonTheme(key) {
+      document.body.classList.toggle('season-legacy', GAME === 'tmnf' && (key === 's1' || key === 's2'));
     }
 
     /* ============ GAME CONTEXT ============ */
@@ -2383,9 +2393,9 @@
     }
 
     /* ============ CHARTS ============ */
-    const accentHex = () => GAME === 'tm20' ? '#59d6fb' : '#b388ff';
+    const accentHex = () => getComputedStyle(document.body).getPropertyValue('--accent').trim() || (GAME === 'tm20' ? '#59d6fb' : '#b388ff');
     /* Series colours for the top-six chart: the game accent leads, the rest stay clearly apart from it. */
-    const seriesColors = () => GAME === 'tm20' ? [accentHex(), '#ff4f79', '#4d8dff', '#ffb347', '#b08bff', '#e9fb59'] : [accentHex(), '#ff4f79', '#4d8dff', '#ffb347', '#e9fb59', '#59d6fb'];
+    const seriesColors = () => GAME === 'tm20' ? [accentHex(), '#ff4f79', '#4d8dff', '#ffb347', '#b08bff', '#e9fb59'] : [accentHex(), '#ff4f79', '#4d8dff', '#ffb347', document.body.classList.contains('season-legacy') ? '#b388ff' : '#e9fb59', '#59d6fb'];
     function chartOptions(extra = {}) {
       const tick = {color: '#9094a0', font: {family: "'JetBrains Mono', monospace", size: 11}};
       const grid = {color: '#1c1f25'};
@@ -2431,6 +2441,7 @@
 
     /* ============ RENDER: PLAYERS DIRECTORY ============ */
     function renderPlayers(seasonKey = curKey(), seasonData = null) {
+      setSeasonTheme(seasonKey);
       if (seasonKey !== curKey() && !seasonData) {
         main.innerHTML = `<div class="loader"><div class="spinner"></div> Loading player directory…</div>`;
         (seasonKey === 'both' ? loadAllTmnfSeasons() : loadSeasonData(seasonKey)).then(data => renderPlayers(seasonKey, data)).catch(seasonError);
@@ -2468,6 +2479,7 @@
       return {player: found, computed};
     }
     function renderPlayerProfileEnhanced(name, seasonKey = curKey(), seasonData = null) {
+      setSeasonTheme(seasonKey);
       let decoded = name;
       try {decoded = decodeURIComponent(name);} catch (e) {}
       const E = escapeHtml;
@@ -2556,6 +2568,7 @@
 
     /* ============ RENDER: HISTORY ============ */
     function renderHistory(seasonKey = curKey()) {
+      setSeasonTheme(seasonKey);
       main.innerHTML = `<div class="loader"><div class="spinner"></div> Loading ${escapeHtml(labelFor(seasonKey))} editions…</div>`;
       loadSeasonData(seasonKey).then(data => {
         const E = escapeHtml;
@@ -2588,6 +2601,7 @@
     }
 
     function renderEditionDetail(editionId, seasonKey = curKey(), data = null) {
+      setSeasonTheme(seasonKey);
       if (!data) {
         if (seasonKey === curKey()) data = RAW;
         else {main.innerHTML = `<div class="loader"><div class="spinner"></div> Loading ${escapeHtml(labelFor(seasonKey))} edition…</div>`; loadSeasonData(seasonKey).then(d => renderEditionDetail(editionId, seasonKey, d)).catch(seasonError); return;}
@@ -2665,6 +2679,7 @@
     }
 
     function renderVersus(p1name, p2name, seasonKey = curKey(), suppliedData = null) {
+      setSeasonTheme(seasonKey);
       if (seasonKey !== curKey() && !suppliedData) {
         main.innerHTML = `<div class="loader"><div class="spinner"></div> Loading ${escapeHtml(labelFor(seasonKey))} Head-to-Head…</div>`;
         loadSeasonData(seasonKey).then(data => renderVersus(p1name, p2name, seasonKey, data)).catch(err => {main.innerHTML = `<div class="panel"><h2 class="section-title">${escapeHtml(labelFor(seasonKey))} unavailable</h2><p style="color:var(--muted)">${escapeHtml(err.message)}</p></div>`;});
@@ -2842,6 +2857,7 @@
     }
 
     function renderRecords(season = curKey()) {
+      setSeasonTheme(season);
       main.innerHTML = `
     <header class="page-head"><div class="kicker">The record book</div><h1>Season <em>records</em></h1><p>Who leads for wins, streaks, consistency and more.</p></header>
     <div class="toolbar" data-tmnf-only>${seasonSeg(season, 'record-season', seasonOptions('both'))}</div>
@@ -2902,6 +2918,7 @@
     }
 
     function renderRivalries(season = curKey(), minShared = 3, selectedPlayer = '') {
+      setSeasonTheme(season);
       main.innerHTML = `
     <header class="page-head"><div class="kicker">Repeat matchups</div><h1>Rival<em>ries</em></h1><p>Pairs who keep meeting on track, ranked by how evenly matched they are.</p></header>
     <div class="toolbar">
@@ -3177,6 +3194,7 @@
     }
     function renderRoute() {
       document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+      setSeasonTheme(null);
       const route = currentRoute();
       if (ROUTE_GAME === 'tm20' && !DATA.tm20) {
         applyTheme('tm20');
