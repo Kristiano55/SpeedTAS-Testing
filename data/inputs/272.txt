@@ -1,0 +1,15 @@
+0 steer 19950
+0 press up
+0.53 steer 0
+1.37 steer 20600
+2.07 steer 21990
+2.59 steer 22760
+2.79 steer 24000
+3.25 steer 24900
+3.52 steer 26000
+3.88 steer 27000
+4.21 steer 28000
+4.41 steer 28500
+4.62 steer 28700
+4.74 steer 29200
+5.52 steer 26000
