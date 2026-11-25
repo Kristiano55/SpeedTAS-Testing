@@ -1,0 +1,1871 @@
+{
+ "s1": {
+  "1": {
+   "tmx": 11621106,
+   "name": "SpeedTAS nº1",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 30280,
+   "wr": {
+    "time": 28190,
+    "by": "Oogy749"
+   },
+   "thumb": true,
+   "tas": {
+    "track": 7,
+    "time": 25920,
+    "by": "vogtek"
+   }
+  },
+  "2": {
+   "tmx": 11621114,
+   "name": "SpeedTAS nº2",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 41290,
+   "wr": {
+    "time": 30990,
+    "by": "eksiss"
+   },
+   "thumb": true,
+   "tas": {
+    "track": 1945,
+    "time": 24490,
+    "by": "vogtek"
+   }
+  },
+  "3": {
+   "tmx": 11621117,
+   "name": "SpeedTAS nº3",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 38410,
+   "wr": {
+    "time": 36870,
+    "by": "cyanide0081"
+   },
+   "thumb": true,
+   "tas": {
+    "track": 1948,
+    "time": 33960,
+    "by": "vogtek"
+   }
+  },
+  "4": {
+   "tmx": 11621128,
+   "name": "SpeedTAS nº4 Mini_Trial",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 64720,
+   "wr": {
+    "time": 241420,
+    "by": "Polar_15"
+   },
+   "thumb": true,
+   "tas": {
+    "track": 1949,
+    "time": 27130,
+    "by": "defendintelligence, vogtek"
+   }
+  },
+  "5": {
+   "tmx": 11621131,
+   "name": "SpeedTAS GS Edition",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 22920,
+   "wr": {
+    "time": 20990,
+    "by": "Skye_"
+   },
+   "thumb": true,
+   "tas": {
+    "track": 1938,
+    "time": 19920,
+    "by": "defendintelligence, vogtek"
+   }
+  },
+  "6": {
+   "tmx": 11637571,
+   "name": "SpeedTAS nº6",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 23100,
+   "wr": {
+    "time": 21940,
+    "by": "GalaxyM"
+   },
+   "thumb": true,
+   "tas": {
+    "track": 1947,
+    "time": 21120,
+    "by": "vogtek"
+   }
+  },
+  "7": {
+   "tmx": 11708519,
+   "name": "SpeedTAS nº7",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 24840,
+   "wr": {
+    "time": 24510,
+    "by": "k4m1k4zz3"
+   },
+   "thumb": true,
+   "tas": {
+    "track": 1952,
+    "time": 23520,
+    "by": "vogtek"
+   }
+  },
+  "8": {
+   "tmx": 11827410,
+   "name": "SpeedTAS nº8",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 31630,
+   "wr": {
+    "time": 32330,
+    "by": "senskiboy"
+   },
+   "thumb": true,
+   "tas": {
+    "track": 1954,
+    "time": 26250,
+    "by": "defendintelligence, vogtek"
+   }
+  },
+  "9": {
+   "tmx": 11827441,
+   "name": "SpeedTAS nº9",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 17530,
+   "wr": {
+    "time": 17310,
+    "by": "Th0man"
+   },
+   "thumb": true,
+   "tas": {
+    "track": 1953,
+    "time": 17070,
+    "by": "vogtek"
+   }
+  },
+  "10": {
+   "tmx": 11827444,
+   "name": "SpeedTAS nº10",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 23150,
+   "wr": {
+    "time": 23700,
+    "by": "_EnnvY_"
+   },
+   "thumb": true,
+   "tas": {
+    "track": 1950,
+    "time": 17040,
+    "by": "defendintelligence, vogtek"
+   }
+  },
+  "11": {
+   "tmx": 11827447,
+   "name": "SpeedTAS nº11",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 16480,
+   "wr": {
+    "time": 36360,
+    "by": "Polar_15"
+   },
+   "thumb": true,
+   "tas": {
+    "track": 2063,
+    "time": 10960,
+    "by": "vogtek"
+   }
+  },
+  "12": {
+   "tmx": 11827450,
+   "name": "SpeedTAS nº12",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 18560,
+   "wr": null,
+   "thumb": true,
+   "tas": {
+    "track": 1937,
+    "time": 13580,
+    "by": "vogtek"
+   }
+  },
+  "13": {
+   "tmx": 12206475,
+   "name": "SpeedTAS nº13",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 19520,
+   "wr": {
+    "time": 19310,
+    "by": "Savikas"
+   },
+   "thumb": true,
+   "tas": {
+    "track": 2064,
+    "time": 15530,
+    "by": "defendintelligence, vogtek"
+   }
+  },
+  "14": {
+   "tmx": 12206480,
+   "name": "SpeedTAS nº14",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 21190,
+   "wr": {
+    "time": 21190,
+    "by": "kristian55"
+   },
+   "thumb": true,
+   "tas": {
+    "track": 20,
+    "time": 14790,
+    "by": "vogtek"
+   }
+  },
+  "15": {
+   "tmx": 12206483,
+   "name": "SpeedTAS nº15",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 24370,
+   "wr": {
+    "time": 20480,
+    "by": "Ventrx"
+   },
+   "thumb": true,
+   "tas": {
+    "track": 1939,
+    "time": 19520,
+    "by": "vogtek"
+   }
+  },
+  "16": {
+   "tmx": 12206486,
+   "name": "SpeedTAS nº16",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 26680,
+   "wr": {
+    "time": 26130,
+    "by": "satanas99"
+   },
+   "thumb": true,
+   "tas": {
+    "track": 1940,
+    "time": 24900,
+    "by": "vogtek"
+   }
+  },
+  "17": {
+   "tmx": 12206489,
+   "name": "SpeedTAS nº17",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 22190,
+   "wr": {
+    "time": 22190,
+    "by": "kristian55"
+   },
+   "thumb": true,
+   "tas": {
+    "track": 2066,
+    "time": 16320,
+    "by": "vogtek"
+   }
+  },
+  "18": {
+   "tmx": 12206492,
+   "name": "SpeedTAS nº18",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 21510,
+   "wr": {
+    "time": 21340,
+    "by": "cloudsateme"
+   },
+   "thumb": true,
+   "tas": {
+    "track": 1942,
+    "time": 18220,
+    "by": "vogtek"
+   }
+  },
+  "19": {
+   "tmx": 12206495,
+   "name": "SpeedTAS nº19",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 21760,
+   "wr": {
+    "time": 21650,
+    "by": "cloudsateme"
+   },
+   "thumb": true,
+   "tas": {
+    "track": 2068,
+    "time": 19510,
+    "by": "defendintelligence, vogtek"
+   }
+  },
+  "20": {
+   "tmx": 12206498,
+   "name": "SpeedTAS nº20",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 19790,
+   "wr": {
+    "time": 20230,
+    "by": "cloudsateme"
+   },
+   "thumb": true,
+   "tas": {
+    "track": 1944,
+    "time": 18500,
+    "by": "vogtek"
+   }
+  },
+  "21": {
+   "tmx": 12206501,
+   "name": "SpeedTAS nº21",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 24690,
+   "wr": {
+    "time": 24140,
+    "by": "cloudsateme"
+   },
+   "thumb": true,
+   "tas": {
+    "track": 1943,
+    "time": 22610,
+    "by": "vogtek"
+   }
+  },
+  "22": {
+   "tmx": 12206504,
+   "name": "SpeedTAS nº22",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 23210,
+   "wr": {
+    "time": 22330,
+    "by": "UplnejMagor"
+   },
+   "thumb": true,
+   "tas": {
+    "track": 1941,
+    "time": 19970,
+    "by": "Kim"
+   }
+  },
+  "23": {
+   "tmx": 12206507,
+   "name": "SpeedTAS nº23",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 20540,
+   "wr": {
+    "time": 20220,
+    "by": "UplnejMagor"
+   },
+   "thumb": true,
+   "tas": {
+    "track": 2065,
+    "time": 7610,
+    "by": "vogtek"
+   }
+  },
+  "24": {
+   "tmx": 12206510,
+   "name": "SpeedTAS nº24",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 19170,
+   "wr": {
+    "time": 17300,
+    "by": "UplnejMagor"
+   },
+   "thumb": true,
+   "tas": null
+  },
+  "25": {
+   "tmx": 13171600,
+   "name": "SpeedTAS nº25",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 24430,
+   "wr": {
+    "time": 58000,
+    "by": "BoredCapturer"
+   },
+   "thumb": true,
+   "tas": {
+    "track": 1946,
+    "time": 14810,
+    "by": "vogtek"
+   }
+  },
+  "26": {
+   "tmx": 13171603,
+   "name": "SpeedTAS nº26",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 22370,
+   "wr": {
+    "time": 25030,
+    "by": "KEKMILLIONNIK2"
+   },
+   "thumb": true,
+   "tas": null
+  },
+  "27": {
+   "tmx": 13171609,
+   "name": "SpeedTAS nº27",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 25270,
+   "wr": {
+    "time": 24860,
+    "by": "Weregoose"
+   },
+   "thumb": true,
+   "tas": {
+    "track": 2069,
+    "time": 21940,
+    "by": "defendintelligence, vogtek"
+   }
+  },
+  "28": {
+   "tmx": 13171612,
+   "name": "SpeedTAS nº28",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 24550,
+   "wr": {
+    "time": 28460,
+    "by": "BoredCapturer"
+   },
+   "thumb": true,
+   "tas": {
+    "track": 2072,
+    "time": 21220,
+    "by": "vogtek"
+   }
+  },
+  "29": {
+   "tmx": 13171615,
+   "name": "SpeedTAS nº29",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 26510,
+   "wr": {
+    "time": 103430,
+    "by": "BoredCapturer"
+   },
+   "thumb": true,
+   "tas": {
+    "track": 2070,
+    "time": 23230,
+    "by": "defendintelligence, vogtek"
+   }
+  },
+  "30": {
+   "tmx": 13171618,
+   "name": "SpeedTAS nº30",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 23770,
+   "wr": {
+    "time": 38550,
+    "by": "BoredCapturer"
+   },
+   "thumb": true,
+   "tas": {
+    "track": 2074,
+    "time": 20400,
+    "by": "vogtek"
+   }
+  },
+  "31": {
+   "tmx": 13171621,
+   "name": "SpeedTAS nº31",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 44630,
+   "wr": {
+    "time": 26840,
+    "by": "Emil [100 TMXP]"
+   },
+   "thumb": true,
+   "tas": {
+    "track": 2071,
+    "time": 16520,
+    "by": "vogtek"
+   }
+  },
+  "32": {
+   "tmx": 13171624,
+   "name": "SpeedTAS nº32",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 18480,
+   "wr": {
+    "time": 28710,
+    "by": "BoredCapturer"
+   },
+   "thumb": true,
+   "tas": {
+    "track": 2073,
+    "time": 16690,
+    "by": "defendintelligence, vogtek"
+   }
+  },
+  "33": {
+   "tmx": 13171627,
+   "name": "SpeedTAS nº33",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 22100,
+   "wr": {
+    "time": 28810,
+    "by": "Emil [100 TMXP]"
+   },
+   "thumb": true,
+   "tas": {
+    "track": 3279,
+    "time": 16830,
+    "by": "Rio"
+   }
+  },
+  "34": {
+   "tmx": 13171630,
+   "name": "SpeedTAS nº34",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 23390,
+   "wr": {
+    "time": 50840,
+    "by": "BoredCapturer"
+   },
+   "thumb": true,
+   "tas": {
+    "track": 2076,
+    "time": 16960,
+    "by": "defendintelligence, vogtek"
+   }
+  },
+  "35": {
+   "tmx": 13171635,
+   "name": "SpeedTAS nº35",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 23200,
+   "wr": {
+    "time": 30590,
+    "by": "BoredCapturer"
+   },
+   "thumb": true,
+   "tas": {
+    "track": 2079,
+    "time": 19720,
+    "by": "defendintelligence, vogtek"
+   }
+  },
+  "36": {
+   "tmx": 13171638,
+   "name": "SpeedTAS nº36",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 24180,
+   "wr": {
+    "time": 42680,
+    "by": "BoredCapturer"
+   },
+   "thumb": true,
+   "tas": {
+    "track": 2078,
+    "time": 19080,
+    "by": "vogtek"
+   }
+  },
+  "37": {
+   "tmx": 13171641,
+   "name": "SpeedTAS nº37",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 27710,
+   "wr": {
+    "time": 33830,
+    "by": "senskiboy"
+   },
+   "thumb": true,
+   "tas": null
+  },
+  "38": {
+   "tmx": 13171645,
+   "name": "SpeedTAS nº38",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 23530,
+   "wr": {
+    "time": 24550,
+    "by": "ProBotGaming"
+   },
+   "thumb": true,
+   "tas": {
+    "track": 2077,
+    "time": 15570,
+    "by": "defendintelligence, vogtek"
+   }
+  },
+  "39": {
+   "tmx": 13171649,
+   "name": "SpeedTAS nº39",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 27240,
+   "wr": {
+    "time": 62900,
+    "by": "BoredCapturer"
+   },
+   "thumb": true,
+   "tas": null
+  },
+  "40": {
+   "tmx": 13171652,
+   "name": "SpeedTAS nº40",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 25080,
+   "wr": {
+    "time": 49630,
+    "by": "BoredCapturer"
+   },
+   "thumb": true,
+   "tas": null
+  },
+  "41": {
+   "tmx": 13171655,
+   "name": "SpeedTAS nº41",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 23270,
+   "wr": {
+    "time": 22700,
+    "by": "KBDB"
+   },
+   "thumb": true,
+   "tas": {
+    "track": 2075,
+    "time": 21780,
+    "by": "defendintelligence, vogtek"
+   }
+  },
+  "42": {
+   "tmx": 13171660,
+   "name": "SpeedTAS nº42",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 18600,
+   "wr": {
+    "time": 24250,
+    "by": "BoredCapturer"
+   },
+   "thumb": true,
+   "tas": {
+    "track": 2082,
+    "time": 18900,
+    "by": "defendintelligence, vogtek"
+   }
+  },
+  "43": {
+   "tmx": 13171663,
+   "name": "SpeedTAS n43",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 21020,
+   "wr": {
+    "time": 36120,
+    "by": "KEKMILLIONNIK2"
+   },
+   "thumb": true,
+   "tas": {
+    "track": 2084,
+    "time": 12640,
+    "by": "Kim"
+   }
+  },
+  "44": {
+   "tmx": 13171669,
+   "name": "SpeedTAS nº44",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 23980,
+   "wr": {
+    "time": 44150,
+    "by": "BoredCapturer"
+   },
+   "thumb": true,
+   "tas": {
+    "track": 2081,
+    "time": 19170,
+    "by": "vogtek"
+   }
+  },
+  "45": {
+   "tmx": 13171672,
+   "name": "SpeedTAS nº45",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 20910,
+   "wr": {
+    "time": 125390,
+    "by": "BoredCapturer"
+   },
+   "thumb": true,
+   "tas": {
+    "track": 2080,
+    "time": 19270,
+    "by": "vogtek"
+   }
+  },
+  "46": {
+   "tmx": 13171675,
+   "name": "SpeedTAS nº46",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 20920,
+   "wr": {
+    "time": 253840,
+    "by": "BoredCapturer"
+   },
+   "thumb": true,
+   "tas": null
+  },
+  "47": {
+   "tmx": 13171678,
+   "name": "SpeedTAS nº47",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 25620,
+   "wr": {
+    "time": 72460,
+    "by": "BoredCapturer"
+   },
+   "thumb": true,
+   "tas": {
+    "track": 2083,
+    "time": 22360,
+    "by": "vogtek"
+   }
+  },
+  "48": {
+   "tmx": 13171681,
+   "name": "SpeedTAS nº48",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 20930,
+   "wr": {
+    "time": 20490,
+    "by": "Screwy"
+   },
+   "thumb": true,
+   "tas": {
+    "track": 2085,
+    "time": 19000,
+    "by": "vogtek"
+   }
+  },
+  "49": {
+   "tmx": 13171684,
+   "name": "SpeedTAS nº49",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 20760,
+   "wr": {
+    "time": 73980,
+    "by": "BoredCapturer"
+   },
+   "thumb": true,
+   "tas": {
+    "track": 2087,
+    "time": 17570,
+    "by": "defendintelligence, vogtek"
+   }
+  },
+  "50": {
+   "tmx": 13171687,
+   "name": "SpeedTAS nº50",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 24420,
+   "wr": {
+    "time": 103130,
+    "by": "BoredCapturer"
+   },
+   "thumb": true,
+   "tas": {
+    "track": 2088,
+    "time": 21730,
+    "by": "defendintelligence, vogtek"
+   }
+  },
+  "51": {
+   "tmx": 13171690,
+   "name": "SpeedTAS nº51",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 27170,
+   "wr": {
+    "time": 108200,
+    "by": "BoredCapturer"
+   },
+   "thumb": true,
+   "tas": {
+    "track": 2086,
+    "time": 20580,
+    "by": "defendintelligence, vogtek"
+   }
+  },
+  "52": {
+   "tmx": 13171693,
+   "name": "SpeedTAS nº52",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 23080,
+   "wr": {
+    "time": 23170,
+    "by": "June"
+   },
+   "thumb": true,
+   "tas": {
+    "track": 2089,
+    "time": 18810,
+    "by": "defendintelligence, vogtek"
+   }
+  },
+  "53": {
+   "tmx": 13171696,
+   "name": "SpeedTAS nº53",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 25730,
+   "wr": {
+    "time": 30480,
+    "by": "BoredCapturer"
+   },
+   "thumb": true,
+   "tas": {
+    "track": 2094,
+    "time": 17190,
+    "by": "vogtek"
+   }
+  },
+  "54": {
+   "tmx": 13171701,
+   "name": "SpeedTAS nº54",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 22440,
+   "wr": {
+    "time": 41390,
+    "by": "BoredCapturer"
+   },
+   "thumb": true,
+   "tas": {
+    "track": 2090,
+    "time": 15430,
+    "by": "vogtek"
+   }
+  },
+  "55": {
+   "tmx": 13171704,
+   "name": "SpeedTAS nº55",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 21900,
+   "wr": {
+    "time": 23630,
+    "by": "BoredCapturer"
+   },
+   "thumb": true,
+   "tas": {
+    "track": 2093,
+    "time": 12630,
+    "by": "vogtek"
+   }
+  },
+  "56": {
+   "tmx": 13171707,
+   "name": "SpeedTAS nº56",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 22430,
+   "wr": {
+    "time": 22110,
+    "by": "eksiss"
+   },
+   "thumb": true,
+   "tas": null
+  },
+  "57": {
+   "tmx": 13171712,
+   "name": "SpeedTAS nº57",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 16960,
+   "wr": {
+    "time": 16130,
+    "by": "eksiss"
+   },
+   "thumb": true,
+   "tas": {
+    "track": 2091,
+    "time": 13910,
+    "by": "vogtek"
+   }
+  },
+  "58": {
+   "tmx": 13171717,
+   "name": "SpeedTAS nº58",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 15610,
+   "wr": {
+    "time": 15140,
+    "by": "eksiss"
+   },
+   "thumb": true,
+   "tas": {
+    "track": 2092,
+    "time": 9030,
+    "by": "vogtek"
+   }
+  },
+  "59": {
+   "tmx": 13171720,
+   "name": "SpeedTAS nº59",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 20390,
+   "wr": {
+    "time": 20660,
+    "by": "eksiss"
+   },
+   "thumb": true,
+   "tas": {
+    "track": 2097,
+    "time": 11620,
+    "by": "vogtek"
+   }
+  },
+  "60": {
+   "tmx": 13171723,
+   "name": "SpeedTAS nº60",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 17930,
+   "wr": {
+    "time": 17510,
+    "by": "eksiss"
+   },
+   "thumb": true,
+   "tas": null
+  },
+  "61": {
+   "tmx": 13171726,
+   "name": "SpeedTAS nº61",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 19770,
+   "wr": {
+    "time": 18770,
+    "by": "eksiss"
+   },
+   "thumb": true,
+   "tas": null
+  },
+  "62": {
+   "tmx": 13171729,
+   "name": "SpeedTAS nº62",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 19670,
+   "wr": {
+    "time": 21210,
+    "by": "eksiss"
+   },
+   "thumb": true,
+   "tas": null
+  },
+  "63": {
+   "tmx": 13171732,
+   "name": "SpeedTAS nº63",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 21590,
+   "wr": {
+    "time": 21360,
+    "by": "eksiss"
+   },
+   "thumb": true,
+   "tas": null
+  },
+  "64": {
+   "tmx": 13171735,
+   "name": "SpeedTAS nº64",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 17890,
+   "wr": {
+    "time": 17870,
+    "by": "eksiss"
+   },
+   "thumb": true,
+   "tas": null
+  },
+  "65": {
+   "tmx": 13171738,
+   "name": "SpeedTAS nº65",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 14330,
+   "wr": {
+    "time": 12630,
+    "by": "eksiss"
+   },
+   "thumb": true,
+   "tas": {
+    "track": 2095,
+    "time": 10610,
+    "by": "vogtek"
+   }
+  },
+  "66": {
+   "tmx": 13171741,
+   "name": "SpeedTAS nº66",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 17540,
+   "wr": {
+    "time": 15810,
+    "by": "eksiss"
+   },
+   "thumb": true,
+   "tas": {
+    "track": 2099,
+    "time": 11360,
+    "by": "Rio"
+   }
+  },
+  "67": {
+   "tmx": 13171744,
+   "name": "SpeedTAS nº67",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 22330,
+   "wr": {
+    "time": 21310,
+    "by": "eksiss"
+   },
+   "thumb": true,
+   "tas": {
+    "track": 2096,
+    "time": 18330,
+    "by": "defendintelligence, vogtek"
+   }
+  },
+  "68": {
+   "tmx": 13171747,
+   "name": "SpeedTAS nº68",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 19360,
+   "wr": {
+    "time": 19270,
+    "by": "eksiss"
+   },
+   "thumb": true,
+   "tas": {
+    "track": 2098,
+    "time": 13530,
+    "by": "skycrafter"
+   }
+  }
+ },
+ "s2": {
+  "1": {
+   "tmx": 13108605,
+   "name": "SpeedTAS 2 #1",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 19030,
+   "wr": {
+    "time": 16670,
+    "by": "eksiss"
+   },
+   "thumb": true,
+   "tas": {
+    "track": 1270,
+    "time": 15090,
+    "by": "Rio"
+   }
+  },
+  "2": {
+   "tmx": 13122869,
+   "name": "SpeedTAS 2 #2",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 19950,
+   "wr": {
+    "time": 35440,
+    "by": "Opp8"
+   },
+   "thumb": true,
+   "tas": {
+    "track": 1273,
+    "time": 13590,
+    "by": "vogtek"
+   }
+  },
+  "3": {
+   "tmx": 13135572,
+   "name": "SpeedTAS 2 #3",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 14450,
+   "wr": {
+    "time": 18860,
+    "by": "jmpr"
+   },
+   "thumb": true,
+   "tas": {
+    "track": 1520,
+    "time": 12920,
+    "by": "vogtek"
+   }
+  },
+  "4": {
+   "tmx": 13144759,
+   "name": "SpeedTAS 2 #4",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 27600,
+   "wr": {
+    "time": 24760,
+    "by": "Shiyaku"
+   },
+   "thumb": true,
+   "tas": {
+    "track": 1519,
+    "time": 21420,
+    "by": "vogtek"
+   }
+  },
+  "5": {
+   "tmx": 13155910,
+   "name": "SpeedTAS 2 #5",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 28010,
+   "wr": {
+    "time": 26970,
+    "by": "jmpr"
+   },
+   "thumb": true,
+   "tas": {
+    "track": 1271,
+    "time": 18700,
+    "by": "skycrafter"
+   }
+  },
+  "6": {
+   "tmx": 13167544,
+   "name": "SpeedTAS 2 #6",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 15190,
+   "wr": {
+    "time": 16940,
+    "by": "dennis090"
+   },
+   "thumb": true,
+   "tas": {
+    "track": 1529,
+    "time": 14420,
+    "by": "vogtek"
+   }
+  },
+  "7": {
+   "tmx": 13205419,
+   "name": "SpeedTAS 2 #7",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 16930,
+   "wr": {
+    "time": 24990,
+    "by": "Kiemmas"
+   },
+   "thumb": true,
+   "tas": {
+    "track": 1531,
+    "time": 14800,
+    "by": "defendintelligence, vogtek"
+   }
+  },
+  "8": {
+   "tmx": 13205416,
+   "name": "SpeedTAS 2 #8",
+   "authors": [
+    "kristian55",
+    "charliethepig"
+   ],
+   "authorTime": 17560,
+   "wr": {
+    "time": 63720,
+    "by": "MxCrab"
+   },
+   "thumb": true,
+   "tas": null
+  },
+  "9": {
+   "tmx": 13243636,
+   "name": "SpeedTAS 2 #9",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 15830,
+   "wr": {
+    "time": 19980,
+    "by": "TeeFoxHat"
+   },
+   "thumb": true,
+   "tas": null
+  },
+  "10": {
+   "tmx": 13243639,
+   "name": "SpeedTAS 2 #10",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 20460,
+   "wr": {
+    "time": 20320,
+    "by": "dennis090"
+   },
+   "thumb": true,
+   "tas": null
+  },
+  "11": {
+   "tmx": 13287937,
+   "name": "SpeedTAS 2 #11",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 21110,
+   "wr": {
+    "time": 22900,
+    "by": "dennis090"
+   },
+   "thumb": true,
+   "tas": null
+  },
+  "12": {
+   "tmx": 13287940,
+   "name": "SpeedTAS 2 #12",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 19340,
+   "wr": {
+    "time": 21030,
+    "by": "dennis090"
+   },
+   "thumb": true,
+   "tas": {
+    "track": 2236,
+    "time": 16850,
+    "by": "Sxltry"
+   }
+  },
+  "13": {
+   "tmx": 13287945,
+   "name": "SpeedTAS 2 #13",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 21290,
+   "wr": {
+    "time": 19690,
+    "by": "Deftax"
+   },
+   "thumb": true,
+   "tas": null
+  },
+  "14": {
+   "tmx": 13433166,
+   "name": "SpeedTAS 2 #14",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 20150,
+   "wr": {
+    "time": 22050,
+    "by": "Opp8"
+   },
+   "thumb": true,
+   "tas": null
+  },
+  "15": {
+   "tmx": 13433169,
+   "name": "SpeedTAS 2 #15",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 16220,
+   "wr": {
+    "time": 16170,
+    "by": "Opp8"
+   },
+   "thumb": true,
+   "tas": null
+  },
+  "16": {
+   "tmx": 13433172,
+   "name": "SpeedTAS 2 #16",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 20880,
+   "wr": {
+    "time": 21190,
+    "by": "Opp8"
+   },
+   "thumb": true,
+   "tas": null
+  },
+  "17": {
+   "tmx": 13433175,
+   "name": "SpeedTAS 2 #17",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 22180,
+   "wr": {
+    "time": 21220,
+    "by": "Opp8"
+   },
+   "thumb": true,
+   "tas": null
+  },
+  "18": {
+   "tmx": 13433178,
+   "name": "SpeedTAS 2 #18",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 19010,
+   "wr": {
+    "time": 21670,
+    "by": "czechiowo"
+   },
+   "thumb": true,
+   "tas": null
+  },
+  "19": {
+   "tmx": 13433181,
+   "name": "SpeedTAS 2 #19",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 19830,
+   "wr": {
+    "time": 25770,
+    "by": "Opp8"
+   },
+   "thumb": true,
+   "tas": null
+  },
+  "20": {
+   "tmx": 13433184,
+   "name": "SpeedTAS 2 #20",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 19460,
+   "wr": {
+    "time": 31400,
+    "by": "Opp8"
+   },
+   "thumb": true,
+   "tas": null
+  },
+  "21": {
+   "tmx": 13433187,
+   "name": "SpeedTAS 2 #21",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 20230,
+   "wr": {
+    "time": 25770,
+    "by": "czechiowo"
+   },
+   "thumb": true,
+   "tas": null
+  },
+  "22": {
+   "tmx": 13433190,
+   "name": "SpeedTAS 2 #22",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 22860,
+   "wr": {
+    "time": 40420,
+    "by": "Opp8"
+   },
+   "thumb": true,
+   "tas": null
+  },
+  "23": {
+   "tmx": 13732460,
+   "name": "SpeedTAS 2 #23",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 19670,
+   "wr": {
+    "time": 20150,
+    "by": "asnaujaslt"
+   },
+   "thumb": true,
+   "tas": null
+  },
+  "24": {
+   "tmx": 13732463,
+   "name": "SpeedTAS 2 #24",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 21640,
+   "wr": {
+    "time": 27000,
+    "by": "asnaujaslt"
+   },
+   "thumb": true,
+   "tas": null
+  },
+  "25": {
+   "tmx": 13732466,
+   "name": "SpeedTAS 2 #25",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 23400,
+   "wr": {
+    "time": 26300,
+    "by": "asnaujaslt"
+   },
+   "thumb": true,
+   "tas": null
+  },
+  "26": {
+   "tmx": 13732469,
+   "name": "SpeedTAS 2 #26",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 17760,
+   "wr": {
+    "time": 22940,
+    "by": "asnaujaslt"
+   },
+   "thumb": true,
+   "tas": null
+  },
+  "27": {
+   "tmx": 13732472,
+   "name": "SpeedTAS 2 #27",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 17280,
+   "wr": {
+    "time": 71270,
+    "by": "sokko"
+   },
+   "thumb": true,
+   "tas": null
+  },
+  "28": {
+   "tmx": 13732475,
+   "name": "SpeedTAS 2 #28",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 13280,
+   "wr": {
+    "time": 29420,
+    "by": "asnaujaslt"
+   },
+   "thumb": true,
+   "tas": null
+  },
+  "29": {
+   "tmx": 13732478,
+   "name": "SpeedTAS 2 #29",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 20440,
+   "wr": {
+    "time": 58170,
+    "by": "sokko"
+   },
+   "thumb": true,
+   "tas": null
+  },
+  "30": {
+   "tmx": 13732481,
+   "name": "SpeedTAS 2 #30",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 21490,
+   "wr": {
+    "time": 111880,
+    "by": "sokko"
+   },
+   "thumb": true,
+   "tas": null
+  },
+  "32": {
+   "tmx": 13732487,
+   "name": "SpeedTAS 2 #32",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 21030,
+   "wr": {
+    "time": 31700,
+    "by": "sokko"
+   },
+   "thumb": true,
+   "tas": null
+  },
+  "33": {
+   "tmx": 13732490,
+   "name": "SpeedTAS 2 #33",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 19840,
+   "wr": {
+    "time": 31950,
+    "by": "Dzamal"
+   },
+   "thumb": true,
+   "tas": null
+  },
+  "34": {
+   "tmx": 13732493,
+   "name": "SpeedTAS 2 #34",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 23780,
+   "wr": {
+    "time": 49070,
+    "by": "sokko"
+   },
+   "thumb": true,
+   "tas": null
+  },
+  "35": {
+   "tmx": 13732496,
+   "name": "SpeedTAS 2 #35",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 27070,
+   "wr": {
+    "time": 64450,
+    "by": "sokko"
+   },
+   "thumb": true,
+   "tas": null
+  },
+  "36": {
+   "tmx": 13732499,
+   "name": "SpeedTAS 2 #36",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 16980,
+   "wr": {
+    "time": 24700,
+    "by": "sokko"
+   },
+   "thumb": true,
+   "tas": null
+  },
+  "37": {
+   "tmx": 13732502,
+   "name": "SpeedTAS 2 #37",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 17760,
+   "wr": {
+    "time": 28420,
+    "by": "sokko"
+   },
+   "thumb": true,
+   "tas": null
+  },
+  "38": {
+   "tmx": 13732505,
+   "name": "SpeedTAS 2 #38",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 23030,
+   "wr": {
+    "time": 19410,
+    "by": "Screwy"
+   },
+   "thumb": true,
+   "tas": null
+  },
+  "39": {
+   "tmx": 13732508,
+   "name": "SpeedTAS 2 #39",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 16890,
+   "wr": {
+    "time": 34520,
+    "by": "lelopado"
+   },
+   "thumb": true,
+   "tas": null
+  },
+  "40": {
+   "tmx": 13732511,
+   "name": "SpeedTAS 2 #40",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 22780,
+   "wr": {
+    "time": 45200,
+    "by": "lelopado"
+   },
+   "thumb": true,
+   "tas": null
+  },
+  "41": {
+   "tmx": 13793231,
+   "name": "SpeedTAS 2 #41",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 24860,
+   "wr": null,
+   "thumb": true,
+   "tas": null
+  },
+  "42": {
+   "tmx": 13793234,
+   "name": "SpeedTAS 2 #42",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 24020,
+   "wr": null,
+   "thumb": true,
+   "tas": null
+  },
+  "43": {
+   "tmx": 13793237,
+   "name": "SpeedTAS 2 #43",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 20690,
+   "wr": null,
+   "thumb": true,
+   "tas": null
+  },
+  "44": {
+   "tmx": 13793240,
+   "name": "SpeedTAS 2 #44",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 25550,
+   "wr": null,
+   "thumb": true,
+   "tas": null
+  },
+  "100": {
+   "tmx": 13732484,
+   "name": "SpeedTAS #100",
+   "authors": [
+    "kristian55"
+   ],
+   "authorTime": 16210,
+   "wr": {
+    "time": 26920,
+    "by": "sokko"
+   },
+   "thumb": true,
+   "tas": null
+  }
+ },
+ "tm20": {
+  "1": {
+   "name": "SpeedTAS #1",
+   "authors": [
+    "kristiano55"
+   ],
+   "authorTime": 14949,
+   "thumbUrl": "https://core.trackmania.nadeo.live/maps/1caacf5b-148d-4a1b-b52a-36c2bcab4328/thumbnail.jpg",
+   "tas": {
+    "track": 3671,
+    "time": 12173,
+    "by": "Thoman"
+   }
+  },
+  "2": {
+   "name": "SpeedTAS #2",
+   "authors": [
+    "kristiano55"
+   ],
+   "authorTime": 17293,
+   "thumbUrl": "https://core.trackmania.nadeo.live/maps/b9420555-9797-470d-8454-9373432417b0/thumbnail.jpg",
+   "tas": {
+    "track": 3926,
+    "time": 15985,
+    "by": "Elliott"
+   }
+  },
+  "3": {
+   "name": "SpeedTAS #3",
+   "authors": [
+    "kristiano55"
+   ],
+   "authorTime": 20529,
+   "thumbUrl": "https://core.trackmania.nadeo.live/maps/639556c4-832e-4db8-8a57-6c53545892f3/thumbnail.jpg",
+   "tas": {
+    "track": 4123,
+    "time": 16913,
+    "by": "Sneak"
+   }
+  },
+  "4": {
+   "name": "SpeedTAS #4",
+   "authors": [
+    "kristiano55"
+   ],
+   "authorTime": 24170,
+   "thumbUrl": "https://core.trackmania.nadeo.live/maps/a618c236-59be-4227-b3cd-e8f1c05d45ef/thumbnail.jpg",
+   "tas": {
+    "track": 4282,
+    "time": 15735,
+    "by": "Sneak"
+   }
+  }
+ },
+ "updatedAt": "2026-11-25T21:46:47.915Z"
+}
