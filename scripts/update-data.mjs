@@ -45,6 +45,9 @@ const MAX_CHECKS_PER_EVENT = 4;  // an event whose times stay hidden is given up
 const REPLAY_BACKFILL = 50;      // most older events re-read per run to pick up their replay ids
 const INPUT_FETCHES = 120;       // most input files downloaded per run (the backlog spreads over a few runs)
 const AUTO_IMPORT = { s3: 's3', tm20: 'tm20' }; // event set -> results file that receives auto-imported editions
+/* TrackMania Exchange map packs, one per TMNF season. Add the Season 3 pack id here once it exists. */
+const MAP_PACKS = { s1: 11621132, s2: 13122890 };
+const MAP_FIELDS = 'TrackId,TrackName,Authors[],AuthorTime,WRReplay.ReplayTime,WRReplay.User.Name,HasThumbnail';
 /* TAS Exchange name -> sheet name, for names the history can't work out on its own. Keys are lower-case, letters/digits only. */
 const MANUAL_ALIASES = {};
 
@@ -324,6 +327,74 @@ export async function writeInputsIndex() {
   return ids.length;
 }
 
+/* ============ MAPS ============ */
+/* Edition number from a map name: "SpeedTAS 2 #7", "SpeedTAS nº12", "SpeedTAS n43". */
+export function editionFromMapName(name) {
+  const m = String(name).match(/(?:#|n[º°o]?)\s*0*(\d+)\s*(?:\D*)$/i) || String(name).match(/#\s*0*(\d+)/);
+  return m ? m[1] : null;
+}
+async function fetchPack(packId) {
+  const tracks = [];
+  let after = null;
+  for (let i = 0; i < 10; i++) {
+    const res = await get(`https://tmnf.exchange/api/tracks?packid=${packId}&count=100&fields=${encodeURIComponent(MAP_FIELDS)}${after ? `&after=${after}` : ''}`);
+    if (!res.ok) throw new Error(`TMX HTTP ${res.status}`);
+    const j = await res.json();
+    tracks.push(...j.Results);
+    if (!j.More || !j.Results.length) break;
+    after = j.Results[j.Results.length - 1].TrackId;
+  }
+  return tracks;
+}
+async function fetchTasTracks() {
+  const all = [];
+  for (let from = 1; from < 1000; from += 50) {
+    const res = await get(`https://tmtas.exchange/api/tracks?name=SpeedTAS&amount=50&fromResultIndex=${from}`);
+    if (!res.ok) throw new Error(`TAS Exchange HTTP ${res.status}`);
+    const j = await res.json();
+    all.push(...(j.results || []));
+    if (all.length >= (j.total || 0) || !(j.results || []).length) break;
+  }
+  return all;
+}
+/* data/maps.json: {s1: {"5": {tmx, name, authors, authorTime, wr: {time, by}, thumb, tas: {track, time, by}}}, s2: …, tm20: …}
+   tas = the all-time TAS record on TAS Exchange for the same map (any run, not just the one-hour SpeedTAS one). */
+async function updateMaps(previous) {
+  const maps = { ...previous };
+  delete maps.updatedAt;
+  let tas = [];
+  try { tas = await fetchTasTracks(); } catch (err) { console.warn(`maps: TAS Exchange records unavailable (${err.message})`); }
+  const tasByTmx = Object.fromEntries(tas.filter((t) => t.tmx_id).map((t) => [String(t.tmx_id), t]));
+  const tasRecord = (t) => (t && t.tas_time ? { track: t.track_id, time: t.tas_time, by: t.author || null } : null);
+  for (const [season, pack] of Object.entries(MAP_PACKS)) {
+    try {
+      const tracks = await fetchPack(pack);
+      const used = new Set(tracks.map((t) => editionFromMapName(t.TrackName)).filter(Boolean));
+      const out = {};
+      tracks.forEach((t, i) => {
+        let ed = editionFromMapName(t.TrackName);
+        if (!ed && !used.has(String(i + 1))) ed = String(i + 1); // e.g. "SpeedTAS GS Edition": its place in the pack
+        if (!ed) return;
+        out[ed] = {
+          tmx: t.TrackId, name: t.TrackName.trim(), authors: (t.Authors || []).map((a) => a.User && a.User.Name).filter(Boolean),
+          authorTime: t.AuthorTime || null, wr: t.WRReplay ? { time: t.WRReplay.ReplayTime, by: t.WRReplay.User ? t.WRReplay.User.Name : null } : null,
+          thumb: !!t.HasThumbnail, tas: tasRecord(tasByTmx[String(t.TrackId)]),
+        };
+      });
+      maps[season] = out;
+    } catch (err) { console.warn(`maps ${season}: kept the previous data (${err.message})`); }
+  }
+  // TM2020 maps aren't in a TMX pack; TAS Exchange knows them by name ("SpeedTAS #4") with a Nadeo thumbnail.
+  const tm20 = {};
+  tas.filter((t) => t.tmx_exchange === 'tm2020').forEach((t) => {
+    const name = String(t.track_name).replace(/\$[0-9a-f]{3}|\$[a-z]/gi, '').trim();
+    const ed = editionFromMapName(name);
+    if (ed) tm20[ed] = { name, authors: [t.track_author].filter(Boolean), authorTime: t.author_time || null, thumbUrl: t.thumbnail_url || null, tas: tasRecord(t) };
+  });
+  if (Object.keys(tm20).length) maps.tm20 = tm20;
+  return maps;
+}
+
 /* ============ MAIN ============ */
 async function readJson(f, d) { try { return JSON.parse(await readFile(f, 'utf8')); } catch { return d; } }
 const writeJson = (f, data) => writeFile(f, JSON.stringify(data, null, 1) + '\n');
@@ -383,6 +454,12 @@ async function main() {
   for (const [key, d] of Object.entries(datasets)) await writeJson(`${OUT}/${key}.json`, { ...d, updatedAt: now });
   await writeJson(`${OUT}/aliases.json`, aliases);
   await writeJson(`${OUT}/events.json`, { ...events, updatedAt: now });
+  // Maps: TMX packs + TAS Exchange records (a handful of requests).
+  if (!process.argv.includes('--sheets')) {
+    const maps = await updateMaps(await readJson(`${OUT}/maps.json`, {}));
+    await writeJson(`${OUT}/maps.json`, { ...maps, updatedAt: now });
+    console.log(`maps: ${Object.entries(maps).map(([k, v]) => `${k} ${Object.keys(v).length}`).join(', ')}`);
+  }
   // 4. Inputs for every replay with downloads enabled.
   if (!process.argv.includes('--sheets')) {
     const r = await saveInputs(events);
@@ -416,6 +493,7 @@ function selftest() {
   const imp = autoImport(ds.s3, evs.s3, al, ['Midnight', 'Rio']);
   assert(imp.added[0] === '1' && imp.data.editions[0].results.Rio === 1 && imp.data.editions[0].results.Midnight === 1 && imp.data.editions[0].results.NewGuy === 3 && imp.data.editions[0].auto, 'auto import (ties share a place)');
   assert(autoImport({ editions: [{ edition: '1', results: { X: 1 } }], players: ['X'] }, evs.s3, al, ['X']).added.length === 0, 'sheet wins');
+  assert(editionFromMapName('SpeedTAS 2 #7') === '7' && editionFromMapName('SpeedTAS nº12') === '12' && editionFromMapName('SpeedTAS n43') === '43' && editionFromMapName('SpeedTAS nº4 Mini_Trial') === '4' && editionFromMapName(' SpeedTAS GS Edition') === null && editionFromMapName('SpeedTAS #100') === '100', 'map names');
   console.log('selftest ok');
 }
 

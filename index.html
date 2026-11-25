@@ -584,6 +584,39 @@
     .inputs-note { margin: 0 0 10px; color: var(--muted); font-size: 13px; }
     .inputs-tools { display: flex; gap: 8px; margin-bottom: 10px; }
     .inputs-text { margin: 0; padding: 12px; font: 12.5px/1.55 var(--font-mono); background: rgba(255,255,255,.03); border-radius: 8px; white-space: pre; overflow: auto; max-height: 52vh; }
+
+    /* ============ MAPS, SHARE CARD, RESULTS POST ============ */
+    .map-card { display: flex; gap: 20px; align-items: stretch; padding: 18px; }
+    .map-thumb { flex: 0 0 280px; border-radius: var(--radius-sm); overflow: hidden; background: var(--card); }
+    .map-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; aspect-ratio: 16 / 10; }
+    .map-info { flex: 1; min-width: 0; }
+    .map-info h3 { margin: 4px 0 2px; font-family: var(--font-display); font-size: 22px; }
+    .map-info h3 a { color: var(--text); text-decoration: none; }
+    .map-info h3 a:hover { color: var(--accent); }
+    .map-by { color: var(--muted); font-size: 13px; margin-bottom: 12px; }
+    .map-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px 18px; }
+    .map-stat span { display: block; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--dim); }
+    .map-stat b { font-family: var(--font-mono); font-size: 16px; }
+    .map-stat b a { color: var(--accent); text-decoration: none; }
+    .map-stat small { font-family: var(--font-body); font-weight: 500; color: var(--muted); margin-left: 4px; }
+    .rec-progress { margin-top: 14px; }
+    .rec-bar { height: 8px; border-radius: 99px; background: rgba(255,255,255,.07); overflow: hidden; }
+    .rec-bar span { display: block; height: 100%; background: var(--accent); border-radius: 99px; }
+    .rec-progress small { display: block; margin-top: 6px; color: var(--muted); font-size: 12.5px; }
+    .maps-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; margin-top: 18px; }
+    .map-tile { display: flex; flex-direction: column; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; color: var(--text); text-decoration: none; transition: border-color .15s; }
+    .map-tile:hover, .map-tile:focus-visible { border-color: var(--accent); outline: none; }
+    .map-tile-img { position: relative; aspect-ratio: 16 / 9; background: var(--bg2); }
+    .map-tile-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .map-tile-num { position: absolute; left: 10px; top: 10px; font: 800 14px var(--font-mono); background: rgba(10,11,13,.8); color: var(--accent); padding: 3px 8px; border-radius: 6px; }
+    .map-tile-body { padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 4px; }
+    .map-tile-body small { color: var(--muted); font-size: 12.5px; }
+    .map-tile .rec-progress { margin-top: 6px; }
+    .profile-buttons { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+    .card-panel { width: min(860px, 100%); }
+    .card-preview { width: 100%; border-radius: 8px; display: block; margin-bottom: 12px; }
+    .post-text { white-space: pre-wrap; }
+    @media (max-width: 720px) { .map-card { flex-direction: column; } .map-thumb { flex-basis: auto; } }
   </style>
 </head>
 
@@ -596,6 +629,7 @@
         <a href="#/" data-route="/">Standings</a>
         <a href="#/players" data-route="/players">Players</a>
         <a href="#/history" data-route="/history">History</a>
+        <a href="#/maps" data-route="/maps">Maps</a>
         <a href="#/records" data-route="/records">Records</a>
         <a href="#/videos" data-route="/videos" data-tmnf-only>Videos</a>
         <a href="#/rivalries" data-route="/rivalries">Rivalries</a>
@@ -927,6 +961,9 @@
         cell.innerHTML = escapeHtml(en.time) + gap + via; filled++;
       });
       if (filled) document.querySelector('.results-table').classList.remove('no-times');
+      EDITION_TIMES = times;
+      const t = document.querySelector('.results-table');
+      if (t && best != null) fillMapCard(t.dataset.season, t.dataset.edition, best);
     }
     /* Replay download + inputs for each player whose TAS Exchange run has downloads enabled.
        Inputs come from data/inputs/<replayId>.txt, saved by the data Action. */
@@ -1005,6 +1042,212 @@
           paintRuns(matched, ev.id, ev.title || `SpeedTAS ${labelFor(seasonKey)} #${edition}`);
         });
       }).catch(err => console.warn('Event times unavailable', err));
+    }
+
+
+    /* ============ MAPS ============
+       data/maps.json (written by the data Action) has, per season and edition: the TMX map (name, authors,
+       author time, TMX record, thumbnail) and the all-time TAS record for that map on TAS Exchange. */
+    let MAPS_PROMISE = null;
+    const repoMaps = () => MAPS_PROMISE || (MAPS_PROMISE = fetch('data/maps.json', {cache: 'no-cache'}).then(r => r.ok ? r.json() : {}).catch(() => ({})));
+    const mapKeyFor = seasonKey => GAME === 'tm20' ? 'tm20' : seasonKey;
+    const fmtMs = ms => {if (ms == null) return '—'; const s = ms / 1000, m = Math.floor(s / 60); return m ? `${m}:${(s - m * 60).toFixed(2).padStart(5, '0')}` : s.toFixed(2);};
+    const mapThumb = map => map.thumbUrl || (map.tmx && map.thumb ? `https://tmnf.exchange/trackshow/${map.tmx}/image/1` : '');
+    const mapLink = map => map.tmx ? `https://tmnf.exchange/trackshow/${map.tmx}` : (map.tas ? `https://tmtas.exchange/trackshow/${map.tas.track}?exchange=tm2020` : '');
+    /* How far one hour got: 0% = author time, 100% = the all-time TAS record. */
+    function recordProgress(map, winnerSecs) {
+      if (!map || !map.tas || !map.authorTime || winnerSecs == null) return null;
+      const at = map.authorTime / 1000, rec = map.tas.time / 1000;
+      if (winnerSecs <= rec + 0.0005) return {pct: 100, beat: winnerSecs < rec - 0.0005, equal: Math.abs(winnerSecs - rec) <= 0.0005};
+      if (at - rec <= 0.0005) return null;
+      return {pct: Math.max(0, Math.min(100, (at - winnerSecs) / (at - rec) * 100))};
+    }
+    function progressHTML(prog) {
+      if (!prog) return '';
+      const label = prog.equal ? 'Equal to the all-time TAS record' : prog.beat ? 'Faster than the all-time TAS record' : `${prog.pct.toFixed(0)}% of the way from author time to the TAS record`;
+      return `<div class="rec-progress" title="0% = author time, 100% = the all-time TAS record on TAS Exchange"><div class="rec-bar"><span style="width:${prog.pct.toFixed(1)}%"></span></div><small>${label}</small></div>`;
+    }
+    function fillMapCard(seasonKey, edition, winnerSecs) {
+      const card = document.getElementById('mapCard');
+      if (!card) return;
+      repoMaps().then(all => {
+        const map = ((all[mapKeyFor(seasonKey)] || {})[String(edition)]);
+        if (!map || !document.getElementById('mapCard')) return;
+        const E = escapeHtml, thumb = mapThumb(map), link = mapLink(map);
+        const row = (k, v) => v ? `<div class="map-stat"><span>${k}</span><b>${v}</b></div>` : '';
+        card.innerHTML = `
+          ${thumb ? `<a class="map-thumb" href="${E(link)}" target="_blank" rel="noopener"><img src="${E(thumb)}" alt="" loading="lazy" onerror="this.parentNode.remove()"></a>` : ''}
+          <div class="map-info">
+            <div class="panel-label">Map</div>
+            <h3>${link ? `<a href="${E(link)}" target="_blank" rel="noopener">${E(map.name)} ↗</a>` : E(map.name)}</h3>
+            ${map.authors && map.authors.length ? `<div class="map-by">by ${map.authors.map(E).join(', ')}</div>` : ''}
+            <div class="map-stats">
+              ${row('Author time', map.authorTime ? fmtMs(map.authorTime) : '')}
+              ${row(GAME === 'tm20' ? '' : 'TMX record', map.wr && map.wr.time ? `${fmtMs(map.wr.time)}${map.wr.by ? ` <small>${E(map.wr.by)}</small>` : ''}` : '')}
+              ${row('All-time TAS record', map.tas ? `<a href="https://tmtas.exchange/trackshow/${map.tas.track}?exchange=${GAME === 'tm20' ? 'tm2020' : 'tmnf'}" target="_blank" rel="noopener">${fmtMs(map.tas.time)}</a>${map.tas.by ? ` <small>${E(map.tas.by)}</small>` : ''}` : '')}
+              ${row('One-hour winner', winnerSecs != null ? fmtMs(Math.round(winnerSecs * 1000)) : '')}
+            </div>
+            ${progressHTML(recordProgress(map, winnerSecs))}
+          </div>`;
+        card.hidden = false;
+        const prog = recordProgress(map, winnerSecs);
+        window.__editionMap = `🗺️ Map: ${map.name}${map.authors && map.authors.length ? ' by ' + map.authors.join(', ') : ''}` + (map.tas ? ` · all-time TAS record ${fmtMs(map.tas.time)}` + (prog ? (prog.beat || prog.equal ? ' (matched by the winner!)' : ` · the winner got ${prog.pct.toFixed(0)}% of the way there from author time`) : '') : '');
+      });
+    }
+
+    /* Winning time of every edition of a season: replay-backed times first, then the Discord posts. */
+    function winnerTimes(seasonKey, data) {
+      return Promise.all([repoEvents(), GAME === 'tmnf' ? postedTimes() : Promise.resolve({})]).then(([events, posted]) => {
+        const evs = events[eventKeyFor(seasonKey)] || {}, out = {};
+        data.editions.forEach(ed => {
+          const winner = Object.entries(ed.results).sort((a, b) => a[1] - b[1])[0];
+          const ev = evs[String(ed.edition)], fromEvent = ev && (ev.results || []).map(r => parseTimeSeconds(r.time)).filter(x => x != null);
+          const fromPost = ((posted[seasonKey] || {})[String(ed.edition)] || {});
+          const secs = fromEvent && fromEvent.length ? Math.min(...fromEvent) : (winner && fromPost[winner[0]] ? parseTimeSeconds(fromPost[winner[0]]) : null);
+          out[ed.edition] = {winner: winner && winner[0], secs};
+        });
+        return out;
+      });
+    }
+    function renderMaps(seasonKey = curKey()) {
+      main.innerHTML = `<div class="loader"><div class="spinner"></div> Loading maps…</div>`;
+      loadSeasonData(seasonKey).then(data => Promise.all([repoMaps(), winnerTimes(seasonKey, data)]).then(([all, wins]) => {
+        const E = escapeHtml, maps = all[mapKeyFor(seasonKey)] || {}, base = GAME === 'tm20' ? '#/tm20' : '#';
+        const eds = [...data.editions].reverse();
+        const known = eds.filter(ed => maps[ed.edition]).length;
+        main.innerHTML = `
+    <header class="page-head"><div class="kicker">${E(labelFor(seasonKey))} · ${plural(known, 'map')}</div><h1>The <em>maps</em></h1>
+      <p>Every SpeedTAS map, with its author time, the all-time TAS record on TAS Exchange and how close the one-hour winner got to it.</p></header>
+    <div class="versus-controls">${seasonSeg(seasonKey, 'maps-season', seasonOptions())}</div>
+    ${eds.length ? '' : `<div class="empty-state"><b>No maps yet</b>Maps show up here once ${E(labelFor(seasonKey))} has editions.</div>`}
+    <div class="maps-grid">${eds.map(ed => {
+      const map = maps[ed.edition], w = wins[ed.edition] || {}, thumb = map ? mapThumb(map) : '';
+      return `<a class="map-tile" href="${base}/edition/${seasonKey}/${enc(ed.edition)}">
+        <div class="map-tile-img">${thumb ? `<img src="${E(thumb)}" alt="" loading="lazy" onerror="this.remove()">` : ''}<span class="map-tile-num">#${E(ed.edition)}</span></div>
+        <div class="map-tile-body"><b>${E(map ? map.name : 'Edition ' + ed.edition)}</b>
+          <small>${w.winner ? `🏆 ${E(w.winner)}${w.secs != null ? ' · ' + fmtMs(Math.round(w.secs * 1000)) : ''}` : ''}</small>
+          ${map && map.tas ? `<small>TAS record ${fmtMs(map.tas.time)}${map.tas.by ? ' · ' + E(map.tas.by) : ''}</small>` : ''}
+          ${progressHTML(recordProgress(map, w.secs))}</div></a>`;
+    }).join('')}</div>`;
+        main.querySelectorAll('[data-maps-season]').forEach(btn => btn.addEventListener('click', () => renderMaps(btn.dataset.mapsSeason)));
+      })).catch(seasonError);
+    }
+
+    /* ============ RESULTS POST (copy into Discord) ============ */
+    let EDITION_TIMES = {};
+    function resultsPostText(ed, seasonKey, data) {
+      const entries = Object.entries(ed.results).sort((a, b) => a[1] - b[1]);
+      const secs = Object.fromEntries(Object.entries(EDITION_TIMES).map(([n, en]) => [n, parseTimeSeconds(en.time)]));
+      const best = Math.min(...Object.values(secs).filter(x => x != null));
+      const medal = {1: '🥇', 2: '🥈', 3: '🥉'};
+      const title = GAME === 'tm20' ? `SpeedTAS TM20 #${ed.edition}` : `SpeedTAS ${SEASON_INFO[seasonKey] ? SEASON_INFO[seasonKey].short : ''} #${ed.edition}`;
+      const lines = [`## 🏁 Results of ${title}`];
+      entries.forEach(([name, place]) => {
+        const t = EDITION_TIMES[name], gap = t && secs[name] != null && secs[name] - best > 0.0001 ? ` (+${(secs[name] - best).toFixed(2)})` : '';
+        const pts = pointsFor(place) ? ` · ${pointsFor(place)} pts` : '';
+        lines.push(`${medal[place] || `\`${String(place).padStart(2)}.\``} ${place <= 3 ? `**${name}**` : name}${t ? ` — ${t.time}${gap}` : ''}${pts}`);
+      });
+      // Standings straight after this edition, with movement since the edition before.
+      const upTo = data.editions.slice(0, data.editions.indexOf(ed) + 1);
+      const after = computeAll({editions: upTo, players: data.players, bestOf: data.bestOf}).ranked;
+      const before = upTo.length > 1 ? computeAll({editions: upTo.slice(0, -1), players: data.players, bestOf: data.bestOf}).ranked : [];
+      const prevRank = Object.fromEntries(before.map((p, i) => [p.name, i + 1]));
+      lines.push('', `📊 **Standings after #${ed.edition}**`);
+      after.slice(0, 5).forEach((p, i) => {
+        const move = prevRank[p.name] ? prevRank[p.name] - (i + 1) : null;
+        lines.push(`${i + 1}. ${p.name} — ${p.points} pts${move > 0 ? ` ▲${move}` : move < 0 ? ` ▼${-move}` : ''}`);
+      });
+      const firsts = entries.map(([n]) => n).filter(n => !upTo.slice(0, -1).some(e => n in e.results));
+      if (firsts.length && upTo.length > 1) lines.push('', `👋 First race this season: ${firsts.join(', ')}`);
+      const mapLine = window.__editionMap;
+      if (mapLine) lines.push('', mapLine);
+      lines.push('', `🔗 Full results: ${location.origin}${location.pathname}${GAME === 'tm20' ? '#/tm20' : '#'}/edition/${seasonKey}/${encodeURIComponent(ed.edition)}`);
+      return lines.join('\n');
+    }
+    function openTextModal(title, text, hint) {
+      closeInputs();
+      const E = escapeHtml, o = document.createElement('div');
+      o.className = 'inputs-overlay';
+      o.innerHTML = `<div class="inputs-panel" role="dialog" aria-modal="true" aria-label="${E(title)}">
+        <div class="inputs-head"><div><div class="panel-label">${E(hint)}</div><b>${E(title)}</b></div><button type="button" class="run-btn" data-close-inputs aria-label="Close">✕</button></div>
+        <div class="inputs-body"><div class="inputs-tools"><button type="button" class="btn" data-copy>Copy</button></div><pre class="inputs-text post-text">${E(text)}</pre></div></div>`;
+      document.body.appendChild(o);
+      o.querySelector('[data-copy]').addEventListener('click', ev => {navigator.clipboard.writeText(text).then(() => {ev.target.textContent = 'Copied';}, () => {ev.target.textContent = 'Copy failed';});});
+      o.querySelector('[data-close-inputs]').focus();
+    }
+
+    /* ============ SEASON CARD (shareable image) ============ */
+    function loadImage(src) {
+      return new Promise((resolve, reject) => {const img = new Image(); img.crossOrigin = 'anonymous'; img.onload = () => resolve(img); img.onerror = reject; img.src = src;});
+    }
+    async function drawSeasonCard(p, seasonText, rankText, allowPhoto = true) {
+      await (document.fonts ? document.fonts.ready : Promise.resolve());
+      const W = 1200, H = 630, c = document.createElement('canvas');
+      c.width = W; c.height = H;
+      const g = c.getContext('2d'), css = getComputedStyle(document.body);
+      const accent = accentHex(), display = css.getPropertyValue('--font-display') || 'sans-serif', body = css.getPropertyValue('--font-body') || 'sans-serif';
+      g.fillStyle = '#0a0b0d'; g.fillRect(0, 0, W, H);
+      const grad = g.createLinearGradient(0, 0, W, H); grad.addColorStop(0, accent + '33'); grad.addColorStop(1, 'transparent');
+      g.fillStyle = grad; g.fillRect(0, 0, W, H);
+      g.fillStyle = accent; g.fillRect(0, 0, 14, H);
+      g.fillStyle = '#eef0ea'; g.font = `italic 800 34px ${display}`; g.fillText('SPEED', 70, 82);
+      const sw = g.measureText('SPEED').width; g.fillStyle = accent; g.fillText('TAS', 70 + sw + 6, 82);
+      g.fillStyle = '#9aa09a'; g.font = `600 24px ${body}`; g.textAlign = 'right'; g.fillText(seasonText.toUpperCase(), W - 60, 80); g.textAlign = 'left';
+      // avatar
+      const ax = 70, ay = 150, ar = 90;
+      g.save(); g.beginPath(); g.arc(ax + ar, ay + ar, ar, 0, Math.PI * 2); g.clip();
+      let drewPhoto = false;
+      const photo = getAvatarOverride(p.name);
+      if (photo && allowPhoto) {try {const img = await loadImage(photo); g.drawImage(img, ax, ay, ar * 2, ar * 2); drewPhoto = true;} catch (e) {}}
+      if (!drewPhoto) {g.fillStyle = colorForName(p.name); g.fillRect(ax, ay, ar * 2, ar * 2); g.fillStyle = '#0a0b0d'; g.font = `800 64px ${display}`; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(initials(p.name), ax + ar, ay + ar + 4); g.textAlign = 'left'; g.textBaseline = 'alphabetic';}
+      g.restore();
+      g.fillStyle = '#eef0ea'; g.font = `italic 800 76px ${display}`;
+      let name = p.name; while (g.measureText(name).width > 700 && name.length > 3) name = name.slice(0, -2) + '…';
+      g.fillText(name, 300, 230);
+      g.fillStyle = accent; g.font = `800 40px ${display}`; g.fillText(rankText, 300, 290);
+      const stats = [['Points', p.points], ['Wins', p.wins], ['Podiums', p.podiums], ['Editions', p.played], ['Best', 'P' + p.best], ['Avg place', p.avgPlacement.toFixed(1)]];
+      stats.forEach(([k, v], i) => {
+        const x = 70 + i * 180, y = 430;
+        g.fillStyle = '#eef0ea'; g.font = `800 54px ${display}`; g.fillText(String(v), x, y);
+        g.fillStyle = '#9aa09a'; g.font = `600 20px ${body}`; g.fillText(k.toUpperCase(), x, y + 34);
+      });
+      g.fillStyle = '#5d625d'; g.font = `500 20px ${body}`; g.fillText(location.host + location.pathname.replace(/index\.html$/, ''), 70, H - 50);
+      return c;
+    }
+    async function openSeasonCard(p, seasonText, rankText) {
+      closeInputs();
+      const E = escapeHtml, o = document.createElement('div');
+      o.className = 'inputs-overlay';
+      o.innerHTML = `<div class="inputs-panel card-panel" role="dialog" aria-modal="true" aria-label="Season card">
+        <div class="inputs-head"><div><div class="panel-label">Share</div><b>${E(p.name)} · ${E(seasonText)}</b></div><button type="button" class="run-btn" data-close-inputs aria-label="Close">✕</button></div>
+        <div class="inputs-body"><div class="loader"><div class="spinner"></div> Drawing the card…</div></div></div>`;
+      document.body.appendChild(o);
+      let canvas = await drawSeasonCard(p, seasonText, rankText);
+      const body = o.querySelector('.inputs-body');
+      if (!body) return;
+      let url;
+      try {url = canvas.toDataURL('image/png');} catch (e) { // the picture's host doesn't allow reuse: draw initials instead
+        canvas = await drawSeasonCard(p, seasonText, rankText, false);
+        try {url = canvas.toDataURL('image/png');} catch (e2) {url = null;}
+      }
+      if (!url) {body.innerHTML = '<p class="inputs-note">This browser could not create the image.</p>'; return;}
+      const file = `SpeedTAS ${seasonText} - ${p.name}.png`;
+      body.innerHTML = `<img class="card-preview" src="${url}" alt="Season card for ${E(p.name)}">
+        <div class="inputs-tools"><a class="btn" download="${E(file)}" href="${url}">Download PNG</a>${window.ClipboardItem ? '<button type="button" class="btn" data-copy-img>Copy image</button>' : ''}</div>`;
+      const copyBtn = body.querySelector('[data-copy-img]');
+      if (copyBtn) copyBtn.addEventListener('click', () => canvas.toBlob(blob => navigator.clipboard.write([new ClipboardItem({'image/png': blob})]).then(() => {copyBtn.textContent = 'Copied';}, () => {copyBtn.textContent = 'Copy failed';})));
+    }
+
+    /* ============ LOCAL TIME ============ */
+    /* " · 21:00 your time" when the visitor's clock differs from Lisbon; adds the day when that differs too. */
+    function yourTime(date) {
+      const here = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      if (!here || here === 'Europe/Lisbon') return '';
+      const fmt = (tz, opts) => new Intl.DateTimeFormat('en-GB', {timeZone: tz, ...opts}).format(date);
+      const hm = {hour: '2-digit', minute: '2-digit', hour12: false};
+      if (fmt(here, hm) === fmt('Europe/Lisbon', hm)) return '';
+      const sameDay = fmt(here, {weekday: 'short'}) === fmt('Europe/Lisbon', {weekday: 'short'});
+      return ` · ${sameDay ? '' : fmt(here, {weekday: 'short'}) + ' '}${fmt(here, hm)} your time`;
     }
 
     /* ============ GAME CONTEXT ============ */
@@ -1299,7 +1542,7 @@
         const got = await fetchAvatarsInBatches(proxyUrl, [...AVATAR_RETRY_IDS]);
         if (Object.keys(got).length) {
           Object.assign(DISCORD_AVATARS, got); saveAvatarStore();
-          if (!/versus/.test(location.hash)) render(); // don't wipe a half-made head-to-head selection
+          swapInAvatars();
         }
       }, delay));
     }
@@ -1717,6 +1960,18 @@
       const c = colorForName(name);
       return `<div class="avatar" style="background:${c};${size ? `width:${size}px;height:${size}px;font-size:${size * 0.35}px;` : ''}" role="img" aria-label="${escapeHtml(name)}">${escapeHtml(initials(name))}</div>`;
     }
+    /* Pictures arrive after the page is drawn. Swap them into the initials placeholders in place, instead of
+       redrawing the page, which used to reset whatever season or filter the visitor had just picked. */
+    function swapInAvatars() {
+      document.querySelectorAll('.avatar[role="img"][aria-label]').forEach(div => {
+        const name = div.getAttribute('aria-label');
+        if (!getAvatarOverride(name)) return;
+        const size = parseInt(div.style.width, 10) || undefined;
+        const tmp = document.createElement('div');
+        tmp.innerHTML = avatarHTML(name, size);
+        if (tmp.firstElementChild) div.replaceWith(tmp.firstElementChild);
+      });
+    }
     /* If a Discord CDN image 404s or is unreachable, swap it for the same
        colored-initials avatar avatarHTML() would have used anyway. */
     function handleAvatarError(img, encodedName) {
@@ -1831,7 +2086,7 @@
         ${GAME === 'tm20' ? '' : `<div class="panel next-up" aria-label="Next edition">
           <div class="panel-label">${next && next.iso === (info && info.start) ? E(info.label) + ' opener starts in' : 'Next SpeedTAS starts in'}</div>
           <div class="countdown" id="countdown"></div>
-          <small>${next ? E(fmtLisbonDay(next.iso)) + ' · ' : 'Every Saturday · '}${EDITION_HOUR_LISBON}:00 Lisbon time</small>
+          <small>${next ? E(fmtLisbonDay(next.iso)) + ' · ' : 'Every Saturday · '}${EDITION_HOUR_LISBON}:00 Lisbon time${next ? E(yourTime(next.at)) : ''}</small>
           ${next && next.skipped.length ? `<small class="break-note">No edition on ${next.skipped.map(fmtLisbonDay).map(E).join(', ')} (break)</small>` : ''}
         </div>`}
         <div class="panel notes">${notes}</div>
@@ -2141,7 +2396,7 @@
         <h1>${E(profileName)}</h1>
         <div class="rank-tag"><span class="pos">P${p.rank ?? '—'}</span><span>${E(rankLabel)} standings</span>${seasonKey === curKey() && p.movement ? moveIcon(p.movement) : ''}</div>
       </div>
-      <div class="profile-actions">${profileTabs(seasonKey)}${compare}</div>
+      <div class="profile-actions">${profileTabs(seasonKey)}<span class="profile-buttons">${compare}<button type="button" class="btn" id="shareCard">Share season card</button></span></div>
     </div>
     <div class="key-stats">${stat(p.droppedPoints && SEASON_INFO[seasonKey] ? `Points <span class="dim-note">best ${SEASON_INFO[seasonKey].bestOf}</span>` : 'Points', p.droppedPoints ? `${p.points}<small class="scored-note">${p.scored} scored</small>` : p.points)}${stat('Wins', p.wins)}${stat('Podiums', p.podiums)}${stat('Editions', p.played)}</div>
     <div class="stat-grid">
@@ -2164,6 +2419,8 @@
       <div class="panel flush"><div class="table-wrap"><table><thead><tr><th>Edition</th><th>Placement</th><th class="r">Points</th></tr></thead><tbody>${[...history].reverse().map(h => `<tr><td><a href="#/edition/${h.season}/${enc(h.raw)}">Edition ${E(h.edition)}</a></td><td>${h.placement <= 3 ? medalFor(h.placement) : ''}P${h.placement}</td><td class="ptsc r">${h.dropped ? `<s class="dropped-pts" title="Dropped: only a player's best ${SEASON_INFO[h.season] ? SEASON_INFO[h.season].bestOf : ''} results count">${h.points}</s>` : h.points}</td></tr>`).join('')}</tbody></table></div></div>${(() => {const d = history.find(h => h.dropped); return d && SEASON_INFO[d.season] ? `<p class="table-foot">Struck-through points are dropped results: only the best ${SEASON_INFO[d.season].bestOf} count towards the ${E(SEASON_INFO[d.season].label)} championship.</p>` : '';})()}
     </section>`;
       bindProfileTabs(decoded);
+      const shareBtn = document.getElementById('shareCard');
+      if (shareBtn) shareBtn.addEventListener('click', () => openSeasonCard(p, seasonKey === 'all' ? 'All-time' : (GAME === 'tm20' ? 'TM2020' : labelFor(seasonKey)), p.rank ? `P${p.rank} ${seasonKey === 'all' ? 'all-time' : 'in the standings'}` : ''));
       profileCharts.forEach(c => c.destroy()); profileCharts = [];
       if (!window.Chart) return;
       const labels = history.map(h => h.edition), placements = history.map(h => h.placement), cumulative = []; let running = 0; history.forEach(h => {running += h.points; cumulative.push(running);});
@@ -2231,10 +2488,12 @@
         ${prev ? `<a class="btn" href="#/edition/${seasonKey}/${enc(prev.edition)}" aria-label="Previous edition, ${E(prev.edition)}">← #${E(prev.edition)}</a>` : ''}
         ${next ? `<a class="btn" href="#/edition/${seasonKey}/${enc(next.edition)}" aria-label="Next edition, ${E(next.edition)}">#${E(next.edition)} →</a>` : ''}
         ${hasEvents(seasonKey) ? `<a class="btn" id="eventLink" data-edition="${E(ed.edition)}" target="_blank" rel="noopener" style="display:none">TAS Exchange ↗</a>` : ''}
+        <button type="button" class="btn" id="resultsPost" title="Results message to paste into Discord">Results post</button>
         <a class="btn" href="#/history">All editions</a>
       </div>
     </div>
     <div class="panel race-podium">${podiumHTML(entries, `#/player/${seasonKey}/`)}</div>
+    <div class="panel map-card" id="mapCard" hidden></div>
     <div class="panel flush">
       <div class="results-head"><b>Full classification</b><span class="head-note">${ed.auto ? '<span class="auto-tag" title="The sheet has no row for this edition yet, so the placements follow the times on TAS Exchange. The sheet takes over once it is filled in.">Auto-imported from TAS Exchange</span>' : 'Points by placement'}</span></div>
       <div class="table-wrap">
@@ -2255,6 +2514,9 @@
       </div>
     </div>
   `;
+      EDITION_TIMES = {}; window.__editionMap = '';
+      fillMapCard(seasonKey, ed.edition, null);
+      document.getElementById('resultsPost').addEventListener('click', () => openTextModal(`Edition #${ed.edition}`, resultsPostText(ed, seasonKey, data), 'Results post for Discord'));
       attachEditionEvent(ed, seasonKey);
     }
 
@@ -2826,6 +3088,9 @@
       } else if (route[0] === 'history') {
         document.querySelector('nav a[data-route="/history"]').classList.add('active');
         renderHistory();
+      } else if (route[0] === 'maps') {
+        document.querySelector('nav a[data-route="/maps"]').classList.add('active');
+        renderMaps();
       } else if (route[0] === 'records') {
         document.querySelector('nav a[data-route="/records"]').classList.add('active');
         renderRecords();
@@ -2995,7 +3260,7 @@
         // sits on a loading spinner for the whole (deliberately sequential,
         // see fetchAvatarsInBatches) avatar fetch. Re-render whatever route
         // is current once real avatars are in.
-        loadDiscordProfiles().then(() => render());
+        loadDiscordProfiles().then(swapInAvatars);
         // Also warm the Season 1 cache in the background so it's likely
         // ready by the time someone uses global search or visits a
         // Season-1-aware page - loadSeason1() already caches its own result,
@@ -3011,7 +3276,7 @@
           loadSeason1().catch(() => {}); loadSeason2().catch(() => {});
           render();
           renderStatusBanner();
-          loadDiscordProfiles().then(() => render()); // pictures don't depend on the sheet being live
+          loadDiscordProfiles().then(swapInAvatars); // pictures don't depend on the sheet being live
         } catch (err2) {
           console.error(err2);
           renderManualPanel();
