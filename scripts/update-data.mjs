@@ -288,34 +288,34 @@ export function autoImport(data, evs, aliases, allNames) {
 export function inputsToScript(list) {
   return list.map((x) => `${(Number(x.time) / 1000).toFixed(2).replace(/\.00$/, '')} ${x.action} ${x.value}`).join('\n') + '\n';
 }
-/* Inputs for every replay with downloads enabled. The API covers newer replays; for the ones it doesn't
-   know (HTTP 404) the replay file is queued in data/inputs_todo.json for the GBX.NET extractor
-   (tools/extract), which the workflow runs next. Replays neither can read go into data/inputs_missing.json
-   and are not tried again. data/inputs/index.json lists what's available, for the site. */
+/* Inputs for every replay with downloads enabled, from TAS Exchange's replayData API (the same data its own
+   input viewer uses). Older event replays aren't known to that API (HTTP 404); those keep just the replay
+   download, and are asked about again at most once a month (data/inputs_missing.json).
+   data/inputs/index.json lists what's available, for the site. */
 async function saveInputs(events) {
   await mkdir(`${OUT}/inputs`, { recursive: true });
   const missing = await readJson(`${OUT}/inputs_missing.json`, {});
-  let fetched = 0, failed = 0, pending = 0;
-  const todo = [];
-  const runs = Object.values(events).flatMap((evs) => Object.values(evs).flatMap((ev) => (ev.results || []).filter((r) => r.replay).map((r) => ({ event: ev.id, replay: r.replay, game: ev.title && /TM20/i.test(ev.title) ? 'tm20' : 'tmnf' }))));
-  const seen = new Set();
-  for (const run of runs.sort((a, b) => b.replay - a.replay)) { // newest first
-    if (seen.has(run.replay)) continue; seen.add(run.replay);
-    const file = `${OUT}/inputs/${run.replay}.txt`;
-    if (missing[run.replay] || await readFile(file).then(() => true, () => false)) continue;
+  const monthAgo = new Date(Date.now() - 30 * 86400e3).toISOString().slice(0, 10);
+  let fetched = 0, failed = 0, pending = 0, unavailable = 0;
+  const ids = [...new Set(Object.values(events).flatMap((evs) => Object.values(evs).flatMap((ev) => (ev.results || []).map((r) => r.replay).filter(Boolean))))];
+  for (const id of ids.sort((a, b) => b - a)) { // newest first
+    const file = `${OUT}/inputs/${id}.txt`;
+    if (await readFile(file).then(() => true, () => false)) continue;
+    if (missing[id] && missing[id] > monthAgo) { unavailable++; continue; }
     if (fetched + failed >= INPUT_FETCHES) { pending++; continue; }
     try {
-      const res = await get(`https://tmtas.exchange/api/replayData?id=${run.replay}&inputs=true`);
-      if (res.status === 404) { todo.push(run); failed++; continue; }
+      const res = await get(`https://tmtas.exchange/api/replayData?id=${id}&inputs=true`);
+      if (res.status === 404) { missing[id] = new Date().toISOString().slice(0, 10); unavailable++; continue; }
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const list = await res.json();
-      if (!Array.isArray(list) || !list.length) { todo.push(run); failed++; continue; }
+      if (!Array.isArray(list) || !list.length) throw new Error('no inputs');
       await writeFile(file, inputsToScript(list));
+      delete missing[id];
       fetched++;
-    } catch (err) { failed++; console.warn(`inputs ${run.replay}: ${err.message}`); }
+    } catch (err) { failed++; console.warn(`inputs ${id}: ${err.message}`); }
   }
-  await writeJson(`${OUT}/inputs_todo.json`, todo);
-  return { fetched, failed, pending, todo: todo.length };
+  await writeJson(`${OUT}/inputs_missing.json`, missing);
+  return { fetched, failed, pending, unavailable };
 }
 export async function writeInputsIndex() {
   const { readdir } = await import('node:fs/promises');
@@ -386,7 +386,7 @@ async function main() {
   // 4. Inputs for every replay with downloads enabled.
   if (!process.argv.includes('--sheets')) {
     const r = await saveInputs(events);
-    console.log(`inputs: ${r.fetched} saved from the API, ${r.todo} queued for the replay-file extractor, ${r.pending} left for the next run`);
+    console.log(`inputs: ${r.fetched} saved, ${r.unavailable} not available from TAS Exchange (replay download only), ${r.failed} failed, ${r.pending} left for the next run`);
     await writeInputsIndex();
   }
   await writeJson(`${OUT}/updated.json`, { at: now });
