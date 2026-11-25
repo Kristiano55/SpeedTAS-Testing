@@ -617,6 +617,11 @@
     .card-preview { width: 100%; border-radius: 8px; display: block; margin-bottom: 12px; }
     .post-text { white-space: pre-wrap; }
     @media (max-width: 720px) { .map-card { flex-direction: column; } .map-thumb { flex-basis: auto; } }
+    .clip-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+    .clip-field span { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--dim); }
+    .clip-field input { font: 14px var(--font-body); color: var(--text); background: var(--card); border: 1px solid var(--border-strong); border-radius: 8px; padding: 9px 12px; }
+    .clip-field input:focus-visible { outline: none; border-color: var(--accent); }
+    .clip-field input.bad { border-color: var(--down); }
   </style>
 </head>
 
@@ -707,7 +712,7 @@
     const TMNF_SEASON_ORDER = ['s3', 's2', 's1']; // newest first, as shown in the season pickers
     /* Saturdays without a points edition (mid-season and off-season breaks), Lisbon dates. */
     const SCHEDULE_BREAKS = ['2027-03-20', '2027-05-08', '2027-05-15', '2027-05-22', '2027-05-29', '2027-07-17', '2027-09-04', '2027-09-11', '2027-09-18', '2027-11-06', '2027-12-25', '2028-01-01', '2028-01-08', '2028-01-15', '2028-01-22'];
-    const EDITION_HOUR_LISBON = 20;
+    const EDITION_HOUR_LISBON = 18;
     const curKey = () => GAME === 'tm20' ? 's2' : CURRENT_TMNF_SEASON; // TM2020 keeps its existing #/tm20/.../s2/... links
     const isSeasonKey = k => k === 's1' || k === 's2' || k === 's3';
     const S2L = () => GAME === 'tm20' ? 'TM2020' : SEASON_INFO[CURRENT_TMNF_SEASON].label; // label of the "current" data set
@@ -1135,7 +1140,7 @@
 
     /* ============ RESULTS POST (copy into Discord) ============ */
     let EDITION_TIMES = {};
-    function resultsPostText(ed, seasonKey, data) {
+    function resultsPostText(ed, seasonKey, data, clip = '') {
       const entries = Object.entries(ed.results).sort((a, b) => a[1] - b[1]);
       const secs = Object.fromEntries(Object.entries(EDITION_TIMES).map(([n, en]) => [n, parseTimeSeconds(en.time)]));
       const best = Math.min(...Object.values(secs).filter(x => x != null));
@@ -1147,6 +1152,7 @@
         const pts = pointsFor(place) ? ` · ${pointsFor(place)} pts` : '';
         lines.push(`${medal[place] || `\`${String(place).padStart(2)}.\``} ${place <= 3 ? `**${name}**` : name}${t ? ` — ${t.time}${gap}` : ''}${pts}`);
       });
+      if (clip) lines.push('', `🎬 ${entries[0][0]}'s winning run: ${clip}`);
       // Standings straight after this edition, with movement since the edition before.
       const upTo = data.editions.slice(0, data.editions.indexOf(ed) + 1);
       const after = computeAll({editions: upTo, players: data.players, bestOf: data.bestOf}).ranked;
@@ -1176,45 +1182,100 @@
       o.querySelector('[data-close-inputs]').focus();
     }
 
+    /* Results post with an optional link to the winner's clip (Streamable, YouTube…), remembered per edition. */
+    function openResultsPost(ed, seasonKey, data) {
+      const key = `speedtas_clip_${GAME}_${seasonKey}_${ed.edition}`;
+      let clip = '';
+      try {clip = localStorage.getItem(key) || '';} catch (e) {}
+      openTextModal(`Edition #${ed.edition}`, resultsPostText(ed, seasonKey, data, clip), 'Results post for Discord');
+      const panel = document.querySelector('.inputs-overlay .inputs-body');
+      if (!panel) return;
+      const field = document.createElement('label');
+      field.className = 'clip-field';
+      field.innerHTML = `<span>Winner's clip</span><input type="url" inputmode="url" placeholder="https://streamable.com/…" value="${escapeHtml(clip)}">`;
+      panel.insertBefore(field, panel.firstChild);
+      const input = field.querySelector('input'), pre = panel.querySelector('.post-text'), copy = panel.querySelector('[data-copy]');
+      let text = pre.textContent;
+      input.addEventListener('input', () => {
+        const url = input.value.trim(), ok = !url || /^https?:\/\/\S+$/i.test(url);
+        input.classList.toggle('bad', !ok);
+        if (!ok) return;
+        try {url ? localStorage.setItem(key, url) : localStorage.removeItem(key);} catch (e) {}
+        text = resultsPostText(ed, seasonKey, data, url);
+        pre.textContent = text; copy.textContent = 'Copy';
+      });
+      // Copy always takes the latest text, clip included.
+      const fresh = copy.cloneNode(true); copy.replaceWith(fresh);
+      fresh.addEventListener('click', () => navigator.clipboard.writeText(text).then(() => {fresh.textContent = 'Copied';}, () => {fresh.textContent = 'Copy failed';}));
+    }
+
     /* ============ SEASON CARD (shareable image) ============ */
     function loadImage(src) {
       return new Promise((resolve, reject) => {const img = new Image(); img.crossOrigin = 'anonymous'; img.onload = () => resolve(img); img.onerror = reject; img.src = src;});
     }
-    async function drawSeasonCard(p, seasonText, rankText, allowPhoto = true) {
+    /* Each season keeps its own colour on the card: Seasons 1-2 lime, Season 3 purple, TM2020 cyan. */
+    const SEASON_COLORS = {s1: '#e9fb59', s2: '#e9fb59', s3: '#b388ff', tm20: '#59d6fb'};
+    const cardColor = key => GAME === 'tm20' ? SEASON_COLORS.tm20 : (SEASON_COLORS[key] || accentHex());
+    function roundRect(g, x, y, w, h, r) {g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath();}
+    async function drawSeasonCard(p, seasonText, rankText, color, allowPhoto = true) {
       await (document.fonts ? document.fonts.ready : Promise.resolve());
       const W = 1200, H = 630, c = document.createElement('canvas');
       c.width = W; c.height = H;
       const g = c.getContext('2d'), css = getComputedStyle(document.body);
-      const accent = accentHex(), display = css.getPropertyValue('--font-display') || 'sans-serif', body = css.getPropertyValue('--font-body') || 'sans-serif';
-      g.fillStyle = '#0a0b0d'; g.fillRect(0, 0, W, H);
-      const grad = g.createLinearGradient(0, 0, W, H); grad.addColorStop(0, accent + '33'); grad.addColorStop(1, 'transparent');
-      g.fillStyle = grad; g.fillRect(0, 0, W, H);
-      g.fillStyle = accent; g.fillRect(0, 0, 14, H);
-      g.fillStyle = '#eef0ea'; g.font = `italic 800 34px ${display}`; g.fillText('SPEED', 70, 82);
-      const sw = g.measureText('SPEED').width; g.fillStyle = accent; g.fillText('TAS', 70 + sw + 6, 82);
-      g.fillStyle = '#9aa09a'; g.font = `600 24px ${body}`; g.textAlign = 'right'; g.fillText(seasonText.toUpperCase(), W - 60, 80); g.textAlign = 'left';
-      // avatar
-      const ax = 70, ay = 150, ar = 90;
+      const display = (css.getPropertyValue('--font-display') || 'sans-serif').trim(), body = (css.getPropertyValue('--font-body') || 'sans-serif').trim(), mono = (css.getPropertyValue('--font-mono') || 'monospace').trim();
+      const ink = '#0a0b0d', text = '#eef0ea', muted = '#9aa09a';
+      // background: dark, a soft glow in the season colour, faint speed lines
+      g.fillStyle = ink; g.fillRect(0, 0, W, H);
+      const glow = g.createRadialGradient(W * 0.85, -40, 20, W * 0.85, -40, 760);
+      glow.addColorStop(0, color + '55'); glow.addColorStop(1, color + '00');
+      g.fillStyle = glow; g.fillRect(0, 0, W, H);
+      g.save(); g.globalAlpha = 0.06; g.strokeStyle = color; g.lineWidth = 2;
+      for (let x = -H; x < W; x += 46) {g.beginPath(); g.moveTo(x, H); g.lineTo(x + H * 0.55, 0); g.stroke();}
+      g.restore();
+      g.fillStyle = color; g.fillRect(0, 0, W, 8);
+      // logo: big "SPEED" + "TAS" in a slanted season-coloured block, like the site header
+      g.font = `italic 900 64px ${display}`; g.textBaseline = 'alphabetic';
+      g.fillStyle = text; g.fillText('SPEED', 64, 110);
+      const sw = g.measureText('SPEED').width, tw = g.measureText('TAS').width, bx = 64 + sw + 12;
+      g.save(); g.fillStyle = color; g.beginPath(); g.moveTo(bx + 14, 52); g.lineTo(bx + tw + 30, 52); g.lineTo(bx + tw + 16, 124); g.lineTo(bx, 124); g.closePath(); g.fill(); g.restore();
+      g.fillStyle = ink; g.fillText('TAS', bx + 12, 110);
+      // season pill, top right
+      g.font = `700 22px ${mono}`;
+      const pill = seasonText.toUpperCase(), pw = g.measureText(pill).width + 40;
+      roundRect(g, W - 64 - pw, 66, pw, 46, 23); g.strokeStyle = color; g.lineWidth = 2; g.stroke();
+      g.fillStyle = color; g.textAlign = 'center'; g.fillText(pill, W - 64 - pw / 2, 97); g.textAlign = 'left';
+      // avatar with a season-coloured ring
+      const ax = 64, ay = 178, ar = 96;
+      g.beginPath(); g.arc(ax + ar, ay + ar, ar + 7, 0, Math.PI * 2); g.fillStyle = color; g.fill();
       g.save(); g.beginPath(); g.arc(ax + ar, ay + ar, ar, 0, Math.PI * 2); g.clip();
       let drewPhoto = false;
       const photo = getAvatarOverride(p.name);
       if (photo && allowPhoto) {try {const img = await loadImage(photo); g.drawImage(img, ax, ay, ar * 2, ar * 2); drewPhoto = true;} catch (e) {}}
-      if (!drewPhoto) {g.fillStyle = colorForName(p.name); g.fillRect(ax, ay, ar * 2, ar * 2); g.fillStyle = '#0a0b0d'; g.font = `800 64px ${display}`; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(initials(p.name), ax + ar, ay + ar + 4); g.textAlign = 'left'; g.textBaseline = 'alphabetic';}
+      if (!drewPhoto) {g.fillStyle = colorForName(p.name); g.fillRect(ax, ay, ar * 2, ar * 2); g.fillStyle = ink; g.font = `900 72px ${display}`; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(initials(p.name), ax + ar, ay + ar + 4); g.textAlign = 'left'; g.textBaseline = 'alphabetic';}
       g.restore();
-      g.fillStyle = '#eef0ea'; g.font = `italic 800 76px ${display}`;
-      let name = p.name; while (g.measureText(name).width > 700 && name.length > 3) name = name.slice(0, -2) + '…';
-      g.fillText(name, 300, 230);
-      g.fillStyle = accent; g.font = `800 40px ${display}`; g.fillText(rankText, 300, 290);
+      // name + rank
+      g.fillStyle = text; g.font = `italic 900 88px ${display}`;
+      let name = p.name; while (g.measureText(name).width > 820 && name.length > 3) name = name.slice(0, -2) + '…';
+      g.fillText(name, 290, 268);
+      if (rankText) {g.fillStyle = color; g.font = `800 34px ${display}`; g.fillText(rankText, 292, 320);}
+      // stat tiles
       const stats = [['Points', p.points], ['Wins', p.wins], ['Podiums', p.podiums], ['Editions', p.played], ['Best', 'P' + p.best], ['Avg place', p.avgPlacement.toFixed(1)]];
+      const tileW = (W - 128 - 5 * 16) / 6, ty = 420, th = 120;
       stats.forEach(([k, v], i) => {
-        const x = 70 + i * 180, y = 430;
-        g.fillStyle = '#eef0ea'; g.font = `800 54px ${display}`; g.fillText(String(v), x, y);
-        g.fillStyle = '#9aa09a'; g.font = `600 20px ${body}`; g.fillText(k.toUpperCase(), x, y + 34);
+        const x = 64 + i * (tileW + 16);
+        roundRect(g, x, ty, tileW, th, 14); g.fillStyle = 'rgba(255,255,255,0.045)'; g.fill();
+        g.strokeStyle = i === 0 ? color : 'rgba(255,255,255,0.08)'; g.lineWidth = i === 0 ? 2 : 1; g.stroke();
+        g.fillStyle = i === 0 ? color : text; g.font = `900 50px ${display}`; g.fillText(String(v), x + 20, ty + 66);
+        g.fillStyle = muted; g.font = `700 16px ${mono}`; g.fillText(k.toUpperCase(), x + 20, ty + 98);
       });
-      g.fillStyle = '#5d625d'; g.font = `500 20px ${body}`; g.fillText(location.host + location.pathname.replace(/index\.html$/, ''), 70, H - 50);
+      // footer
+      g.fillStyle = '#6b706b'; g.font = `500 19px ${body}`;
+      g.fillText(location.host + location.pathname.replace(/index\.html$/, ''), 64, H - 36);
+      g.textAlign = 'right'; g.fillText('One hour · one map · fastest TAS wins', W - 64, H - 36); g.textAlign = 'left';
       return c;
     }
-    async function openSeasonCard(p, seasonText, rankText) {
+    async function openSeasonCard(p, seasonText, rankText, seasonKey) {
+      const color = cardColor(seasonKey);
       closeInputs();
       const E = escapeHtml, o = document.createElement('div');
       o.className = 'inputs-overlay';
@@ -1222,12 +1283,12 @@
         <div class="inputs-head"><div><div class="panel-label">Share</div><b>${E(p.name)} · ${E(seasonText)}</b></div><button type="button" class="run-btn" data-close-inputs aria-label="Close">✕</button></div>
         <div class="inputs-body"><div class="loader"><div class="spinner"></div> Drawing the card…</div></div></div>`;
       document.body.appendChild(o);
-      let canvas = await drawSeasonCard(p, seasonText, rankText);
+      let canvas = await drawSeasonCard(p, seasonText, rankText, color);
       const body = o.querySelector('.inputs-body');
       if (!body) return;
       let url;
       try {url = canvas.toDataURL('image/png');} catch (e) { // the picture's host doesn't allow reuse: draw initials instead
-        canvas = await drawSeasonCard(p, seasonText, rankText, false);
+        canvas = await drawSeasonCard(p, seasonText, rankText, color, false);
         try {url = canvas.toDataURL('image/png');} catch (e2) {url = null;}
       }
       if (!url) {body.innerHTML = '<p class="inputs-note">This browser could not create the image.</p>'; return;}
@@ -2224,7 +2285,7 @@
       return new Date(guess - (shown - guess));
     }
     const isoDay = t => new Date(t).toISOString().slice(0, 10);
-    /* Next points edition: Saturdays at 20:00 Lisbon, skipping the breaks and anything before the season starts.
+    /* Next points edition: Saturdays at 18:00 Lisbon, skipping the breaks and anything before the season starts.
        Returns {at: Date, skipped: [break dates passed over]}. An edition counts as "next" until its hour is over. */
     function nextEditionLisbon() {
       const now = Date.now();
@@ -2420,7 +2481,7 @@
     </section>`;
       bindProfileTabs(decoded);
       const shareBtn = document.getElementById('shareCard');
-      if (shareBtn) shareBtn.addEventListener('click', () => openSeasonCard(p, seasonKey === 'all' ? 'All-time' : (GAME === 'tm20' ? 'TM2020' : labelFor(seasonKey)), p.rank ? `P${p.rank} ${seasonKey === 'all' ? 'all-time' : 'in the standings'}` : ''));
+      if (shareBtn) shareBtn.addEventListener('click', () => openSeasonCard(p, seasonKey === 'all' ? 'All-time' : (GAME === 'tm20' ? 'TM2020' : labelFor(seasonKey)), p.rank ? `P${p.rank} ${seasonKey === 'all' ? 'all-time' : 'in the standings'}` : '', seasonKey));
       profileCharts.forEach(c => c.destroy()); profileCharts = [];
       if (!window.Chart) return;
       const labels = history.map(h => h.edition), placements = history.map(h => h.placement), cumulative = []; let running = 0; history.forEach(h => {running += h.points; cumulative.push(running);});
@@ -2516,7 +2577,7 @@
   `;
       EDITION_TIMES = {}; window.__editionMap = '';
       fillMapCard(seasonKey, ed.edition, null);
-      document.getElementById('resultsPost').addEventListener('click', () => openTextModal(`Edition #${ed.edition}`, resultsPostText(ed, seasonKey, data), 'Results post for Discord'));
+      document.getElementById('resultsPost').addEventListener('click', () => openResultsPost(ed, seasonKey, data));
       attachEditionEvent(ed, seasonKey);
     }
 
