@@ -612,7 +612,16 @@
     .map-tile-body { padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 4px; }
     .map-tile-body small { color: var(--muted); font-size: 12.5px; }
     .map-tile .rec-progress { margin-top: 6px; }
-    .profile-buttons { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+    .profile-buttons { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; align-items: center; }
+    .honors { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; margin: 0 0 20px; }
+    .honor { display: flex; align-items: center; gap: 14px; padding: 14px 16px; border: 1px solid var(--line); border-left: 3px solid var(--honor); border-radius: 10px; background: linear-gradient(90deg, color-mix(in srgb, var(--honor) 10%, transparent), transparent 70%); }
+    .honor > div { flex: 1; min-width: 0; }
+    .honor b { font-size: 1.15rem; color: var(--honor); }
+    .honor a { text-decoration: none; }
+    .honor-icon { font-size: 1.7rem; line-height: 1; }
+    .honor-champion, .honor-tag.honor-champion { --honor: var(--gold); }
+    .honor-runner, .honor-tag.honor-runner { --honor: var(--silver); }
+    .honor-tag { padding: 6px 10px; border-radius: 999px; border: 1px solid var(--honor); color: var(--honor); font-weight: 700; font-size: .85rem; white-space: nowrap; }
     .card-panel { width: min(860px, 100%); }
     .card-preview { width: 100%; border-radius: 8px; display: block; margin-bottom: 12px; }
     .post-text { white-space: pre-wrap; }
@@ -1209,6 +1218,46 @@
       fresh.addEventListener('click', () => navigator.clipboard.writeText(text).then(() => {fresh.textContent = 'Copied';}, () => {fresh.textContent = 'Copy failed';}));
     }
 
+    /* ============ CHAMPIONS ============
+       Champion = the leader once nobody can catch them any more; runner-up = second place once that is safe too.
+       A finished season is decided by its final table. For the current season every other player (and anyone
+       who hasn't raced yet) gets their best possible finish: a win in every edition that's left, counted with
+       the same best-of rule. Points never go down under best-of, so the leader's current total is safe. */
+    function seasonOutcome(seasonKey, data) {
+      if (GAME === 'tm20' || !SEASON_INFO[seasonKey] || !data) return null;
+      const {ranked} = computeAll(data);
+      if (ranked.length < 2) return null;
+      const info = SEASON_INFO[seasonKey];
+      const left = seasonKey === CURRENT_TMNF_SEASON && info.editions ? Math.max(0, info.editions - data.editions.length) : 0;
+      if (!left) return {champion: ranked[0].name, runnerUp: ranked[1].name, final: true};
+      const n = info.bestOf || info.editions, top = pointsFor(1);
+      const best = pts => [...pts].sort((a, b) => b - a).slice(0, n).reduce((a, b) => a + b, 0);
+      const ceiling = pl => best([...pl.history.map(h => h.points), ...Array(left).fill(top)]);
+      const newcomer = best(Array(left).fill(top));
+      const [a, b, ...rest] = ranked;
+      if (!(a.points > Math.max(ceiling(b), newcomer, ...rest.map(ceiling)))) return null;
+      const runnerSafe = b.points > Math.max(newcomer, ...rest.map(ceiling));
+      return {champion: a.name, runnerUp: runnerSafe ? b.name : null, final: false};
+    }
+    const honorOf = (outcome, name) => !outcome ? null : outcome.champion === name ? 'champion' : outcome.runnerUp === name ? 'runner' : null;
+    function honorCard(seasonKey, data, name) {
+      const pl = computeAll(data).players[name];
+      if (!pl) return;
+      const honor = honorOf(seasonOutcome(seasonKey, data), name);
+      openSeasonCard(pl, labelFor(seasonKey), honor === 'champion' ? 'P1' : 'P2', seasonKey, honor);
+    }
+    function honorsHTML(seasonKey, outcome) {
+      if (!outcome) return '';
+      const E = escapeHtml, label = E(labelFor(seasonKey));
+      const one = (kind, name) => name ? `<div class="honor honor-${kind}"><span class="honor-icon" aria-hidden="true">${kind === 'champion' ? '🏆' : '🥈'}</span>
+        <div><div class="panel-label">${label} ${kind === 'champion' ? 'champion' : 'runner-up'}${outcome.final ? '' : ' · decided'}</div><a href="#/player/${seasonKey}/${enc(name)}"><b>${E(name)}</b></a></div>
+        <button type="button" class="btn" data-honor-card="${E(name)}">${kind === 'champion' ? 'Champion' : 'Runner-up'} card</button></div>` : '';
+      return `<div class="honors">${one('champion', outcome.champion)}${one('runner', outcome.runnerUp)}</div>`;
+    }
+    function bindHonors(seasonKey, data) {
+      main.querySelectorAll('[data-honor-card]').forEach(btn => btn.addEventListener('click', () => honorCard(seasonKey, data, btn.dataset.honorCard)));
+    }
+
     /* ============ SEASON CARD (shareable image) ============ */
     function loadImage(src) {
       return new Promise((resolve, reject) => {const img = new Image(); img.crossOrigin = 'anonymous'; img.onload = () => resolve(img); img.onerror = reject; img.src = src;});
@@ -1217,7 +1266,8 @@
     const SEASON_COLORS = {s1: '#e9fb59', s2: '#e9fb59', s3: '#b388ff', tm20: '#59d6fb'};
     const cardColor = key => GAME === 'tm20' ? SEASON_COLORS.tm20 : (SEASON_COLORS[key] || accentHex());
     function roundRect(g, x, y, w, h, r) {g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath();}
-    async function drawSeasonCard(p, seasonText, rankText, color, allowPhoto = true) {
+    async function drawSeasonCard(p, seasonText, rankText, color, allowPhoto = true, honor = null) {
+      const honorColor = honor === 'champion' ? '#ffcf3f' : honor === 'runner' ? '#c9ccd6' : color;
       await (document.fonts ? document.fonts.ready : Promise.resolve());
       const W = 1200, H = 630, c = document.createElement('canvas');
       c.width = W; c.height = H;
@@ -1227,12 +1277,15 @@
       // background: dark, a soft glow in the season colour, faint speed lines
       g.fillStyle = ink; g.fillRect(0, 0, W, H);
       const glow = g.createRadialGradient(W * 0.85, -40, 20, W * 0.85, -40, 760);
-      glow.addColorStop(0, color + '55'); glow.addColorStop(1, color + '00');
+      glow.addColorStop(0, honorColor + '55'); glow.addColorStop(1, honorColor + '00');
       g.fillStyle = glow; g.fillRect(0, 0, W, H);
       g.save(); g.globalAlpha = 0.06; g.strokeStyle = color; g.lineWidth = 2;
       for (let x = -H; x < W; x += 46) {g.beginPath(); g.moveTo(x, H); g.lineTo(x + H * 0.55, 0); g.stroke();}
       g.restore();
       g.fillStyle = color; g.fillRect(0, 0, W, 8);
+      if (honor) { // big faint trophy / medal behind the name
+        g.save(); g.globalAlpha = 0.13; g.font = `330px ${body}`; g.textAlign = 'right'; g.fillText(honor === 'champion' ? '🏆' : '🥈', W - 30, 420); g.restore();
+      }
       // logo: big "SPEED" + "TAS" in a slanted season-coloured block, like the site header
       g.font = `italic 900 64px ${display}`; g.textBaseline = 'alphabetic';
       g.fillStyle = text; g.fillText('SPEED', 64, 110);
@@ -1246,7 +1299,7 @@
       g.fillStyle = color; g.textAlign = 'center'; g.fillText(pill, W - 64 - pw / 2, 97); g.textAlign = 'left';
       // avatar with a season-coloured ring
       const ax = 64, ay = 178, ar = 96;
-      g.beginPath(); g.arc(ax + ar, ay + ar, ar + 7, 0, Math.PI * 2); g.fillStyle = color; g.fill();
+      g.beginPath(); g.arc(ax + ar, ay + ar, ar + 7, 0, Math.PI * 2); g.fillStyle = honorColor; g.fill();
       g.save(); g.beginPath(); g.arc(ax + ar, ay + ar, ar, 0, Math.PI * 2); g.clip();
       let drewPhoto = false;
       const photo = getAvatarOverride(p.name);
@@ -1257,15 +1310,16 @@
       g.fillStyle = text; g.font = `italic 900 88px ${display}`;
       let name = p.name; while (g.measureText(name).width > 820 && name.length > 3) name = name.slice(0, -2) + '…';
       g.fillText(name, 290, 268);
-      if (rankText) {g.fillStyle = color; g.font = `800 34px ${display}`; g.fillText(rankText, 292, 320);}
+      if (honor) {g.fillStyle = honorColor; g.font = `italic 900 40px ${display}`; g.fillText(`${honor === 'champion' ? '🏆' : '🥈'} ${seasonText} ${honor === 'champion' ? 'Champion' : 'Runner-up'}`.toUpperCase(), 292, 324);}
+      else if (rankText) {g.fillStyle = color; g.font = `800 34px ${display}`; g.fillText(rankText, 292, 320);}
       // stat tiles
       const stats = [['Points', p.points], ['Wins', p.wins], ['Podiums', p.podiums], ['Editions', p.played], ['Best', 'P' + p.best], ['Avg place', p.avgPlacement.toFixed(1)]];
       const tileW = (W - 128 - 5 * 16) / 6, ty = 420, th = 120;
       stats.forEach(([k, v], i) => {
         const x = 64 + i * (tileW + 16);
         roundRect(g, x, ty, tileW, th, 14); g.fillStyle = 'rgba(255,255,255,0.045)'; g.fill();
-        g.strokeStyle = i === 0 ? color : 'rgba(255,255,255,0.08)'; g.lineWidth = i === 0 ? 2 : 1; g.stroke();
-        g.fillStyle = i === 0 ? color : text; g.font = `900 50px ${display}`; g.fillText(String(v), x + 20, ty + 66);
+        g.strokeStyle = i === 0 ? honorColor : 'rgba(255,255,255,0.08)'; g.lineWidth = i === 0 ? 2 : 1; g.stroke();
+        g.fillStyle = i === 0 ? honorColor : text; g.font = `900 50px ${display}`; g.fillText(String(v), x + 20, ty + 66);
         g.fillStyle = muted; g.font = `700 16px ${mono}`; g.fillText(k.toUpperCase(), x + 20, ty + 98);
       });
       // footer
@@ -1274,7 +1328,7 @@
       g.textAlign = 'right'; g.fillText('One hour · one map · fastest TAS wins', W - 64, H - 36); g.textAlign = 'left';
       return c;
     }
-    async function openSeasonCard(p, seasonText, rankText, seasonKey) {
+    async function openSeasonCard(p, seasonText, rankText, seasonKey, honor = null) {
       const color = cardColor(seasonKey);
       closeInputs();
       const E = escapeHtml, o = document.createElement('div');
@@ -1283,16 +1337,16 @@
         <div class="inputs-head"><div><div class="panel-label">Share</div><b>${E(p.name)} · ${E(seasonText)}</b></div><button type="button" class="run-btn" data-close-inputs aria-label="Close">✕</button></div>
         <div class="inputs-body"><div class="loader"><div class="spinner"></div> Drawing the card…</div></div></div>`;
       document.body.appendChild(o);
-      let canvas = await drawSeasonCard(p, seasonText, rankText, color);
+      let canvas = await drawSeasonCard(p, seasonText, rankText, color, true, honor);
       const body = o.querySelector('.inputs-body');
       if (!body) return;
       let url;
       try {url = canvas.toDataURL('image/png');} catch (e) { // the picture's host doesn't allow reuse: draw initials instead
-        canvas = await drawSeasonCard(p, seasonText, rankText, color, false);
+        canvas = await drawSeasonCard(p, seasonText, rankText, color, false, honor);
         try {url = canvas.toDataURL('image/png');} catch (e2) {url = null;}
       }
       if (!url) {body.innerHTML = '<p class="inputs-note">This browser could not create the image.</p>'; return;}
-      const file = `SpeedTAS ${seasonText} - ${p.name}.png`;
+      const file = `SpeedTAS ${seasonText}${honor === 'champion' ? ' Champion' : honor === 'runner' ? ' Runner-up' : ''} - ${p.name}.png`;
       body.innerHTML = `<img class="card-preview" src="${url}" alt="Season card for ${E(p.name)}">
         <div class="inputs-tools"><a class="btn" download="${E(file)}" href="${url}">Download PNG</a>${window.ClipboardItem ? '<button type="button" class="btn" data-copy-img>Copy image</button>' : ''}</div>`;
       const copyBtn = body.querySelector('[data-copy-img]');
@@ -2133,6 +2187,7 @@
       <h1>${E(S2L())} <em>standings</em></h1>
       <p>One hour to TAS a map, fastest run wins. Live championship standings, the latest result and every battle worth watching.${bestOfNote ? ' ' + E(bestOfNote) : ''}</p>
     </header>
+    ${GAME === 'tmnf' ? honorsHTML(CURRENT_TMNF_SEASON, seasonOutcome(CURRENT_TMNF_SEASON, RAW)) : ''}
 
     <div class="home-grid">
       <article class="panel latest" aria-label="Latest edition result">
@@ -2223,6 +2278,7 @@
         b.addEventListener('click', () => {leaderboardFilter = b.dataset.filter; renderHome();});
       });
       document.getElementById('exportCsv').addEventListener('click', () => exportLeaderboardCSV(sorted));
+      if (GAME === 'tmnf') bindHonors(CURRENT_TMNF_SEASON, RAW);
 
       startCountdown();
       renderProgressChart(players, editionOrder, ranked);
@@ -2421,7 +2477,7 @@
         return;
       }
       const notFound = msg => {main.innerHTML = `<div class="breadcrumb"><a href="#/players">Players</a> / ${E(decoded)}</div><div class="empty-state"><b>No results</b>${msg}</div>`;};
-      let p, profileName, history, rankLabel, seasonLabel, selected = null;
+      let p, profileName, history, rankLabel, seasonLabel, selected = null, profileHonor = null;
       if (seasonKey === 'all') {
         /* seasonData = [[key, data], ...] oldest first; each season's own standings, added up */
         const per = seasonData.map(([key, data]) => ({key, ...profilePlayerFor(key === curKey() ? RAW : data, decoded)}));
@@ -2436,6 +2492,7 @@
         profileName = p.name; rankLabel = 'All-time'; seasonLabel = 'All-time';
       } else {
         selected = profilePlayerFor(seasonKey === curKey() ? RAW : seasonData, decoded);
+        profileHonor = selected.player ? honorOf(seasonOutcome(seasonKey, seasonKey === curKey() ? RAW : seasonData), selected.player.name) : null;
         p = selected.player;
         seasonLabel = labelFor(seasonKey);
         if (!p || !p.played) {notFound(`${E(decoded)} has no results in ${E(seasonLabel)}.${GAME === 'tm20' ? '' : ' Try another season below.'}<div style="margin-top:14px">${profileTabs(seasonKey)}</div>`); bindProfileTabs(decoded); return;}
@@ -2457,7 +2514,7 @@
         <h1>${E(profileName)}</h1>
         <div class="rank-tag"><span class="pos">P${p.rank ?? '—'}</span><span>${E(rankLabel)} standings</span>${seasonKey === curKey() && p.movement ? moveIcon(p.movement) : ''}</div>
       </div>
-      <div class="profile-actions">${profileTabs(seasonKey)}<span class="profile-buttons">${compare}<button type="button" class="btn" id="shareCard">Share season card</button></span></div>
+      <div class="profile-actions">${profileTabs(seasonKey)}<span class="profile-buttons">${profileHonor ? `<span class="honor-tag honor-${profileHonor}">${profileHonor === 'champion' ? '🏆 Champion' : '🥈 Runner-up'}</span>` : ''}${compare}<button type="button" class="btn" id="shareCard">${profileHonor === 'champion' ? 'Share champion card' : profileHonor === 'runner' ? 'Share runner-up card' : 'Share season card'}</button></span></div>
     </div>
     <div class="key-stats">${stat(p.droppedPoints && SEASON_INFO[seasonKey] ? `Points <span class="dim-note">best ${SEASON_INFO[seasonKey].bestOf}</span>` : 'Points', p.droppedPoints ? `${p.points}<small class="scored-note">${p.scored} scored</small>` : p.points)}${stat('Wins', p.wins)}${stat('Podiums', p.podiums)}${stat('Editions', p.played)}</div>
     <div class="stat-grid">
@@ -2481,7 +2538,7 @@
     </section>`;
       bindProfileTabs(decoded);
       const shareBtn = document.getElementById('shareCard');
-      if (shareBtn) shareBtn.addEventListener('click', () => openSeasonCard(p, seasonKey === 'all' ? 'All-time' : (GAME === 'tm20' ? 'TM2020' : labelFor(seasonKey)), p.rank ? `P${p.rank} ${seasonKey === 'all' ? 'all-time' : 'in the standings'}` : '', seasonKey));
+      if (shareBtn) shareBtn.addEventListener('click', () => openSeasonCard(p, seasonKey === 'all' ? 'All-time' : (GAME === 'tm20' ? 'TM2020' : labelFor(seasonKey)), p.rank ? `P${p.rank} ${seasonKey === 'all' ? 'all-time' : 'in the standings'}` : '', seasonKey, profileHonor));
       profileCharts.forEach(c => c.destroy()); profileCharts = [];
       if (!window.Chart) return;
       const labels = history.map(h => h.edition), placements = history.map(h => h.placement), cumulative = []; let running = 0; history.forEach(h => {running += h.points; cumulative.push(running);});
@@ -2507,6 +2564,7 @@
         main.innerHTML = `
     <header class="page-head"><div class="kicker">${E(seasonLabel)} · ${plural(data.editions.length, 'edition')}</div><h1>Competition <em>history</em></h1><p>Every SpeedTAS edition, newest first. Open one for the full classification.</p></header>
     <div class="toolbar">${seasonSeg(seasonKey, 'history-season', seasonOptions())}</div>
+    ${honorsHTML(seasonKey, seasonOutcome(seasonKey, data))}
     ${editionsDesc.length ? '' : `<div class="empty-state"><b>No editions yet</b>${E(seasonLabel)} editions appear here as soon as they are run.</div>`}
     <div class="history-grid">
       ${editionsDesc.map((ed, i) => {
@@ -2524,6 +2582,7 @@
       }).join('')}
     </div>`;
         main.querySelectorAll('[data-history-season]').forEach(btn => btn.addEventListener('click', () => renderHistory(btn.dataset.historySeason)));
+        bindHonors(seasonKey, data);
         if (hasEvents(seasonKey)) loadEventIndex(eventKeyFor(seasonKey), fillHistoryEventLinks);
       }).catch(seasonError);
     }
