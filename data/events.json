@@ -878,7 +878,7 @@
    "id": 55,
    "title": "SpeedTAS Season2 #13",
    "results": [],
-   "checks": 3
+   "checks": 4
   },
   "14": {
    "id": 67,
@@ -3032,7 +3032,7 @@
    "id": 265,
    "title": "SpeedTAS Season2 #45 Finale",
    "results": [],
-   "checks": 1
+   "checks": 2
   }
  },
  "tm20": {
@@ -3488,5 +3488,5 @@
    "replaysChecked": true
   }
  },
- "updatedAt": "2026-11-25T21:11:51.147Z"
+ "updatedAt": "2026-11-25T21:14:46.982Z"
 }
