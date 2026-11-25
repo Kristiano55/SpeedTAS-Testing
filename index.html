@@ -570,6 +570,20 @@
     .next-up .break-note { display: block; margin-top: 6px; color: var(--muted); }
     tr.empty-row td { padding: 28px 16px; text-align: center; color: var(--muted); }
     tr.empty-row:hover { background: none; }
+
+    /* ============ REPLAYS & INPUTS ============ */
+    .results-table.no-runs .run-th, .results-table.no-runs .run-cell { display: none; }
+    .run-actions { display: inline-flex; gap: 6px; }
+    .run-btn { font: 600 12px var(--font-mono); color: var(--text); background: rgba(var(--accent-rgb), .08); border: 1px solid rgba(var(--accent-rgb), .35); border-radius: 6px; padding: 4px 9px; cursor: pointer; text-decoration: none; line-height: 1.2; }
+    .run-btn:hover, .run-btn:focus-visible { background: rgba(var(--accent-rgb), .2); border-color: var(--accent); outline: none; }
+    .auto-tag { color: var(--accent); font-weight: 600; }
+    .inputs-overlay { position: fixed; inset: 0; z-index: 200; background: rgba(5, 6, 8, .72); display: flex; align-items: center; justify-content: center; padding: 16px; }
+    .inputs-panel { width: min(720px, 100%); max-height: min(80vh, 760px); display: flex; flex-direction: column; background: var(--bg2); border: 1px solid var(--border-strong); border-radius: 12px; overflow: hidden; }
+    .inputs-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 16px; border-bottom: 1px solid var(--border); }
+    .inputs-body { padding: 12px 16px 16px; overflow: auto; }
+    .inputs-note { margin: 0 0 10px; color: var(--muted); font-size: 13px; }
+    .inputs-tools { display: flex; gap: 8px; margin-bottom: 10px; }
+    .inputs-text { margin: 0; padding: 12px; font: 12.5px/1.55 var(--font-mono); background: rgba(255,255,255,.03); border-radius: 8px; white-space: pre; overflow: auto; max-height: 52vh; }
   </style>
 </head>
 
@@ -875,6 +889,7 @@
       names.forEach(n => byKey[playerKey(n)] = n);
       const out = {}, leftovers = [];
       entrants.forEach(en => {
+        if (en.player && names.includes(en.player)) {if (!out[en.player]) out[en.player] = en; return;} // resolved by the data Action
         const k = playerKey(en.entrant);
         let name = byKey[k];
         if (!name) {const close = Object.keys(byKey).filter(x => oneLetterApart(x, k)); if (close.length === 1) name = byKey[close[0]];}
@@ -913,6 +928,48 @@
       });
       if (filled) document.querySelector('.results-table').classList.remove('no-times');
     }
+    /* Replay download + inputs for each player whose TAS Exchange run has downloads enabled.
+       Inputs come from data/inputs/<replayId>.txt, saved by the data Action. */
+    function paintRuns(times, eventId, label) {
+      let filled = 0;
+      document.querySelectorAll('.run-cell[data-player]').forEach(cell => {
+        const en = times[cell.dataset.player];
+        if (!en || !en.replay) return;
+        const file = `${label} - ${cell.dataset.player}`;
+        cell.innerHTML = `<span class="run-actions"><a class="run-btn" href="https://tmtas.exchange/events/${eventId}/replays/${en.replay}/download" target="_blank" rel="noopener" title="Download the replay (.Replay.Gbx) from TAS Exchange">Replay</a><button type="button" class="run-btn" data-inputs="${en.replay}" data-file="${escapeHtml(file)}" title="Show the inputs">Inputs</button></span>`;
+        filled++;
+      });
+      if (filled) document.querySelector('.results-table').classList.remove('no-runs');
+    }
+    document.addEventListener('click', e => {
+      const btn = e.target.closest('[data-inputs]');
+      if (btn) openInputs(btn.dataset.inputs, btn.dataset.file);
+      if (e.target.closest('[data-close-inputs]') || e.target.classList.contains('inputs-overlay')) closeInputs();
+    });
+    document.addEventListener('keydown', e => {if (e.key === 'Escape') closeInputs();});
+    function closeInputs() {const o = document.querySelector('.inputs-overlay'); if (o) o.remove();}
+    function openInputs(replayId, fileLabel) {
+      closeInputs();
+      const E = escapeHtml, o = document.createElement('div');
+      o.className = 'inputs-overlay';
+      o.innerHTML = `<div class="inputs-panel" role="dialog" aria-modal="true" aria-label="Inputs for ${E(fileLabel)}">
+        <div class="inputs-head"><div><div class="panel-label">Inputs</div><b>${E(fileLabel)}</b></div><button type="button" class="run-btn" data-close-inputs aria-label="Close">✕</button></div>
+        <div class="inputs-body"><div class="loader"><div class="spinner"></div> Loading inputs…</div></div></div>`;
+      document.body.appendChild(o);
+      o.querySelector('[data-close-inputs]').focus();
+      fetch(`data/inputs/${encodeURIComponent(replayId)}.txt`, {cache: 'no-cache'}).then(r => {if (!r.ok) throw new Error('not saved yet'); return r.text();}).then(text => {
+        const body = o.querySelector('.inputs-body');
+        if (!body) return;
+        const lines = text.trim().split('\n').length;
+        body.innerHTML = `<p class="inputs-note">${lines} input changes · TMInterface script format: <code>&lt;seconds&gt; &lt;action&gt; &lt;value&gt;</code></p>
+          <div class="inputs-tools"><button type="button" class="btn" data-copy>Copy</button><a class="btn" download="${E(fileLabel)}.txt" href="${URL.createObjectURL(new Blob([text], {type: 'text/plain'}))}">Download .txt</a></div>
+          <pre class="inputs-text">${E(text)}</pre>`;
+        body.querySelector('[data-copy]').addEventListener('click', ev => {navigator.clipboard.writeText(text).then(() => {ev.target.textContent = 'Copied';}, () => {ev.target.textContent = 'Copy failed';});});
+      }).catch(() => {
+        const body = o.querySelector('.inputs-body');
+        if (body) body.innerHTML = `<p class="inputs-note">These inputs haven't been saved yet. They're added by the next data update; the replay download works already.</p>`;
+      });
+    }
     function attachEditionEvent(ed, seasonKey) {
       const edition = ed.edition, times = {};
       const stillHere = () => {const t = document.querySelector('.results-table'); return !!t && t.dataset.edition === String(edition) && t.dataset.season === seasonKey;};
@@ -939,6 +996,7 @@
           const matched = matchEntrantsToPlayers(data.results, Object.keys(ed.results), {placements: ed.results, hosts: EVENT_HOSTS[game]});
           Object.entries(matched).forEach(([name, en]) => {if (usable(en)) times[name] = en;}); // replay-backed times win
           paintTimes(times);
+          paintRuns(matched, ev.id, ev.title || `SpeedTAS ${labelFor(seasonKey)} #${edition}`);
         });
       }).catch(err => console.warn('Event times unavailable', err));
     }
@@ -2172,16 +2230,17 @@
     </div>
     <div class="panel race-podium">${podiumHTML(entries, `#/player/${seasonKey}/`)}</div>
     <div class="panel flush">
-      <div class="results-head"><b>Full classification</b><span class="head-note">Points by placement</span></div>
+      <div class="results-head"><b>Full classification</b><span class="head-note">${ed.auto ? '<span class="auto-tag" title="The sheet has no row for this edition yet, so the placements follow the times on TAS Exchange. The sheet takes over once it is filled in.">Auto-imported from TAS Exchange</span>' : 'Points by placement'}</span></div>
       <div class="table-wrap">
-        <table class="results-table no-times" data-edition="${E(ed.edition)}" data-season="${seasonKey}">
-          <thead><tr><th>Pos</th><th>Player</th><th class="time-th">Time</th><th class="r">Points</th></tr></thead>
+        <table class="results-table no-times no-runs" data-edition="${E(ed.edition)}" data-season="${seasonKey}">
+          <thead><tr><th>Pos</th><th>Player</th><th class="time-th">Time</th><th class="run-th">Run</th><th class="r">Points</th></tr></thead>
           <tbody>
             ${entries.map(([name, place]) => `
               <tr>
                 <td>${place <= 3 ? medalFor(place) : ''}${place}</td>
                 <td><a href="#/player/${seasonKey}/${enc(name)}"><div class="player-cell">${avatarHTML(name)}<b>${E(name)}</b></div></a></td>
                 <td class="time-cell" data-player="${E(name)}"></td>
+                <td class="run-cell" data-player="${E(name)}"></td>
                 <td class="${pointsFor(place) ? 'ptsc' : 'numc'} r">${pointsFor(place)}</td>
               </tr>
             `).join('')}

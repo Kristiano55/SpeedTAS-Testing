@@ -4,8 +4,10 @@ name: Update results data
 # Schedules only run on the default branch, so on a feature branch use "Run workflow" by hand.
 on:
   schedule:
-    - cron: '0 22 * * 6'   # Saturday 22:00 UTC (22:00 / 23:00 Lisbon), after the edition
-    - cron: '0 12 * * 0'   # Sunday 12:00 UTC, backup run in case times were still hidden
+    # Off the hour on purpose: GitHub delays runs scheduled exactly on the hour.
+    - cron: '17 21 * * 6'  # Saturday 21:17 UTC, right after the edition (it ends 21:00 Lisbon in winter, 20:00 UTC in summer)
+    - cron: '47 22 * * 6'  # Saturday 22:47 UTC, in case the times were revealed a bit later
+    - cron: '17 12 * * 0'  # Sunday 12:17 UTC, last try for the weekend
   workflow_dispatch:
     inputs:
       sheets_only:

@@ -4,6 +4,14 @@
 //   node scripts/update-data.mjs --sheets   sheets only
 //   node scripts/update-data.mjs --selftest parse the built-in samples, write nothing
 //
+// What it does:
+//  1. Reads the Google Sheets into data/s1.json, s2.json, s3.json, tm20.json.
+//  2. Reads SpeedTAS events on TAS Exchange into data/events.json (results, times, replay ids).
+//  3. Auto-import: a finished Season 3 / TM2020 event whose times are public but whose edition has no row
+//     in the sheet yet is added to data/s3.json / tm20.json straight away (placements from the times,
+//     marked "auto"). As soon as the sheet has that edition, the sheet's version wins.
+//  4. Saves each replay's inputs as a TMInterface-style script in data/inputs/<replayId>.txt.
+//
 // Run by .github/workflows/update-data.yml (Saturday night + Sunday midday, or by hand).
 // A source that fails keeps its previous file, so one bad fetch never blanks the site.
 // The parsing below is a port of speedtas-api-worker.js: keep the two in step.
@@ -34,6 +42,11 @@ const EVENT_SCAN_KNOWN = 270;    // events up to here already exist (Nov 2026): 
 const EVENT_LOOKAHEAD = 15;      // this many missing ids in a row = past the newest event
 const RESULT_RECHECKS = 12;      // most event pages re-read per run for results that were still hidden
 const MAX_CHECKS_PER_EVENT = 4;  // an event whose times stay hidden is given up on after this many reads
+const REPLAY_BACKFILL = 50;      // most older events re-read per run to pick up their replay ids
+const INPUT_FETCHES = 120;       // most input files downloaded per run (the backlog spreads over a few runs)
+const AUTO_IMPORT = { s3: 's3', tm20: 'tm20' }; // event set -> results file that receives auto-imported editions
+/* TAS Exchange name -> sheet name, for names the history can't work out on its own. Keys are lower-case, letters/digits only. */
+const MANUAL_ALIASES = {};
 
 /* ============ SHEET PARSING (port of the Worker) ============ */
 export function buildDatasetFromGrid(grid) {
@@ -124,7 +137,8 @@ export function parseEventResults(html) {
     if (cells.length < 3) continue;
     const pos = cells[0].match(/#?(\d+)/);
     if (!pos || !/\d/.test(cells[2]) || /hidden/i.test(cells[2])) continue;
-    results.push({ pos: parseInt(pos[1], 10), entrant: cells[1], time: cells[2] });
+    const replay = row.match(/\/events\/\d+\/replays\/(\d+)\/download/); // present only when downloads are enabled
+    results.push({ pos: parseInt(pos[1], 10), entrant: cells[1], time: cells[2], ...(replay ? { replay: Number(replay[1]) } : {}) });
   }
   return results;
 }
@@ -183,8 +197,115 @@ async function updateEvents(state, events) {
       if (html) {ev.results = parseEventResults(html); ev.checks = (ev.checks || 0) + 1;}
     }
   }
+  // Events read before replay ids were collected: re-read them once, a few per run.
+  let backfill = 0;
+  for (const set of Object.keys(events)) {
+    for (const ev of Object.values(events[set])) {
+      if (!ev.results || !ev.results.length || ev.replaysChecked || backfill >= REPLAY_BACKFILL) continue;
+      const html = state.pages[ev.id] || (backfill++, requests++, (await fetchEventPage(ev.id)).html);
+      if (!html) continue;
+      const fresh = parseEventResults(html);
+      if (fresh.length) ev.results = fresh;
+      ev.replaysChecked = true;
+    }
+  }
   delete state.pages;
   return requests;
+}
+
+/* ============ NAMES: TAS Exchange entrant -> sheet player ============ */
+const nameKey = (n) => String(n || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+function oneLetterApart(a, b) {
+  if (a === b || Math.abs(a.length - b.length) > 1 || Math.min(a.length, b.length) < 4) return false;
+  let i = 0; while (i < a.length && a[i] === b[i]) i++;
+  if (a.length === b.length) return a.slice(i + 1) === b.slice(i + 1);
+  return a.length > b.length ? a.slice(i + 1) === b.slice(i) : a.slice(i) === b.slice(i + 1);
+}
+/* Learns aliases from past editions that exist both on TAS Exchange and in a sheet: an entrant whose name
+   doesn't match any sheet player is paired with the sheet player who finished in the same place. */
+export function learnAliases(events, datasets) {
+  const votes = {};
+  for (const [set, evs] of Object.entries(events)) {
+    const data = datasets[set];
+    if (!data) continue;
+    for (const [ed, ev] of Object.entries(evs)) {
+      const row = data.editions.find((e) => e.edition === ed && !e.auto);
+      if (!row || !ev.results || !ev.results.length) continue;
+      const sheetKeys = Object.keys(row.results).map(nameKey);
+      for (const r of ev.results) {
+        const k = nameKey(r.entrant);
+        if (sheetKeys.includes(k)) continue;
+        const same = Object.entries(row.results).filter(([, p]) => p === r.pos).map(([n]) => n);
+        if (same.length !== 1 || ev.results.some((o) => nameKey(o.entrant) === nameKey(same[0]))) continue;
+        ((votes[k] = votes[k] || {})[same[0]] = (votes[k][same[0]] || 0) + 1);
+      }
+    }
+  }
+  const aliases = {};
+  for (const [k, v] of Object.entries(votes)) {
+    const ranked = Object.entries(v).sort((a, b) => b[1] - a[1]);
+    if (!ranked[1] || ranked[0][1] > ranked[1][1]) aliases[k] = ranked[0][0];
+  }
+  return { ...aliases, ...MANUAL_ALIASES };
+}
+/* Sheet name for an entrant: exact (ignoring case and symbols), a learned alias, or one letter off. Else null. */
+export function resolveName(entrant, sheetNames, aliases) {
+  const k = nameKey(entrant), byKey = Object.fromEntries(sheetNames.map((n) => [nameKey(n), n]));
+  if (byKey[k]) return byKey[k];
+  if (aliases[k]) return aliases[k];
+  const close = Object.keys(byKey).filter((x) => oneLetterApart(x, k));
+  return close.length === 1 ? byKey[close[0]] : null;
+}
+const toSeconds = (t) => { const m = String(t).match(/^(?:(\d+):)?(\d+(?:\.\d+)?)$/); return m ? (m[1] ? +m[1] * 60 : 0) + parseFloat(m[2]) : null; };
+
+/* Adds every finished event that the sheet doesn't have yet. Placements come from the times (ties share a place). */
+export function autoImport(data, evs, aliases, allNames) {
+  const have = new Set(data.editions.filter((e) => !e.auto).map((e) => e.edition));
+  const added = [], unknown = new Set();
+  for (const [ed, ev] of Object.entries(evs || {})) {
+    if (have.has(ed) || !ev.results || ev.results.length < 2) continue;
+    const timed = ev.results.map((r) => ({ ...r, secs: toSeconds(r.time) })).filter((r) => r.secs != null).sort((a, b) => a.secs - b.secs);
+    if (timed.length < 2) continue;
+    const results = {};
+    timed.forEach((r, i) => {
+      const place = i && r.secs === timed[i - 1].secs ? results[timed[i - 1].name] : i + 1;
+      let name = resolveName(r.entrant, allNames, aliases);
+      if (!name) { name = r.entrant; unknown.add(r.entrant); }
+      r.name = name;
+      if (!(name in results)) results[name] = place;
+    });
+    added.push({ edition: ed, results, auto: true, event: ev.id });
+  }
+  const editions = [...data.editions.filter((e) => !e.auto), ...added].sort((a, b) => (parseFloat(a.edition) || 0) - (parseFloat(b.edition) || 0));
+  const players = [...data.players];
+  added.forEach((e) => Object.keys(e.results).forEach((n) => { if (!players.includes(n)) players.push(n); }));
+  return { data: { ...data, editions, players }, added: added.map((e) => e.edition), unknown: [...unknown] };
+}
+
+/* ============ INPUTS ============ */
+/* TAS Exchange's input list -> one line per input change: "<seconds> <action> <value>", e.g. "0.75 steer 963".
+   For TMNF this is a TMInterface script that can be loaded as-is. */
+export function inputsToScript(list) {
+  return list.map((x) => `${(Number(x.time) / 1000).toFixed(2).replace(/\.00$/, '')} ${x.action} ${x.value}`).join('\n') + '\n';
+}
+async function saveInputs(events) {
+  await mkdir(`${OUT}/inputs`, { recursive: true });
+  let fetched = 0, failed = 0, pending = 0;
+  const ids = [...new Set(Object.values(events).flatMap((evs) => Object.values(evs).flatMap((ev) => (ev.results || []).map((r) => r.replay).filter(Boolean))))];
+  for (const id of ids.sort((a, b) => b - a)) { // newest first
+    const file = `${OUT}/inputs/${id}.txt`;
+    if (await readFile(file).then(() => true, () => false)) continue;
+    if (fetched + failed >= INPUT_FETCHES) { pending++; continue; }
+    try {
+      const res = await get(`https://tmtas.exchange/api/replayData?id=${id}&inputs=true`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const list = await res.json();
+      if (!Array.isArray(list) || !list.length) throw new Error('no inputs');
+      await writeFile(file, inputsToScript(list));
+      fetched++;
+    } catch (err) { failed++; console.warn(`inputs ${id}: ${err.message}`); }
+  }
+  return { fetched, failed, pending };
 }
 
 /* ============ MAIN ============ */
@@ -195,33 +316,64 @@ async function main() {
   await mkdir(OUT, { recursive: true });
   const now = new Date().toISOString();
   let failures = 0;
+  // 1. Sheets. A sheet that can't be read keeps its previous file (minus earlier auto-imports, which are redone below).
+  const datasets = {};
   for (const [key, src] of Object.entries(SHEETS)) {
     try {
       const d = await fetchSheet(src);
-      await writeJson(`${OUT}/${key}.json`, { season: key, editions: d.editions, players: d.players, updatedAt: now });
+      datasets[key] = { season: key, editions: d.editions, players: d.players };
       console.log(`${key}: ${d.editions.length} editions, ${d.players.length} players`);
     } catch (err) {
       failures++;
-      console.warn(`${key}: kept the previous file (${err.message})`);
+      const prev = await readJson(`${OUT}/${key}.json`, null);
+      if (prev) datasets[key] = { season: key, editions: prev.editions.filter((e) => !e.auto), players: prev.players };
+      console.warn(`${key}: kept the previous data (${err.message})`);
     }
   }
+  // 2. TAS Exchange events.
+  const events = await readJson(`${OUT}/events.json`, {});
+  delete events.updatedAt;
   if (!process.argv.includes('--sheets')) {
     const state = await readJson(`${OUT}/events_state.json`, { titles: {} });
     state.pages = {};
-    const events = await readJson(`${OUT}/events.json`, {});
-    delete events.updatedAt;
     try {
       const requests = await updateEvents(state, events);
       await writeJson(`${OUT}/events_state.json`, state);
-      await writeJson(`${OUT}/events.json`, { ...events, updatedAt: now });
       console.log(`events: ${Object.entries(events).map(([k, v]) => `${k} ${Object.keys(v).length}`).join(', ')} (${requests} TAS Exchange requests)`);
     } catch (err) {
       failures++;
       console.warn(`events: kept the previous files (${err.message})`);
     }
   }
+  // 3. Names + auto-import. Names are looked up in the same game only, newest season first, so a TMNF
+  //    edition never picks up a TM2020 spelling (and the other way round).
+  const aliases = learnAliases(events, datasets);
+  const namesFor = (key) => [...new Set((key === 'tm20' ? ['tm20'] : [key, 's3', 's2', 's1']).flatMap((k) => (datasets[k] ? datasets[k].players : [])))];
+  for (const [set, key] of Object.entries(AUTO_IMPORT)) {
+    if (!datasets[key]) continue;
+    const { data, added, unknown } = autoImport(datasets[key], events[set], aliases, namesFor(key));
+    datasets[key] = data;
+    if (added.length) console.log(`${key}: auto-imported edition(s) ${added.join(', ')} from TAS Exchange` + (unknown.length ? ` (new or unrecognised names: ${unknown.join(', ')})` : ''));
+  }
+  // Each event result gets the sheet name it belongs to ("player"), so the site can match times, replays and inputs.
+  for (const [set, evs] of Object.entries(events)) {
+    if (!datasets[set]) continue;
+    const names = namesFor(set);
+    for (const ev of Object.values(evs)) for (const r of ev.results || []) {
+      const n = resolveName(r.entrant, names, aliases);
+      if (n) r.player = n; else delete r.player;
+    }
+  }
+  for (const [key, d] of Object.entries(datasets)) await writeJson(`${OUT}/${key}.json`, { ...d, updatedAt: now });
+  await writeJson(`${OUT}/aliases.json`, aliases);
+  await writeJson(`${OUT}/events.json`, { ...events, updatedAt: now });
+  // 4. Inputs for every replay with downloads enabled.
+  if (!process.argv.includes('--sheets')) {
+    const r = await saveInputs(events);
+    console.log(`inputs: ${r.fetched} saved, ${r.failed} failed, ${r.pending} left for the next run`);
+  }
   await writeJson(`${OUT}/updated.json`, { at: now });
-  if (failures) console.log(`${failures} source(s) failed; their previous files were kept.`);
+  if (failures) console.log(`${failures} source(s) failed; their previous data was kept.`);
 }
 
 function selftest() {
@@ -236,6 +388,17 @@ function selftest() {
   const r = parseEventResults(html);
   assert(r.length === 1 && r[0].entrant === 'Sneak' && r[0].time === '41.23', 'results');
   assert(EVENT_SETS.s3.test('SpeedTAS S3 #4') && !EVENT_SETS.s3.test('SpeedTAS S30 #4') && EVENT_SETS.s2.test('SpeedTAS Season2 #30') && !EVENT_SETS.s3.test('SpeedTAS Season2 #30'), 'patterns');
+  const row = '<tr><td>#1</td><td><a href="/profile/Rio">Rio</a></td><td>20.43</td><td>-</td><td>21 Nov</td><td><a href="/events/263/replays/2004/download" download>x</a></td></tr>';
+  assert(parseEventResults(row)[0].replay === 2004, 'replay id');
+  assert(inputsToScript([{ time: 0, action: 'press', value: 'up' }, { time: 750, action: 'steer', value: '963' }]) === '0 press up\n0.75 steer 963\n', 'inputs');
+  const evs = { s2: { '1': { results: [{ pos: 1, entrant: 'MidnightEuphoria', time: '10.00' }, { pos: 2, entrant: 'Rio', time: '10.50' }] } },
+                s3: { '1': { results: [{ pos: 1, entrant: 'Rio', time: '9.10' }, { pos: 2, entrant: 'MidnightEuphoria', time: '9.10' }, { pos: 3, entrant: 'NewGuy', time: '9.90' }] } } };
+  const ds = { s2: { editions: [{ edition: '1', results: { Midnight: 1, Rio: 2 } }], players: ['Midnight', 'Rio'] }, s3: { editions: [], players: [] } };
+  const al = learnAliases(evs, ds);
+  assert(al.midnighteuphoria === 'Midnight', 'alias learning');
+  const imp = autoImport(ds.s3, evs.s3, al, ['Midnight', 'Rio']);
+  assert(imp.added[0] === '1' && imp.data.editions[0].results.Rio === 1 && imp.data.editions[0].results.Midnight === 1 && imp.data.editions[0].results.NewGuy === 3 && imp.data.editions[0].auto, 'auto import (ties share a place)');
+  assert(autoImport({ editions: [{ edition: '1', results: { X: 1 } }], players: ['X'] }, evs.s3, al, ['X']).added.length === 0, 'sheet wins');
   console.log('selftest ok');
 }
 
