@@ -35,6 +35,19 @@ jobs:
         run: node scripts/update-data.mjs --selftest
       - name: Fetch sheets and events
         run: node scripts/update-data.mjs ${{ inputs.sheets_only && '--sheets' || '' }}
+      - name: Check for replays that need the file extractor
+        id: todo
+        run: echo "count=$(node -e "try{console.log(require('./data/inputs_todo.json').length)}catch{console.log(0)}")" >> "$GITHUB_OUTPUT"
+      - uses: actions/setup-dotnet@v4
+        if: steps.todo.outputs.count != '0'
+        with:
+          dotnet-version: '8.0.x'
+      - name: Extract inputs from replay files (GBX.NET)
+        if: steps.todo.outputs.count != '0'
+        continue-on-error: true
+        run: |
+          dotnet run --project tools/extract -c Release -- data/inputs_todo.json data/inputs data/inputs_missing.json
+          node scripts/update-data.mjs --index-inputs
       - name: Commit changed data
         run: |
           git config user.name "speedtas-bot"

@@ -930,16 +930,22 @@
     }
     /* Replay download + inputs for each player whose TAS Exchange run has downloads enabled.
        Inputs come from data/inputs/<replayId>.txt, saved by the data Action. */
+    let INPUTS_INDEX = null;
+    const inputsIndex = () => INPUTS_INDEX || (INPUTS_INDEX = fetch('data/inputs/index.json', {cache: 'no-cache'}).then(r => r.ok ? r.json() : []).then(ids => new Set(ids)).catch(() => new Set()));
     function paintRuns(times, eventId, label) {
-      let filled = 0;
-      document.querySelectorAll('.run-cell[data-player]').forEach(cell => {
-        const en = times[cell.dataset.player];
-        if (!en || !en.replay) return;
-        const file = `${label} - ${cell.dataset.player}`;
-        cell.innerHTML = `<span class="run-actions"><a class="run-btn" href="https://tmtas.exchange/events/${eventId}/replays/${en.replay}/download" target="_blank" rel="noopener" title="Download the replay (.Replay.Gbx) from TAS Exchange">Replay</a><button type="button" class="run-btn" data-inputs="${en.replay}" data-file="${escapeHtml(file)}" title="Show the inputs">Inputs</button></span>`;
-        filled++;
+      inputsIndex().then(saved => {
+        let filled = 0;
+        document.querySelectorAll('.run-cell[data-player]').forEach(cell => {
+          const en = times[cell.dataset.player];
+          if (!en || !en.replay) return;
+          const file = `${label} - ${cell.dataset.player}`;
+          const inputs = saved.has(en.replay) ? `<button type="button" class="run-btn" data-inputs="${en.replay}" data-file="${escapeHtml(file)}" title="Show the inputs">Inputs</button>` : '';
+          cell.innerHTML = `<span class="run-actions"><a class="run-btn" href="https://tmtas.exchange/events/${eventId}/replays/${en.replay}/download" target="_blank" rel="noopener" title="Download the replay (.Replay.Gbx) from TAS Exchange">Replay</a>${inputs}</span>`;
+          filled++;
+        });
+        const table = document.querySelector('.results-table');
+        if (filled && table) table.classList.remove('no-runs');
       });
-      if (filled) document.querySelector('.results-table').classList.remove('no-runs');
     }
     document.addEventListener('click', e => {
       const btn = e.target.closest('[data-inputs]');
