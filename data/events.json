@@ -7,90 +7,125 @@
     {
      "pos": 1,
      "entrant": "_vogtek_",
-     "time": "15.40"
+     "time": "15.40",
+     "replay": 142,
+     "player": "Vogtek"
     },
     {
      "pos": 2,
      "entrant": "Sneak",
-     "time": "15.70"
+     "time": "15.70",
+     "replay": 135,
+     "player": "Sneak"
     },
     {
      "pos": 3,
      "entrant": "charliethepig",
-     "time": "15.76"
+     "time": "15.76",
+     "replay": 131,
+     "player": "Charlie"
     },
     {
      "pos": 4,
      "entrant": "Magon_777",
-     "time": "15.84"
+     "time": "15.84",
+     "replay": 133,
+     "player": "Magon"
     },
     {
      "pos": 5,
      "entrant": "exix77",
-     "time": "15.91"
+     "time": "15.91",
+     "replay": 138,
+     "player": "Exix"
     },
     {
      "pos": 6,
      "entrant": "Leva",
-     "time": "16.06"
+     "time": "16.06",
+     "replay": 132,
+     "player": "Leva"
     },
     {
      "pos": 7,
      "entrant": "C45TXR",
-     "time": "16.06"
+     "time": "16.06",
+     "replay": 143,
+     "player": "C4ster"
     },
     {
      "pos": 8,
      "entrant": "Elliott",
-     "time": "16.09"
+     "time": "16.09",
+     "replay": 129,
+     "player": "Elliott"
     },
     {
      "pos": 9,
      "entrant": "GalaxyM",
-     "time": "16.34"
+     "time": "16.34",
+     "replay": 136,
+     "player": "Galaxy"
     },
     {
      "pos": 10,
      "entrant": "skycrafter",
-     "time": "16.55"
+     "time": "16.55",
+     "replay": 145,
+     "player": "Skycrafter"
     },
     {
      "pos": 11,
      "entrant": "mufattmf",
-     "time": "16.58"
+     "time": "16.58",
+     "replay": 137,
+     "player": "Mufat"
     },
     {
      "pos": 12,
      "entrant": "vaelyne",
-     "time": "16.70"
+     "time": "16.70",
+     "replay": 130,
+     "player": "Lucy"
     },
     {
      "pos": 13,
      "entrant": "Fabi",
-     "time": "17.01"
+     "time": "17.01",
+     "replay": 139,
+     "player": "Fabi"
     },
     {
      "pos": 14,
      "entrant": "Kristiano",
-     "time": "17.11"
+     "time": "17.11",
+     "replay": 141,
+     "player": "Kristiano"
     },
     {
      "pos": 15,
      "entrant": "DELETE_CLUB",
-     "time": "17.32"
+     "time": "17.32",
+     "replay": 134,
+     "player": "DeleteC"
     },
     {
      "pos": 16,
      "entrant": "CrayHax",
-     "time": "17.69"
+     "time": "17.69",
+     "replay": 140,
+     "player": "Crayhax"
     },
     {
      "pos": 17,
      "entrant": "Thoman",
-     "time": "26.87"
+     "time": "26.87",
+     "replay": 144,
+     "player": "Thoman"
     }
    ],
-   "checks": 1
+   "checks": 1,
+   "replaysChecked": true
   },
   "2": {
    "id": 41,
@@ -99,55 +134,76 @@
     {
      "pos": 1,
      "entrant": "Thoman",
-     "time": "10.29"
+     "time": "10.29",
+     "replay": 162,
+     "player": "Thoman"
     },
     {
      "pos": 2,
      "entrant": "charliethepig",
-     "time": "10.35"
+     "time": "10.35",
+     "replay": 158,
+     "player": "Charlie"
     },
     {
      "pos": 3,
      "entrant": "skycrafter",
-     "time": "10.42"
+     "time": "10.42",
+     "replay": 154,
+     "player": "Skycrafter"
     },
     {
      "pos": 4,
      "entrant": "vogtek",
-     "time": "13.59"
+     "time": "13.59",
+     "replay": 156,
+     "player": "Vogtek"
     },
     {
      "pos": 5,
      "entrant": "Bedeux",
-     "time": "13.67"
+     "time": "13.67",
+     "replay": 155,
+     "player": "Bedeux"
     },
     {
      "pos": 6,
      "entrant": "Leva",
-     "time": "13.97"
+     "time": "13.97",
+     "replay": 163,
+     "player": "Leva"
     },
     {
      "pos": 7,
      "entrant": "QQ_kewkew",
-     "time": "14.04"
+     "time": "14.04",
+     "replay": 160,
+     "player": "QQ"
     },
     {
      "pos": 8,
      "entrant": "C45TXR",
-     "time": "14.16"
+     "time": "14.16",
+     "replay": 159,
+     "player": "C4ster"
     },
     {
      "pos": 9,
      "entrant": "Magon_777",
-     "time": "14.33"
+     "time": "14.33",
+     "replay": 161,
+     "player": "Magon"
     },
     {
      "pos": 10,
      "entrant": "Sneak",
-     "time": "16.16"
+     "time": "16.16",
+     "replay": 157,
+     "player": "Sneak"
     }
    ],
-   "checks": 1
+   "checks": 1,
+   "replaysChecked": true
   },
   "3": {
    "id": 42,
@@ -156,70 +212,97 @@
     {
      "pos": 1,
      "entrant": "skycrafter",
-     "time": "11.95"
+     "time": "11.95",
+     "replay": 166,
+     "player": "Skycrafter"
     },
     {
      "pos": 2,
      "entrant": "mufattmf",
-     "time": "12.51"
+     "time": "12.51",
+     "replay": 168,
+     "player": "Mufat"
     },
     {
      "pos": 3,
      "entrant": "Thoman",
-     "time": "12.88"
+     "time": "12.88",
+     "replay": 172,
+     "player": "Thoman"
     },
     {
      "pos": 4,
      "entrant": "vogtek",
-     "time": "12.92"
+     "time": "12.92",
+     "replay": 165,
+     "player": "Vogtek"
     },
     {
      "pos": 5,
      "entrant": "Rio",
-     "time": "13.07"
+     "time": "13.07",
+     "replay": 171,
+     "player": "Rio"
     },
     {
      "pos": 6,
      "entrant": "C45TXR",
-     "time": "13.20"
+     "time": "13.20",
+     "replay": 176,
+     "player": "C4ster"
     },
     {
      "pos": 7,
      "entrant": "igntuL",
-     "time": "13.52"
+     "time": "13.52",
+     "replay": 169,
+     "player": "IgntuL"
     },
     {
      "pos": 8,
      "entrant": "Kristiano",
-     "time": "14.01"
+     "time": "14.01",
+     "replay": 164,
+     "player": "Kristiano"
     },
     {
      "pos": 9,
      "entrant": "QQ_kewkew",
-     "time": "14.19"
+     "time": "14.19",
+     "replay": 175,
+     "player": "QQ"
     },
     {
      "pos": 10,
      "entrant": "Elliott",
-     "time": "14.25"
+     "time": "14.25",
+     "replay": 167,
+     "player": "Elliott"
     },
     {
      "pos": 11,
      "entrant": "exix77",
-     "time": "14.60"
+     "time": "14.60",
+     "replay": 173,
+     "player": "Exix"
     },
     {
      "pos": 12,
      "entrant": "Sneak",
-     "time": "15.20"
+     "time": "15.20",
+     "replay": 174,
+     "player": "Sneak"
     },
     {
      "pos": 13,
      "entrant": "vaelyne",
-     "time": "15.35"
+     "time": "15.35",
+     "replay": 170,
+     "player": "Lucy"
     }
    ],
-   "checks": 1
+   "checks": 1,
+   "replaysChecked": true
   },
   "4": {
    "id": 44,
@@ -228,55 +311,76 @@
     {
      "pos": 1,
      "entrant": "skycrafter",
-     "time": "16.08"
+     "time": "16.08",
+     "replay": 184,
+     "player": "Skycrafter"
     },
     {
      "pos": 2,
      "entrant": "mufattmf",
-     "time": "17.96"
+     "time": "17.96",
+     "replay": 181,
+     "player": "Mufat"
     },
     {
      "pos": 3,
      "entrant": "Thoman",
-     "time": "20.00"
+     "time": "20.00",
+     "replay": 182,
+     "player": "Thoman"
     },
     {
      "pos": 4,
      "entrant": "charliethepig",
-     "time": "21.07"
+     "time": "21.07",
+     "replay": 180,
+     "player": "Charlie"
     },
     {
      "pos": 5,
      "entrant": "vogtek",
-     "time": "21.42"
+     "time": "21.42",
+     "replay": 185,
+     "player": "Vogtek"
     },
     {
      "pos": 6,
      "entrant": "Magon_777",
-     "time": "22.08"
+     "time": "22.08",
+     "replay": 183,
+     "player": "Magon"
     },
     {
      "pos": 7,
      "entrant": "QQ_kewkew",
-     "time": "22.55"
+     "time": "22.55",
+     "replay": 187,
+     "player": "QQ"
     },
     {
      "pos": 8,
      "entrant": "Fabi",
-     "time": "22.60"
+     "time": "22.60",
+     "replay": 178,
+     "player": "Fabi"
     },
     {
      "pos": 9,
      "entrant": "Elliott",
-     "time": "22.97"
+     "time": "22.97",
+     "replay": 177,
+     "player": "Elliott"
     },
     {
      "pos": 10,
      "entrant": "Bedeux",
-     "time": "24.46"
+     "time": "24.46",
+     "replay": 179,
+     "player": "Bedeux"
     }
    ],
-   "checks": 1
+   "checks": 1,
+   "replaysChecked": true
   },
   "5": {
    "id": 45,
@@ -298,7 +402,8 @@
      "time": "7 February 2026 at 18:57"
     }
    ],
-   "checks": 1
+   "checks": 1,
+   "replaysChecked": true
   },
   "6": {
    "id": 46,
@@ -307,40 +412,55 @@
     {
      "pos": 1,
      "entrant": "mufattmf",
-     "time": "14.33"
+     "time": "14.33",
+     "replay": 209,
+     "player": "Mufat"
     },
     {
      "pos": 2,
      "entrant": "vogtek",
-     "time": "14.42"
+     "time": "14.42",
+     "replay": 212,
+     "player": "Vogtek"
     },
     {
      "pos": 3,
      "entrant": "charliethepig",
-     "time": "14.54"
+     "time": "14.54",
+     "replay": 207,
+     "player": "Charlie"
     },
     {
      "pos": 4,
      "entrant": "Sneak",
-     "time": "14.74"
+     "time": "14.74",
+     "replay": 208,
+     "player": "Sneak"
     },
     {
      "pos": 5,
      "entrant": "QQ_kewkew",
-     "time": "15.98"
+     "time": "15.98",
+     "replay": 213,
+     "player": "QQ"
     },
     {
      "pos": 6,
      "entrant": "Fabi",
-     "time": "16.81"
+     "time": "16.81",
+     "replay": 211,
+     "player": "Fabi"
     },
     {
      "pos": 7,
      "entrant": "Bedeux",
-     "time": "16.85"
+     "time": "16.85",
+     "replay": 210,
+     "player": "Bedeux"
     }
    ],
-   "checks": 1
+   "checks": 1,
+   "replaysChecked": true
   },
   "7": {
    "id": 47,
@@ -349,65 +469,90 @@
     {
      "pos": 1,
      "entrant": "Thoman",
-     "time": "13.37"
+     "time": "13.37",
+     "replay": 224,
+     "player": "Thoman"
     },
     {
      "pos": 2,
      "entrant": "skycrafter",
-     "time": "13.68"
+     "time": "13.68",
+     "replay": 219,
+     "player": "Skycrafter"
     },
     {
      "pos": 3,
      "entrant": "Sneak",
-     "time": "14.42"
+     "time": "14.42",
+     "replay": 223,
+     "player": "Sneak"
     },
     {
      "pos": 4,
      "entrant": "CrayHax",
-     "time": "14.69"
+     "time": "14.69",
+     "replay": 221,
+     "player": "Crayhax"
     },
     {
      "pos": 5,
      "entrant": "vogtek",
-     "time": "14.81"
+     "time": "14.81",
+     "replay": 228,
+     "player": "Vogtek"
     },
     {
      "pos": 6,
      "entrant": "C45TXR",
-     "time": "15.67"
+     "time": "15.67",
+     "replay": 226,
+     "player": "C4ster"
     },
     {
      "pos": 7,
      "entrant": "charliethepig",
-     "time": "15.77"
+     "time": "15.77",
+     "replay": 227,
+     "player": "Charlie"
     },
     {
      "pos": 8,
      "entrant": "exix77",
-     "time": "16.05"
+     "time": "16.05",
+     "replay": 229,
+     "player": "Exix"
     },
     {
      "pos": 9,
      "entrant": "Elliott",
-     "time": "16.48"
+     "time": "16.48",
+     "replay": 225,
+     "player": "Elliott"
     },
     {
      "pos": 10,
      "entrant": "naiCou",
-     "time": "16.49"
+     "time": "16.49",
+     "replay": 220,
+     "player": "NaiCou"
     },
     {
      "pos": 11,
      "entrant": "Fabi",
-     "time": "16.62"
+     "time": "16.62",
+     "replay": 218,
+     "player": "Fabi"
     },
     {
      "pos": 12,
      "entrant": "Oogy749",
-     "time": "22.22"
+     "time": "22.22",
+     "replay": 222,
+     "player": "Oogy749"
     }
    ],
-   "checks": 1
+   "checks": 1,
+   "replaysChecked": true
   },
   "8": {
    "id": 49,
@@ -416,50 +561,69 @@
     {
      "pos": 1,
      "entrant": "Thoman",
-     "time": "16.61"
+     "time": "16.61",
+     "replay": 238,
+     "player": "Thoman"
     },
     {
      "pos": 2,
      "entrant": "Rio",
-     "time": "16.71"
+     "time": "16.71",
+     "replay": 233,
+     "player": "Rio"
     },
     {
      "pos": 3,
      "entrant": "skycrafter",
-     "time": "16.80"
+     "time": "16.80",
+     "replay": 234,
+     "player": "Skycrafter"
     },
     {
      "pos": 4,
      "entrant": "Sneak",
-     "time": "16.93"
+     "time": "16.93",
+     "replay": 237,
+     "player": "Sneak"
     },
     {
      "pos": 5,
      "entrant": "C45TXR",
-     "time": "17.06"
+     "time": "17.06",
+     "replay": 236,
+     "player": "C4ster"
     },
     {
      "pos": 6,
      "entrant": "CrayHax",
-     "time": "17.15"
+     "time": "17.15",
+     "replay": 232,
+     "player": "Crayhax"
     },
     {
      "pos": 7,
      "entrant": "Magon_777",
-     "time": "17.68"
+     "time": "17.68",
+     "replay": 235,
+     "player": "Magon"
     },
     {
      "pos": 8,
      "entrant": "vaelyne",
-     "time": "17.76"
+     "time": "17.76",
+     "replay": 230,
+     "player": "Lucy"
     },
     {
      "pos": 9,
      "entrant": "QQ_kewkew",
-     "time": "22.52"
+     "time": "22.52",
+     "replay": 231,
+     "player": "QQ"
     }
    ],
-   "checks": 1
+   "checks": 1,
+   "replaysChecked": true
   },
   "9": {
    "id": 50,
@@ -468,40 +632,55 @@
     {
      "pos": 1,
      "entrant": "Sneak",
-     "time": "13.87"
+     "time": "13.87",
+     "replay": 248,
+     "player": "Sneak"
     },
     {
      "pos": 2,
      "entrant": "Oogy749",
-     "time": "13.94"
+     "time": "13.94",
+     "replay": 247,
+     "player": "Oogy749"
     },
     {
      "pos": 3,
      "entrant": "Thoman",
-     "time": "14.01"
+     "time": "14.01",
+     "replay": 243,
+     "player": "Thoman"
     },
     {
      "pos": 4,
      "entrant": "C45TXR",
-     "time": "14.12"
+     "time": "14.12",
+     "replay": 246,
+     "player": "C4ster"
     },
     {
      "pos": 5,
      "entrant": "CrayHax",
-     "time": "14.37"
+     "time": "14.37",
+     "replay": 244,
+     "player": "Crayhax"
     },
     {
      "pos": 6,
      "entrant": "Rio",
-     "time": "14.41"
+     "time": "14.41",
+     "replay": 245,
+     "player": "Rio"
     },
     {
      "pos": 7,
      "entrant": "naiCou",
-     "time": "14.50"
+     "time": "14.50",
+     "replay": 242,
+     "player": "NaiCou"
     }
    ],
-   "checks": 1
+   "checks": 1,
+   "replaysChecked": true
   },
   "10": {
    "id": 51,
@@ -510,40 +689,55 @@
     {
      "pos": 1,
      "entrant": "igntuL",
-     "time": "17.31"
+     "time": "17.31",
+     "replay": 253,
+     "player": "IgntuL"
     },
     {
      "pos": 2,
      "entrant": "Rio",
-     "time": "17.57"
+     "time": "17.57",
+     "replay": 252,
+     "player": "Rio"
     },
     {
      "pos": 3,
      "entrant": "Bedeux",
-     "time": "17.72"
+     "time": "17.72",
+     "replay": 254,
+     "player": "Bedeux"
     },
     {
      "pos": 4,
      "entrant": "Magon_777",
-     "time": "17.93"
+     "time": "17.93",
+     "replay": 256,
+     "player": "Magon"
     },
     {
      "pos": 5,
      "entrant": "Thoman",
-     "time": "18.57"
+     "time": "18.57",
+     "replay": 257,
+     "player": "Thoman"
     },
     {
      "pos": 6,
      "entrant": "Sneak",
-     "time": "19.01"
+     "time": "19.01",
+     "replay": 258,
+     "player": "Sneak"
     },
     {
      "pos": 7,
      "entrant": "QQ_kewkew",
-     "time": "19.02"
+     "time": "19.02",
+     "replay": 255,
+     "player": "QQ"
     }
    ],
-   "checks": 1
+   "checks": 1,
+   "replaysChecked": true
   },
   "11": {
    "id": 52,
@@ -552,40 +746,55 @@
     {
      "pos": 1,
      "entrant": "igntuL",
-     "time": "18.07"
+     "time": "18.07",
+     "replay": 265,
+     "player": "IgntuL"
     },
     {
      "pos": 2,
      "entrant": "Oogy749",
-     "time": "18.78"
+     "time": "18.78",
+     "replay": 267,
+     "player": "Oogy749"
     },
     {
      "pos": 3,
      "entrant": "Sneak",
-     "time": "18.94"
+     "time": "18.94",
+     "replay": 268,
+     "player": "Sneak"
     },
     {
      "pos": 4,
      "entrant": "CrayHax",
-     "time": "19.10"
+     "time": "19.10",
+     "replay": 269,
+     "player": "Crayhax"
     },
     {
      "pos": 5,
      "entrant": "Fabi",
-     "time": "19.47"
+     "time": "19.47",
+     "replay": 266,
+     "player": "Fabi"
     },
     {
      "pos": 6,
      "entrant": "Elliott",
-     "time": "19.85"
+     "time": "19.85",
+     "replay": 264,
+     "player": "Elliott"
     },
     {
      "pos": 7,
      "entrant": "QQ_kewkew",
-     "time": "20.02"
+     "time": "20.02",
+     "replay": 270,
+     "player": "QQ"
     }
    ],
-   "checks": 1
+   "checks": 1,
+   "replaysChecked": true
   },
   "12": {
    "id": 53,
@@ -594,61 +803,82 @@
     {
      "pos": 1,
      "entrant": "Rio",
-     "time": "17.60"
+     "time": "17.60",
+     "replay": 271,
+     "player": "Rio"
     },
     {
      "pos": 2,
      "entrant": "Sneak",
-     "time": "17.68"
+     "time": "17.68",
+     "replay": 278,
+     "player": "Sneak"
     },
     {
      "pos": 3,
      "entrant": "mufattmf",
-     "time": "17.83"
+     "time": "17.83",
+     "replay": 277,
+     "player": "Mufat"
     },
     {
      "pos": 4,
      "entrant": "Thoman",
-     "time": "17.96"
+     "time": "17.96",
+     "replay": 275,
+     "player": "Thoman"
     },
     {
      "pos": 5,
      "entrant": "Sxltry",
-     "time": "18.24"
+     "time": "18.24",
+     "replay": 280,
+     "player": "Salty"
     },
     {
      "pos": 6,
      "entrant": "MidnightEuphoria",
-     "time": "18.53"
+     "time": "18.53",
+     "replay": 273,
+     "player": "Midnight"
     },
     {
      "pos": 7,
      "entrant": "oeN",
-     "time": "18.59"
+     "time": "18.59",
+     "replay": 276,
+     "player": "oeN"
     },
     {
      "pos": 8,
      "entrant": "QQ_kewkew",
-     "time": "19.07"
+     "time": "19.07",
+     "replay": 274,
+     "player": "QQ"
     },
     {
      "pos": 9,
      "entrant": "bobby48",
-     "time": "19.45"
+     "time": "19.45",
+     "replay": 272,
+     "player": "wasgud"
     },
     {
      "pos": 10,
      "entrant": "Oogy749",
-     "time": "19.87"
+     "time": "19.87",
+     "replay": 279,
+     "player": "Oogy749"
     }
    ],
-   "checks": 1
+   "checks": 1,
+   "replaysChecked": true
   },
   "13": {
    "id": 55,
    "title": "SpeedTAS Season2 #13",
    "results": [],
-   "checks": 2
+   "checks": 3
   },
   "14": {
    "id": 67,
@@ -657,65 +887,90 @@
     {
      "pos": 1,
      "entrant": "igntuL",
-     "time": "14.88"
+     "time": "14.88",
+     "replay": 315,
+     "player": "IgntuL"
     },
     {
      "pos": 2,
      "entrant": "naiCou",
-     "time": "17.03"
+     "time": "17.03",
+     "replay": 313,
+     "player": "NaiCou"
     },
     {
      "pos": 3,
      "entrant": "Thoman",
-     "time": "17.76"
+     "time": "17.76",
+     "replay": 318,
+     "player": "Thoman"
     },
     {
      "pos": 4,
      "entrant": "faiby",
-     "time": "18.01"
+     "time": "18.01",
+     "replay": 316,
+     "player": "Faiby"
     },
     {
      "pos": 5,
      "entrant": "Comfy_Ivy",
-     "time": "18.03"
+     "time": "18.03",
+     "replay": 310,
+     "player": "Comfy"
     },
     {
      "pos": 6,
      "entrant": "CA1EBYT",
-     "time": "18.03"
+     "time": "18.03",
+     "replay": 312,
+     "player": "Caleb"
     },
     {
      "pos": 7,
      "entrant": "MidnightEuphoria",
-     "time": "18.24"
+     "time": "18.24",
+     "replay": 309,
+     "player": "Midnight"
     },
     {
      "pos": 8,
      "entrant": "QQ_kewkew",
-     "time": "20.36"
+     "time": "20.36",
+     "replay": 319,
+     "player": "QQ"
     },
     {
      "pos": 9,
      "entrant": "Sneak",
-     "time": "21.42"
+     "time": "21.42",
+     "replay": 317,
+     "player": "Sneak"
     },
     {
      "pos": 10,
      "entrant": "Rio",
-     "time": "21.60"
+     "time": "21.60",
+     "replay": 314,
+     "player": "Rio"
     },
     {
      "pos": 11,
      "entrant": "Oogy749",
-     "time": "27.47"
+     "time": "27.47",
+     "replay": 311,
+     "player": "Oogy749"
     },
     {
      "pos": 12,
      "entrant": "Kim",
-     "time": "27.59"
+     "time": "27.59",
+     "replay": 308,
+     "player": "Kim"
     }
    ],
-   "checks": 1
+   "checks": 1,
+   "replaysChecked": true
   },
   "15": {
    "id": 80,
@@ -724,80 +979,111 @@
     {
      "pos": 1,
      "entrant": "Rio",
-     "time": "12.74"
+     "time": "12.74",
+     "replay": 379,
+     "player": "Rio"
     },
     {
      "pos": 2,
      "entrant": "Bedeux",
-     "time": "13.06"
+     "time": "13.06",
+     "replay": 383,
+     "player": "Bedeux"
     },
     {
      "pos": 3,
      "entrant": "Comfy_Ivy",
-     "time": "13.07"
+     "time": "13.07",
+     "replay": 370,
+     "player": "Comfy"
     },
     {
      "pos": 4,
      "entrant": "igntuL",
-     "time": "13.12"
+     "time": "13.12",
+     "replay": 378,
+     "player": "IgntuL"
     },
     {
      "pos": 5,
      "entrant": "Oogy749",
-     "time": "13.43"
+     "time": "13.43",
+     "replay": 375,
+     "player": "Oogy749"
     },
     {
      "pos": 6,
      "entrant": "LittleD3m0",
-     "time": "13.54"
+     "time": "13.54",
+     "replay": 373,
+     "player": "LilDemo"
     },
     {
      "pos": 7,
      "entrant": "Sneak",
-     "time": "13.57"
+     "time": "13.57",
+     "replay": 376,
+     "player": "Sneak"
     },
     {
      "pos": 8,
      "entrant": "MidnightEuphoria",
-     "time": "13.71"
+     "time": "13.71",
+     "replay": 366,
+     "player": "Midnight"
     },
     {
      "pos": 9,
      "entrant": "Qwerter25c",
-     "time": "14.08"
+     "time": "14.08",
+     "replay": 385,
+     "player": "Qwerter25c"
     },
     {
      "pos": 10,
      "entrant": "QQ_kewkew",
-     "time": "14.23"
+     "time": "14.23",
+     "replay": 380,
+     "player": "QQ"
     },
     {
      "pos": 11,
      "entrant": "vaelyne",
-     "time": "14.25"
+     "time": "14.25",
+     "replay": 371,
+     "player": "Lucy"
     },
     {
      "pos": 12,
      "entrant": "Kim",
-     "time": "15.06"
+     "time": "15.06",
+     "replay": 365,
+     "player": "Kim"
     },
     {
      "pos": 13,
      "entrant": "naiCou",
-     "time": "15.12"
+     "time": "15.12",
+     "replay": 369,
+     "player": "NaiCou"
     },
     {
      "pos": 14,
      "entrant": "Timefall",
-     "time": "15.45"
+     "time": "15.45",
+     "replay": 377,
+     "player": "Timefall"
     },
     {
      "pos": 15,
      "entrant": "Fabi",
-     "time": "16.74"
+     "time": "16.74",
+     "replay": 382,
+     "player": "Fabi"
     }
    ],
-   "checks": 1
+   "checks": 1,
+   "replaysChecked": true
   },
   "16": {
    "id": 93,
@@ -806,75 +1092,104 @@
     {
      "pos": 1,
      "entrant": "igntuL",
-     "time": "12.68"
+     "time": "12.68",
+     "replay": 448,
+     "player": "IgntuL"
     },
     {
      "pos": 2,
      "entrant": "Rio",
-     "time": "12.86"
+     "time": "12.86",
+     "replay": 449,
+     "player": "Rio"
     },
     {
      "pos": 3,
      "entrant": "Sneak",
-     "time": "12.90"
+     "time": "12.90",
+     "replay": 451,
+     "player": "Sneak"
     },
     {
      "pos": 4,
      "entrant": "skycrafter",
-     "time": "12.95"
+     "time": "12.95",
+     "replay": 447,
+     "player": "Skycrafter"
     },
     {
      "pos": 5,
      "entrant": "CrayHax",
-     "time": "13.05"
+     "time": "13.05",
+     "replay": 454,
+     "player": "Crayhax"
     },
     {
      "pos": 6,
      "entrant": "Qwerter25c",
-     "time": "14.52"
+     "time": "14.52",
+     "replay": 445,
+     "player": "Qwerter25c"
     },
     {
      "pos": 7,
      "entrant": "ViRoNCZ",
-     "time": "15.63"
+     "time": "15.63",
+     "replay": 456,
+     "player": "Viron"
     },
     {
      "pos": 8,
      "entrant": "Thoman",
-     "time": "16.17"
+     "time": "16.17",
+     "replay": 455,
+     "player": "Thoman"
     },
     {
      "pos": 9,
      "entrant": "_vogtek_",
-     "time": "16.39"
+     "time": "16.39",
+     "replay": 453,
+     "player": "Vogtek"
     },
     {
      "pos": 10,
      "entrant": "meable",
-     "time": "16.95"
+     "time": "16.95",
+     "replay": 452,
+     "player": "Meable"
     },
     {
      "pos": 11,
      "entrant": "Infra",
-     "time": "18.75"
+     "time": "18.75",
+     "replay": 444,
+     "player": "Infra"
     },
     {
      "pos": 12,
      "entrant": "Kim",
-     "time": "19.54"
+     "time": "19.54",
+     "replay": 446,
+     "player": "Kim"
     },
     {
      "pos": 13,
      "entrant": "exix77",
-     "time": "19.84"
+     "time": "19.84",
+     "replay": 441,
+     "player": "Exix"
     },
     {
      "pos": 14,
      "entrant": "Felippe",
-     "time": "21.63"
+     "time": "21.63",
+     "replay": 443,
+     "player": "Felipe"
     }
    ],
-   "checks": 1
+   "checks": 1,
+   "replaysChecked": true
   },
   "17": {
    "id": 99,
@@ -883,60 +1198,83 @@
     {
      "pos": 1,
      "entrant": "Rio",
-     "time": "15.24"
+     "time": "15.24",
+     "replay": 505,
+     "player": "Rio"
     },
     {
      "pos": 2,
      "entrant": "CA1EBYT",
-     "time": "15.42"
+     "time": "15.42",
+     "replay": 495,
+     "player": "Caleb"
     },
     {
      "pos": 3,
      "entrant": "Thoman",
-     "time": "15.50"
+     "time": "15.50",
+     "replay": 508,
+     "player": "Thoman"
     },
     {
      "pos": 4,
      "entrant": "Sneak",
-     "time": "16.03"
+     "time": "16.03",
+     "replay": 498,
+     "player": "Sneak"
     },
     {
      "pos": 5,
      "entrant": "Fabi",
-     "time": "16.44"
+     "time": "16.44",
+     "replay": 506,
+     "player": "Fabi"
     },
     {
      "pos": 6,
      "entrant": "Kim",
-     "time": "17.23"
+     "time": "17.23",
+     "replay": 504,
+     "player": "Kim"
     },
     {
      "pos": 7,
      "entrant": "Adrien",
-     "time": "17.38"
+     "time": "17.38",
+     "replay": 510,
+     "player": "Adrien"
     },
     {
      "pos": 8,
      "entrant": "LittleD3m0",
-     "time": "19.28"
+     "time": "19.28",
+     "replay": 494,
+     "player": "LilDemo"
     },
     {
      "pos": 9,
      "entrant": "naiCou",
-     "time": "19.80"
+     "time": "19.80",
+     "replay": 501,
+     "player": "NaiCou"
     },
     {
      "pos": 10,
      "entrant": "MidnightEuphoria",
-     "time": "20.51"
+     "time": "20.51",
+     "replay": 509,
+     "player": "Midnight"
     },
     {
      "pos": 11,
      "entrant": "QQ_kewkew",
-     "time": "21.91"
+     "time": "21.91",
+     "replay": 507,
+     "player": "QQ"
     }
    ],
-   "checks": 1
+   "checks": 1,
+   "replaysChecked": true
   },
   "18": {
    "id": 104,
@@ -945,75 +1283,104 @@
     {
      "pos": 1,
      "entrant": "igntuL",
-     "time": "14.84"
+     "time": "14.84",
+     "replay": 570,
+     "player": "IgntuL"
     },
     {
      "pos": 2,
      "entrant": "Thoman",
-     "time": "15.04"
+     "time": "15.04",
+     "replay": 569,
+     "player": "Thoman"
     },
     {
      "pos": 3,
      "entrant": "vogtek",
-     "time": "15.25"
+     "time": "15.25",
+     "replay": 561,
+     "player": "Vogtek"
     },
     {
      "pos": 4,
      "entrant": "CA1EBYT",
-     "time": "15.42"
+     "time": "15.42",
+     "replay": 554,
+     "player": "Caleb"
     },
     {
      "pos": 5,
      "entrant": "MidnightEuphoria",
-     "time": "15.42"
+     "time": "15.42",
+     "replay": 571,
+     "player": "Midnight"
     },
     {
      "pos": 6,
      "entrant": "Comfy_Ivy",
-     "time": "15.56"
+     "time": "15.56",
+     "replay": 556,
+     "player": "Comfy"
     },
     {
      "pos": 7,
      "entrant": "LittleD3m0",
-     "time": "15.57"
+     "time": "15.57",
+     "replay": 564,
+     "player": "LilDemo"
     },
     {
      "pos": 8,
      "entrant": "Rio",
-     "time": "15.62"
+     "time": "15.62",
+     "replay": 563,
+     "player": "Rio"
     },
     {
      "pos": 9,
      "entrant": "Sneak",
-     "time": "15.65"
+     "time": "15.65",
+     "replay": 573,
+     "player": "Sneak"
     },
     {
      "pos": 10,
      "entrant": "naiCou",
-     "time": "15.81"
+     "time": "15.81",
+     "replay": 565,
+     "player": "NaiCou"
     },
     {
      "pos": 11,
      "entrant": "QQ_kewkew",
-     "time": "16.33"
+     "time": "16.33",
+     "replay": 572,
+     "player": "QQ"
     },
     {
      "pos": 12,
      "entrant": "ViRoNCZ",
-     "time": "16.58"
+     "time": "16.58",
+     "replay": 558,
+     "player": "Viron"
     },
     {
      "pos": 13,
      "entrant": "Kim",
-     "time": "19.49"
+     "time": "19.49",
+     "replay": 574,
+     "player": "Kim"
     },
     {
      "pos": 14,
      "entrant": "NicoReborn",
-     "time": "21.39"
+     "time": "21.39",
+     "replay": 575,
+     "player": "NicoReborn"
     }
    ],
-   "checks": 1
+   "checks": 1,
+   "replaysChecked": true
   },
   "19": {
    "id": 108,
@@ -1022,45 +1389,62 @@
     {
      "pos": 1,
      "entrant": "vogtek",
-     "time": "12.30"
+     "time": "12.30",
+     "replay": 615,
+     "player": "Vogtek"
     },
     {
      "pos": 2,
      "entrant": "skycrafter",
-     "time": "12.35"
+     "time": "12.35",
+     "replay": 614,
+     "player": "Skycrafter"
     },
     {
      "pos": 3,
      "entrant": "Thoman",
-     "time": "12.65"
+     "time": "12.65",
+     "replay": 616,
+     "player": "Thoman"
     },
     {
      "pos": 4,
      "entrant": "Fabi",
-     "time": "13.46"
+     "time": "13.46",
+     "replay": 608,
+     "player": "Fabi"
     },
     {
      "pos": 5,
      "entrant": "Sneak",
-     "time": "13.93"
+     "time": "13.93",
+     "replay": 612,
+     "player": "Sneak"
     },
     {
      "pos": 6,
      "entrant": "CA1EBYT",
-     "time": "13.98"
+     "time": "13.98",
+     "replay": 609,
+     "player": "Caleb"
     },
     {
      "pos": 7,
      "entrant": "Kim",
-     "time": "14.05"
+     "time": "14.05",
+     "replay": 610,
+     "player": "Kim"
     },
     {
      "pos": 8,
      "entrant": "NicoReborn",
-     "time": "19.62"
+     "time": "19.62",
+     "replay": 607,
+     "player": "NicoReborn"
     }
    ],
-   "checks": 1
+   "checks": 1,
+   "replaysChecked": true
   },
   "20": {
    "id": 111,
@@ -1069,60 +1453,83 @@
     {
      "pos": 1,
      "entrant": "Thoman",
-     "time": "15.88"
+     "time": "15.88",
+     "replay": 648,
+     "player": "Thoman"
     },
     {
      "pos": 2,
      "entrant": "igntuL",
-     "time": "16.38"
+     "time": "16.38",
+     "replay": 649,
+     "player": "IgntuL"
     },
     {
      "pos": 3,
      "entrant": "mufattmf",
-     "time": "16.64"
+     "time": "16.64",
+     "replay": 650,
+     "player": "Mufat"
     },
     {
      "pos": 4,
      "entrant": "LittleD3m0",
-     "time": "16.80"
+     "time": "16.80",
+     "replay": 646,
+     "player": "LilDemo"
     },
     {
      "pos": 5,
      "entrant": "Comfy_Ivy",
-     "time": "16.80"
+     "time": "16.80",
+     "replay": 654,
+     "player": "Comfy"
     },
     {
      "pos": 6,
      "entrant": "Sneak",
-     "time": "17.41"
+     "time": "17.41",
+     "replay": 651,
+     "player": "Sneak"
     },
     {
      "pos": 7,
      "entrant": "Rio",
-     "time": "17.80"
+     "time": "17.80",
+     "replay": 655,
+     "player": "Rio"
     },
     {
      "pos": 8,
      "entrant": "QQ_kewkew",
-     "time": "18.70"
+     "time": "18.70",
+     "replay": 653,
+     "player": "QQ"
     },
     {
      "pos": 9,
      "entrant": "Kim",
-     "time": "19.21"
+     "time": "19.21",
+     "replay": 642,
+     "player": "Kim"
     },
     {
      "pos": 10,
      "entrant": "NicoReborn",
-     "time": "20.24"
+     "time": "20.24",
+     "replay": 645,
+     "player": "NicoReborn"
     },
     {
      "pos": 11,
      "entrant": "CA1EBYT",
-     "time": "23.65"
+     "time": "23.65",
+     "replay": 652,
+     "player": "Caleb"
     }
    ],
-   "checks": 1
+   "checks": 1,
+   "replaysChecked": true
   },
   "21": {
    "id": 115,
@@ -1131,45 +1538,62 @@
     {
      "pos": 1,
      "entrant": "skycrafter",
-     "time": "15.31"
+     "time": "15.31",
+     "replay": 679,
+     "player": "Skycrafter"
     },
     {
      "pos": 2,
      "entrant": "Rio",
-     "time": "16.26"
+     "time": "16.26",
+     "replay": 684,
+     "player": "Rio"
     },
     {
      "pos": 3,
      "entrant": "igntuL",
-     "time": "16.44"
+     "time": "16.44",
+     "replay": 681,
+     "player": "IgntuL"
     },
     {
      "pos": 4,
      "entrant": "Sneak",
-     "time": "16.76"
+     "time": "16.76",
+     "replay": 678,
+     "player": "Sneak"
     },
     {
      "pos": 5,
      "entrant": "MidnightEuphoria",
-     "time": "17.48"
+     "time": "17.48",
+     "replay": 683,
+     "player": "Midnight"
     },
     {
      "pos": 6,
      "entrant": "Oogy749",
-     "time": "19.22"
+     "time": "19.22",
+     "replay": 680,
+     "player": "Oogy749"
     },
     {
      "pos": 7,
      "entrant": "NicoReborn",
-     "time": "22.19"
+     "time": "22.19",
+     "replay": 676,
+     "player": "NicoReborn"
     },
     {
      "pos": 8,
      "entrant": "Fabi",
-     "time": "30.32"
+     "time": "30.32",
+     "replay": 682,
+     "player": "Fabi"
     }
    ],
-   "checks": 1
+   "checks": 1,
+   "replaysChecked": true
   },
   "22": {
    "id": 121,
@@ -1178,70 +1602,97 @@
     {
      "pos": 1,
      "entrant": "Rio",
-     "time": "16.33"
+     "time": "16.33",
+     "replay": 718,
+     "player": "Rio"
     },
     {
      "pos": 2,
      "entrant": "igntuL",
-     "time": "16.64"
+     "time": "16.64",
+     "replay": 732,
+     "player": "IgntuL"
     },
     {
      "pos": 3,
      "entrant": "skycrafter",
-     "time": "16.72"
+     "time": "16.72",
+     "replay": 730,
+     "player": "Skycrafter"
     },
     {
      "pos": 4,
      "entrant": "Oogy749",
-     "time": "16.94"
+     "time": "16.94",
+     "replay": 726,
+     "player": "Oogy749"
     },
     {
      "pos": 5,
      "entrant": "Kristiano",
-     "time": "17.58"
+     "time": "17.58",
+     "replay": 727,
+     "player": "Kristiano"
     },
     {
      "pos": 6,
      "entrant": "MidnightEuphoria",
-     "time": "17.71"
+     "time": "17.71",
+     "replay": 729,
+     "player": "Midnight"
     },
     {
      "pos": 7,
      "entrant": "QQ_kewkew",
-     "time": "17.84"
+     "time": "17.84",
+     "replay": 728,
+     "player": "QQ"
     },
     {
      "pos": 8,
      "entrant": "Fabi",
-     "time": "17.85"
+     "time": "17.85",
+     "replay": 722,
+     "player": "Fabi"
     },
     {
      "pos": 9,
      "entrant": "Sneak",
-     "time": "18.00"
+     "time": "18.00",
+     "replay": 725,
+     "player": "Sneak"
     },
     {
      "pos": 10,
      "entrant": "DELETE_CLUB",
-     "time": "18.04"
+     "time": "18.04",
+     "replay": 721,
+     "player": "DeleteC"
     },
     {
      "pos": 11,
      "entrant": "naiCou",
-     "time": "18.20"
+     "time": "18.20",
+     "replay": 719,
+     "player": "NaiCou"
     },
     {
      "pos": 12,
      "entrant": "Qwerter25c",
-     "time": "18.20"
+     "time": "18.20",
+     "replay": 733,
+     "player": "Qwerter25c"
     },
     {
      "pos": 13,
      "entrant": "NicoReborn",
-     "time": "23.82"
+     "time": "23.82",
+     "replay": 720,
+     "player": "NicoReborn"
     }
    ],
-   "checks": 1
+   "checks": 1,
+   "replaysChecked": true
   },
   "23": {
    "id": 125,
@@ -1250,65 +1701,90 @@
     {
      "pos": 1,
      "entrant": "igntuL",
-     "time": "14.57"
+     "time": "14.57",
+     "replay": 770,
+     "player": "IgntuL"
     },
     {
      "pos": 2,
      "entrant": "LittleD3m0",
-     "time": "15.38"
+     "time": "15.38",
+     "replay": 763,
+     "player": "LilDemo"
     },
     {
      "pos": 3,
      "entrant": "Oogy749",
-     "time": "15.56"
+     "time": "15.56",
+     "replay": 765,
+     "player": "Oogy749"
     },
     {
      "pos": 4,
      "entrant": "exix77",
-     "time": "15.94"
+     "time": "15.94",
+     "replay": 769,
+     "player": "Exix"
     },
     {
      "pos": 5,
      "entrant": "Kim",
-     "time": "16.32"
+     "time": "16.32",
+     "replay": 764,
+     "player": "Kim"
     },
     {
      "pos": 6,
      "entrant": "Sneak",
-     "time": "16.59"
+     "time": "16.59",
+     "replay": 771,
+     "player": "Sneak"
     },
     {
      "pos": 7,
      "entrant": "QQ_kewkew",
-     "time": "18.81"
+     "time": "18.81",
+     "replay": 772,
+     "player": "QQ"
     },
     {
      "pos": 8,
      "entrant": "trizzan",
-     "time": "18.91"
+     "time": "18.91",
+     "replay": 773,
+     "player": "Trizzan"
     },
     {
      "pos": 9,
      "entrant": "Telve",
-     "time": "18.92"
+     "time": "18.92",
+     "replay": 762,
+     "player": "Telve"
     },
     {
      "pos": 10,
      "entrant": "NicoReborn",
-     "time": "19.01"
+     "time": "19.01",
+     "replay": 766,
+     "player": "NicoReborn"
     },
     {
      "pos": 11,
      "entrant": "casterjamar",
-     "time": "19.09"
+     "time": "19.09",
+     "replay": 760,
+     "player": "casterjamar"
     },
     {
      "pos": 12,
      "entrant": "MidnightEuphoria",
-     "time": "6:34:35.87"
+     "time": "6:34:35.87",
+     "replay": 759,
+     "player": "Midnight"
     }
    ],
-   "checks": 1
+   "checks": 1,
+   "replaysChecked": true
   },
   "24": {
    "id": 134,
@@ -1317,60 +1793,83 @@
     {
      "pos": 1,
      "entrant": "Thoman",
-     "time": "19.79"
+     "time": "19.79",
+     "replay": 845,
+     "player": "Thoman"
     },
     {
      "pos": 2,
      "entrant": "Kim",
-     "time": "19.95"
+     "time": "19.95",
+     "replay": 846,
+     "player": "Kim"
     },
     {
      "pos": 3,
      "entrant": "CA1EBYT",
-     "time": "20.35"
+     "time": "20.35",
+     "replay": 851,
+     "player": "Caleb"
     },
     {
      "pos": 4,
      "entrant": "Sneak",
-     "time": "20.51"
+     "time": "20.51",
+     "replay": 848,
+     "player": "Sneak"
     },
     {
      "pos": 5,
      "entrant": "TejasIsAmazing",
-     "time": "20.98"
+     "time": "20.98",
+     "replay": 850,
+     "player": "TejasIsAmazing"
     },
     {
      "pos": 6,
      "entrant": "Oogy749",
-     "time": "21.53"
+     "time": "21.53",
+     "replay": 849,
+     "player": "Oogy749"
     },
     {
      "pos": 7,
      "entrant": "trizzan",
-     "time": "22.43"
+     "time": "22.43",
+     "replay": 837,
+     "player": "Trizzan"
     },
     {
      "pos": 8,
      "entrant": "Telve",
-     "time": "22.58"
+     "time": "22.58",
+     "replay": 841,
+     "player": "Telve"
     },
     {
      "pos": 9,
      "entrant": "MidnightEuphoria",
-     "time": "22.82"
+     "time": "22.82",
+     "replay": 843,
+     "player": "Midnight"
     },
     {
      "pos": 10,
      "entrant": "NicoReborn",
-     "time": "22.83"
+     "time": "22.83",
+     "replay": 844,
+     "player": "NicoReborn"
     },
     {
      "pos": 11,
      "entrant": "mightbejoe",
-     "time": "23.09"
+     "time": "23.09",
+     "replay": 838,
+     "player": "MigthBeJoe"
     }
    ],
-   "checks": 1
+   "checks": 1,
+   "replaysChecked": true
   },
   "25": {
    "id": 160,
@@ -1379,50 +1878,69 @@
     {
      "pos": 1,
      "entrant": "Sneak",
-     "time": "19.18"
+     "time": "19.18",
+     "replay": 897,
+     "player": "Sneak"
     },
     {
      "pos": 2,
      "entrant": "MidnightEuphoria",
-     "time": "19.28"
+     "time": "19.28",
+     "replay": 899,
+     "player": "Midnight"
     },
     {
      "pos": 3,
      "entrant": "Rio",
-     "time": "19.41"
+     "time": "19.41",
+     "replay": 895,
+     "player": "Rio"
     },
     {
      "pos": 4,
      "entrant": "Oogy749",
-     "time": "19.47"
+     "time": "19.47",
+     "replay": 896,
+     "player": "Oogy749"
     },
     {
      "pos": 5,
      "entrant": "CA1EBYT",
-     "time": "19.56"
+     "time": "19.56",
+     "replay": 892,
+     "player": "Caleb"
     },
     {
      "pos": 6,
      "entrant": "Kim",
-     "time": "20.18"
+     "time": "20.18",
+     "replay": 898,
+     "player": "Kim"
     },
     {
      "pos": 7,
      "entrant": "TejasIsAmazing",
-     "time": "22.65"
+     "time": "22.65",
+     "replay": 900,
+     "player": "TejasIsAmazing"
     },
     {
      "pos": 8,
      "entrant": "NicoReborn",
-     "time": "22.75"
+     "time": "22.75",
+     "replay": 888,
+     "player": "NicoReborn"
     },
     {
      "pos": 9,
      "entrant": "Kram",
-     "time": "25.57"
+     "time": "25.57",
+     "replay": 893,
+     "player": "Kram"
     }
    ],
-   "checks": 1
+   "checks": 1,
+   "replaysChecked": true
   },
   "26": {
    "id": 164,
@@ -1431,50 +1949,69 @@
     {
      "pos": 1,
      "entrant": "Sneak",
-     "time": "14.87"
+     "time": "14.87",
+     "replay": 967,
+     "player": "Sneak"
     },
     {
      "pos": 2,
      "entrant": "Thoman",
-     "time": "15.61"
+     "time": "15.61",
+     "replay": 965,
+     "player": "Thoman"
     },
     {
      "pos": 3,
      "entrant": "Qwerter25c",
-     "time": "15.63"
+     "time": "15.63",
+     "replay": 964,
+     "player": "Qwerter25c"
     },
     {
      "pos": 4,
      "entrant": "MidnightEuphoria",
-     "time": "16.13"
+     "time": "16.13",
+     "replay": 969,
+     "player": "Midnight"
     },
     {
      "pos": 5,
      "entrant": "Rio",
-     "time": "16.19"
+     "time": "16.19",
+     "replay": 959,
+     "player": "Rio"
     },
     {
      "pos": 6,
      "entrant": "QQ_kewkew",
-     "time": "17.29"
+     "time": "17.29",
+     "replay": 966,
+     "player": "QQ"
     },
     {
      "pos": 7,
      "entrant": "TejasIsAmazing",
-     "time": "17.57"
+     "time": "17.57",
+     "replay": 968,
+     "player": "TejasIsAmazing"
     },
     {
      "pos": 8,
      "entrant": "Telve",
-     "time": "20.98"
+     "time": "20.98",
+     "replay": 963,
+     "player": "Telve"
     },
     {
      "pos": 9,
      "entrant": "NicoReborn",
-     "time": "22.01"
+     "time": "22.01",
+     "replay": 957,
+     "player": "NicoReborn"
     }
    ],
-   "checks": 1
+   "checks": 1,
+   "replaysChecked": true
   },
   "27": {
    "id": 166,
@@ -1483,55 +2020,76 @@
     {
      "pos": 1,
      "entrant": "Oogy749",
-     "time": "13.77"
+     "time": "13.77",
+     "replay": 1031,
+     "player": "Oogy749"
     },
     {
      "pos": 2,
      "entrant": "Rio",
-     "time": "13.82"
+     "time": "13.82",
+     "replay": 1027,
+     "player": "Rio"
     },
     {
      "pos": 3,
      "entrant": "Thoman",
-     "time": "13.87"
+     "time": "13.87",
+     "replay": 1028,
+     "player": "Thoman"
     },
     {
      "pos": 4,
      "entrant": "LittleD3m0",
-     "time": "14.16"
+     "time": "14.16",
+     "replay": 1034,
+     "player": "LilDemo"
     },
     {
      "pos": 5,
      "entrant": "MidnightEuphoria",
-     "time": "14.17"
+     "time": "14.17",
+     "replay": 1026,
+     "player": "Midnight"
     },
     {
      "pos": 6,
      "entrant": "TejasIsAmazing",
-     "time": "14.60"
+     "time": "14.60",
+     "replay": 1032,
+     "player": "TejasIsAmazing"
     },
     {
      "pos": 7,
      "entrant": "Babuhken",
-     "time": "15.20"
+     "time": "15.20",
+     "replay": 1033,
+     "player": "Bobas"
     },
     {
      "pos": 8,
      "entrant": "Sneak",
-     "time": "16.00"
+     "time": "16.00",
+     "replay": 1025,
+     "player": "Sneak"
     },
     {
      "pos": 9,
      "entrant": "NicoReborn",
-     "time": "17.21"
+     "time": "17.21",
+     "replay": 1020,
+     "player": "NicoReborn"
     },
     {
      "pos": 10,
      "entrant": "exix77",
-     "time": "19.67"
+     "time": "19.67",
+     "replay": 1030,
+     "player": "Exix"
     }
    ],
-   "checks": 1
+   "checks": 1,
+   "replaysChecked": true
   },
   "28": {
    "id": 173,
@@ -1540,50 +2098,69 @@
     {
      "pos": 1,
      "entrant": "Thoman",
-     "time": "11.19"
+     "time": "11.19",
+     "replay": 1089,
+     "player": "Thoman"
     },
     {
      "pos": 2,
      "entrant": "vogtek",
-     "time": "11.32"
+     "time": "11.32",
+     "replay": 1079,
+     "player": "Vogtek"
     },
     {
      "pos": 3,
      "entrant": "trizzan",
-     "time": "12.02"
+     "time": "12.02",
+     "replay": 1085,
+     "player": "Trizzan"
     },
     {
      "pos": 4,
      "entrant": "TejasIsAmazing",
-     "time": "12.19"
+     "time": "12.19",
+     "replay": 1087,
+     "player": "TejasIsAmazing"
     },
     {
      "pos": 5,
      "entrant": "Sneak",
-     "time": "12.37"
+     "time": "12.37",
+     "replay": 1080,
+     "player": "Sneak"
     },
     {
      "pos": 6,
      "entrant": "Oogy749",
-     "time": "12.41"
+     "time": "12.41",
+     "replay": 1086,
+     "player": "Oogy749"
     },
     {
      "pos": 7,
      "entrant": "Qwerter25c",
-     "time": "12.88"
+     "time": "12.88",
+     "replay": 1081,
+     "player": "Qwerter25c"
     },
     {
      "pos": 8,
      "entrant": "NicoReborn",
-     "time": "16.22"
+     "time": "16.22",
+     "replay": 1083,
+     "player": "NicoReborn"
     },
     {
      "pos": 9,
      "entrant": "MidnightEuphoria",
-     "time": "16.52"
+     "time": "16.52",
+     "replay": 1090,
+     "player": "Midnight"
     }
    ],
-   "checks": 1
+   "checks": 1,
+   "replaysChecked": true
   },
   "29": {
    "id": 187,
@@ -1595,7 +2172,8 @@
      "time": "25 July 2026 at 18:02"
     }
    ],
-   "checks": 1
+   "checks": 1,
+   "replaysChecked": true
   },
   "30": {
    "id": 189,
@@ -1604,45 +2182,62 @@
     {
      "pos": 1,
      "entrant": "Sneak",
-     "time": "17.59"
+     "time": "17.59",
+     "replay": 1164,
+     "player": "Sneak"
     },
     {
      "pos": 2,
      "entrant": "MidnightEuphoria",
-     "time": "17.72"
+     "time": "17.72",
+     "replay": 1162,
+     "player": "Midnight"
     },
     {
      "pos": 3,
      "entrant": "LittleD3m0",
-     "time": "17.91"
+     "time": "17.91",
+     "replay": 1165,
+     "player": "LilDemo"
     },
     {
      "pos": 4,
      "entrant": "CA1EBYT",
-     "time": "18.56"
+     "time": "18.56",
+     "replay": 1157,
+     "player": "Caleb"
     },
     {
      "pos": 5,
      "entrant": "QQ_kewkew",
-     "time": "18.61"
+     "time": "18.61",
+     "replay": 1166,
+     "player": "QQ"
     },
     {
      "pos": 6,
      "entrant": "Elliott",
-     "time": "21.15"
+     "time": "21.15",
+     "replay": 1159,
+     "player": "Elliott"
     },
     {
      "pos": 7,
      "entrant": "NicoReborn",
-     "time": "22.46"
+     "time": "22.46",
+     "replay": 1163,
+     "player": "NicoReborn"
     },
     {
      "pos": 8,
      "entrant": "exix77",
-     "time": "1:51.71"
+     "time": "1:51.71",
+     "replay": 1158,
+     "player": "Exix"
     }
    ],
-   "checks": 1
+   "checks": 1,
+   "replaysChecked": true
   },
   "33": {
    "id": 225,
@@ -1651,50 +2246,69 @@
     {
      "pos": 1,
      "entrant": "Sneak",
-     "time": "15.77"
+     "time": "15.77",
+     "replay": 1532,
+     "player": "Sneak"
     },
     {
      "pos": 2,
      "entrant": "Kristiano",
-     "time": "15.84"
+     "time": "15.84",
+     "replay": 1524,
+     "player": "Kristiano"
     },
     {
      "pos": 3,
      "entrant": "MidnightEuphoria",
-     "time": "16.03"
+     "time": "16.03",
+     "replay": 1533,
+     "player": "Midnight"
     },
     {
      "pos": 4,
      "entrant": "Rio",
-     "time": "16.22"
+     "time": "16.22",
+     "replay": 1528,
+     "player": "Rio"
     },
     {
      "pos": 5,
      "entrant": "QQ_kewkew",
-     "time": "16.57"
+     "time": "16.57",
+     "replay": 1531,
+     "player": "QQ"
     },
     {
      "pos": 6,
      "entrant": "logout",
-     "time": "16.67"
+     "time": "16.67",
+     "replay": 1527,
+     "player": "Logout"
     },
     {
      "pos": 7,
      "entrant": "cunningsquid",
-     "time": "17.67"
+     "time": "17.67",
+     "replay": 1526,
+     "player": "popE"
     },
     {
      "pos": 8,
      "entrant": "NicoReborn",
-     "time": "17.76"
+     "time": "17.76",
+     "replay": 1525,
+     "player": "NicoReborn"
     },
     {
      "pos": 9,
      "entrant": "Oogy749",
-     "time": "40.79"
+     "time": "40.79",
+     "replay": 1530,
+     "player": "Oogy749"
     }
    ],
-   "checks": 1
+   "checks": 1,
+   "replaysChecked": true
   },
   "34": {
    "id": 227,
@@ -1703,55 +2317,76 @@
     {
      "pos": 1,
      "entrant": "Oogy749",
-     "time": "17.74"
+     "time": "17.74",
+     "replay": 1556,
+     "player": "Oogy749"
     },
     {
      "pos": 2,
      "entrant": "Kristiano",
-     "time": "17.81"
+     "time": "17.81",
+     "replay": 1552,
+     "player": "Kristiano"
     },
     {
      "pos": 3,
      "entrant": "MidnightEuphoria",
-     "time": "18.22"
+     "time": "18.22",
+     "replay": 1554,
+     "player": "Midnight"
     },
     {
      "pos": 4,
      "entrant": "Sneak",
-     "time": "18.73"
+     "time": "18.73",
+     "replay": 1555,
+     "player": "Sneak"
     },
     {
      "pos": 5,
      "entrant": "Thoman",
-     "time": "18.76"
+     "time": "18.76",
+     "replay": 1550,
+     "player": "Thoman"
     },
     {
      "pos": 6,
      "entrant": "TejasIsAmazing",
-     "time": "20.91"
+     "time": "20.91",
+     "replay": 1553,
+     "player": "TejasIsAmazing"
     },
     {
      "pos": 7,
      "entrant": "vogtek",
-     "time": "23.46"
+     "time": "23.46",
+     "replay": 1558,
+     "player": "Vogtek"
     },
     {
      "pos": 8,
      "entrant": "popE",
-     "time": "24.76"
+     "time": "24.76",
+     "replay": 1557,
+     "player": "popE"
     },
     {
      "pos": 9,
      "entrant": "NicoReborn",
-     "time": "26.54"
+     "time": "26.54",
+     "replay": 1551,
+     "player": "NicoReborn"
     },
     {
      "pos": 10,
      "entrant": "febstone",
-     "time": "29.81"
+     "time": "29.81",
+     "replay": 1549,
+     "player": "Febstone"
     }
    ],
-   "checks": 1
+   "checks": 1,
+   "replaysChecked": true
   },
   "35": {
    "id": 231,
@@ -1760,40 +2395,55 @@
     {
      "pos": 1,
      "entrant": "Thoman",
-     "time": "18.92"
+     "time": "18.92",
+     "replay": 1595,
+     "player": "Thoman"
     },
     {
      "pos": 2,
      "entrant": "Rio",
-     "time": "20.40"
+     "time": "20.40",
+     "replay": 1591,
+     "player": "Rio"
     },
     {
      "pos": 3,
      "entrant": "Sneak",
-     "time": "22.06"
+     "time": "22.06",
+     "replay": 1589,
+     "player": "Sneak"
     },
     {
      "pos": 4,
      "entrant": "EmilSPlayz",
-     "time": "22.10"
+     "time": "22.10",
+     "replay": 1594,
+     "player": "Emil"
     },
     {
      "pos": 5,
      "entrant": "Prow",
-     "time": "22.83"
+     "time": "22.83",
+     "replay": 1592,
+     "player": "Prow"
     },
     {
      "pos": 6,
      "entrant": "MidnightEuphoria",
-     "time": "27.67"
+     "time": "27.67",
+     "replay": 1596,
+     "player": "Midnight"
     },
     {
      "pos": 7,
      "entrant": "Oogy749",
-     "time": "35.88"
+     "time": "35.88",
+     "replay": 1593,
+     "player": "Oogy749"
     }
    ],
-   "checks": 1
+   "checks": 1,
+   "replaysChecked": true
   },
   "36": {
    "id": 233,
@@ -1802,45 +2452,62 @@
     {
      "pos": 1,
      "entrant": "Kim",
-     "time": "12.84"
+     "time": "12.84",
+     "replay": 1701,
+     "player": "Kim"
     },
     {
      "pos": 2,
      "entrant": "MidnightEuphoria",
-     "time": "12.89"
+     "time": "12.89",
+     "replay": 1705,
+     "player": "Midnight"
     },
     {
      "pos": 3,
      "entrant": "Rio",
-     "time": "12.95"
+     "time": "12.95",
+     "replay": 1709,
+     "player": "Rio"
     },
     {
      "pos": 4,
      "entrant": "Sneak",
-     "time": "13.53"
+     "time": "13.53",
+     "replay": 1704,
+     "player": "Sneak"
     },
     {
      "pos": 5,
      "entrant": "Qwerter25c",
-     "time": "13.95"
+     "time": "13.95",
+     "replay": 1703,
+     "player": "Qwerter25c"
     },
     {
      "pos": 6,
      "entrant": "trizzan",
-     "time": "13.99"
+     "time": "13.99",
+     "replay": 1706,
+     "player": "Trizzan"
     },
     {
      "pos": 7,
      "entrant": "Oogy749",
-     "time": "14.05"
+     "time": "14.05",
+     "replay": 1707,
+     "player": "Oogy749"
     },
     {
      "pos": 8,
      "entrant": "NicoReborn",
-     "time": "15.31"
+     "time": "15.31",
+     "replay": 1708,
+     "player": "NicoReborn"
     }
    ],
-   "checks": 1
+   "checks": 1,
+   "replaysChecked": true
   },
   "37": {
    "id": 237,
@@ -1849,35 +2516,48 @@
     {
      "pos": 1,
      "entrant": "MidnightEuphoria",
-     "time": "15.27"
+     "time": "15.27",
+     "replay": 1732,
+     "player": "Midnight"
     },
     {
      "pos": 2,
      "entrant": "happytas",
-     "time": "15.32"
+     "time": "15.32",
+     "replay": 1733,
+     "player": "happytas"
     },
     {
      "pos": 3,
      "entrant": "Kim",
-     "time": "15.42"
+     "time": "15.42",
+     "replay": 1735,
+     "player": "Kim"
     },
     {
      "pos": 4,
      "entrant": "Sneak",
-     "time": "15.61"
+     "time": "15.61",
+     "replay": 1736,
+     "player": "Sneak"
     },
     {
      "pos": 5,
      "entrant": "Oogy749",
-     "time": "15.61"
+     "time": "15.61",
+     "replay": 1738,
+     "player": "Oogy749"
     },
     {
      "pos": 6,
      "entrant": "Bedeux",
-     "time": "15.95"
+     "time": "15.95",
+     "replay": 1737,
+     "player": "Bedeux"
     }
    ],
-   "checks": 1
+   "checks": 1,
+   "replaysChecked": true
   },
   "38": {
    "id": 239,
@@ -1886,35 +2566,48 @@
     {
      "pos": 1,
      "entrant": "MidnightEuphoria",
-     "time": "17.81"
+     "time": "17.81",
+     "replay": 1768,
+     "player": "Midnight"
     },
     {
      "pos": 2,
      "entrant": "Kim",
-     "time": "18.35"
+     "time": "18.35",
+     "replay": 1769,
+     "player": "Kim"
     },
     {
      "pos": 3,
      "entrant": "Sneak",
-     "time": "18.89"
+     "time": "18.89",
+     "replay": 1771,
+     "player": "Sneak"
     },
     {
      "pos": 4,
      "entrant": "Rio",
-     "time": "19.10"
+     "time": "19.10",
+     "replay": 1770,
+     "player": "Rio"
     },
     {
      "pos": 5,
      "entrant": "Thoman",
-     "time": "19.34"
+     "time": "19.34",
+     "replay": 1772,
+     "player": "Thoman"
     },
     {
      "pos": 6,
      "entrant": "Gorgman",
-     "time": "19.61"
+     "time": "19.61",
+     "replay": 1764,
+     "player": "Gorgman"
     }
    ],
-   "checks": 1
+   "checks": 1,
+   "replaysChecked": true
   },
   "39": {
    "id": 248,
@@ -1923,55 +2616,76 @@
     {
      "pos": 1,
      "entrant": "Rio",
-     "time": "13.59"
+     "time": "13.59",
+     "replay": 1818,
+     "player": "Rio"
     },
     {
      "pos": 2,
      "entrant": "Kim",
-     "time": "13.70"
+     "time": "13.70",
+     "replay": 1820,
+     "player": "Kim"
     },
     {
      "pos": 3,
      "entrant": "Thoman",
-     "time": "13.75"
+     "time": "13.75",
+     "replay": 1821,
+     "player": "Thoman"
     },
     {
      "pos": 4,
      "entrant": "MidnightEuphoria",
-     "time": "13.88"
+     "time": "13.88",
+     "replay": 1827,
+     "player": "Midnight"
     },
     {
      "pos": 5,
      "entrant": "Sneak",
-     "time": "14.02"
+     "time": "14.02",
+     "replay": 1824,
+     "player": "Sneak"
     },
     {
      "pos": 6,
      "entrant": "Oogy749",
-     "time": "14.10"
+     "time": "14.10",
+     "replay": 1823,
+     "player": "Oogy749"
     },
     {
      "pos": 7,
      "entrant": "TejasIsAmazing",
-     "time": "14.56"
+     "time": "14.56",
+     "replay": 1825,
+     "player": "TejasIsAmazing"
     },
     {
      "pos": 8,
      "entrant": "NicoReborn",
-     "time": "15.52"
+     "time": "15.52",
+     "replay": 1819,
+     "player": "NicoReborn"
     },
     {
      "pos": 9,
      "entrant": "Gorgman",
-     "time": "16.39"
+     "time": "16.39",
+     "replay": 1816,
+     "player": "Gorgman"
     },
     {
      "pos": 10,
      "entrant": "febstone",
-     "time": "16.46"
+     "time": "16.46",
+     "replay": 1822,
+     "player": "Febstone"
     }
    ],
-   "checks": 1
+   "checks": 1,
+   "replaysChecked": true
   },
   "40": {
    "id": 250,
@@ -1980,45 +2694,62 @@
     {
      "pos": 1,
      "entrant": "Kristiano",
-     "time": "18.77"
+     "time": "18.77",
+     "replay": 1848,
+     "player": "Kristiano"
     },
     {
      "pos": 2,
      "entrant": "happytas",
-     "time": "19.79"
+     "time": "19.79",
+     "replay": 1846,
+     "player": "happytas"
     },
     {
      "pos": 3,
      "entrant": "Rio",
-     "time": "20.70"
+     "time": "20.70",
+     "replay": 1849,
+     "player": "Rio"
     },
     {
      "pos": 4,
      "entrant": "Sneak",
-     "time": "20.87"
+     "time": "20.87",
+     "replay": 1852,
+     "player": "Sneak"
     },
     {
      "pos": 5,
      "entrant": "Kim",
-     "time": "21.34"
+     "time": "21.34",
+     "replay": 1847,
+     "player": "Kim"
     },
     {
      "pos": 6,
      "entrant": "Bedeux",
-     "time": "21.73"
+     "time": "21.73",
+     "replay": 1851,
+     "player": "Bedeux"
     },
     {
      "pos": 7,
      "entrant": "Oogy749",
-     "time": "22.18"
+     "time": "22.18",
+     "replay": 1853,
+     "player": "Oogy749"
     },
     {
      "pos": 8,
      "entrant": "NicoReborn",
-     "time": "22.52"
+     "time": "22.52",
+     "replay": 1845,
+     "player": "NicoReborn"
     }
    ],
-   "checks": 1
+   "checks": 1,
+   "replaysChecked": true
   },
   "41": {
    "id": 255,
@@ -2027,55 +2758,76 @@
     {
      "pos": 1,
      "entrant": "MidnightEuphoria",
-     "time": "14.61"
+     "time": "14.61",
+     "replay": 1903,
+     "player": "Midnight"
     },
     {
      "pos": 2,
      "entrant": "Rio",
-     "time": "15.13"
+     "time": "15.13",
+     "replay": 1909,
+     "player": "Rio"
     },
     {
      "pos": 3,
      "entrant": "Sneak",
-     "time": "15.98"
+     "time": "15.98",
+     "replay": 1908,
+     "player": "Sneak"
     },
     {
      "pos": 4,
      "entrant": "Qwerter25c",
-     "time": "16.45"
+     "time": "16.45",
+     "replay": 1907,
+     "player": "Qwerter25c"
     },
     {
      "pos": 5,
      "entrant": "CA1EBYT",
-     "time": "16.84"
+     "time": "16.84",
+     "replay": 1900,
+     "player": "Caleb"
     },
     {
      "pos": 6,
      "entrant": "Thoman",
-     "time": "17.01"
+     "time": "17.01",
+     "replay": 1906,
+     "player": "Thoman"
     },
     {
      "pos": 7,
      "entrant": "Kim",
-     "time": "18.29"
+     "time": "18.29",
+     "replay": 1904,
+     "player": "Kim"
     },
     {
      "pos": 8,
      "entrant": "febstone",
-     "time": "18.48"
+     "time": "18.48",
+     "replay": 1899,
+     "player": "Febstone"
     },
     {
      "pos": 9,
      "entrant": "Gorgman",
-     "time": "19.87"
+     "time": "19.87",
+     "replay": 1901,
+     "player": "Gorgman"
     },
     {
      "pos": 10,
      "entrant": "NicoReborn",
-     "time": "23.54"
+     "time": "23.54",
+     "replay": 1898,
+     "player": "NicoReborn"
     }
    ],
-   "checks": 1
+   "checks": 1,
+   "replaysChecked": true
   },
   "42": {
    "id": 257,
@@ -2084,50 +2836,69 @@
     {
      "pos": 1,
      "entrant": "Rio",
-     "time": "17.25"
+     "time": "17.25",
+     "replay": 1931,
+     "player": "Rio"
     },
     {
      "pos": 2,
      "entrant": "Kristiano",
-     "time": "17.49"
+     "time": "17.49",
+     "replay": 1925,
+     "player": "Kristiano"
     },
     {
      "pos": 3,
      "entrant": "Kim",
-     "time": "17.66"
+     "time": "17.66",
+     "replay": 1929,
+     "player": "Kim"
     },
     {
      "pos": 4,
      "entrant": "Sneak",
-     "time": "17.94"
+     "time": "17.94",
+     "replay": 1934,
+     "player": "Sneak"
     },
     {
      "pos": 5,
      "entrant": "MidnightEuphoria",
-     "time": "18.13"
+     "time": "18.13",
+     "replay": 1932,
+     "player": "Midnight"
     },
     {
      "pos": 6,
      "entrant": "happytas",
-     "time": "18.17"
+     "time": "18.17",
+     "replay": 1928,
+     "player": "happytas"
     },
     {
      "pos": 7,
      "entrant": "Gorgman",
-     "time": "19.88"
+     "time": "19.88",
+     "replay": 1927,
+     "player": "Gorgman"
     },
     {
      "pos": 8,
      "entrant": "NicoReborn",
-     "time": "20.61"
+     "time": "20.61",
+     "replay": 1926,
+     "player": "NicoReborn"
     },
     {
      "pos": 9,
      "entrant": "Oogy749",
-     "time": "29.47"
+     "time": "29.47",
+     "replay": 1933,
+     "player": "Oogy749"
     }
    ],
-   "checks": 1
+   "checks": 1,
+   "replaysChecked": true
   },
   "43": {
    "id": 260,
@@ -2136,55 +2907,76 @@
     {
      "pos": 1,
      "entrant": "MidnightEuphoria",
-     "time": "13.31"
+     "time": "13.31",
+     "replay": 1980,
+     "player": "Midnight"
     },
     {
      "pos": 2,
      "entrant": "Rio",
-     "time": "14.66"
+     "time": "14.66",
+     "replay": 1988,
+     "player": "Rio"
     },
     {
      "pos": 3,
      "entrant": "Oogy749",
-     "time": "14.79"
+     "time": "14.79",
+     "replay": 1986,
+     "player": "Oogy749"
     },
     {
      "pos": 4,
      "entrant": "Gorgman",
-     "time": "15.42"
+     "time": "15.42",
+     "replay": 1977,
+     "player": "Gorgman"
     },
     {
      "pos": 5,
      "entrant": "happytas",
-     "time": "15.42"
+     "time": "15.42",
+     "replay": 1981,
+     "player": "happytas"
     },
     {
      "pos": 6,
      "entrant": "Kim",
-     "time": "16.14"
+     "time": "16.14",
+     "replay": 1983,
+     "player": "Kim"
     },
     {
      "pos": 7,
      "entrant": "Sneak",
-     "time": "16.17"
+     "time": "16.17",
+     "replay": 1989,
+     "player": "Sneak"
     },
     {
      "pos": 8,
      "entrant": "Thoman",
-     "time": "16.67"
+     "time": "16.67",
+     "replay": 1987,
+     "player": "Thoman"
     },
     {
      "pos": 9,
      "entrant": "NicoReborn",
-     "time": "17.85"
+     "time": "17.85",
+     "replay": 1979,
+     "player": "NicoReborn"
     },
     {
      "pos": 10,
      "entrant": "febstone",
-     "time": "19.84"
+     "time": "19.84",
+     "replay": 1990,
+     "player": "Febstone"
     }
    ],
-   "checks": 1
+   "checks": 1,
+   "replaysChecked": true
   },
   "44": {
    "id": 263,
@@ -2193,34 +2985,53 @@
     {
      "pos": 1,
      "entrant": "Rio",
-     "time": "20.43"
+     "time": "20.43",
+     "replay": 2004,
+     "player": "Rio"
     },
     {
      "pos": 2,
      "entrant": "Kim",
-     "time": "20.80"
+     "time": "20.80",
+     "replay": 2005,
+     "player": "Kim"
     },
     {
      "pos": 3,
      "entrant": "Sneak",
-     "time": "20.95"
+     "time": "20.95",
+     "replay": 2007,
+     "player": "Sneak"
     },
     {
      "pos": 4,
      "entrant": "MidnightEuphoria",
-     "time": "21.10"
+     "time": "21.10",
+     "replay": 2006,
+     "player": "Midnight"
     },
     {
      "pos": 5,
      "entrant": "Oogy749",
-     "time": "21.19"
+     "time": "21.19",
+     "replay": 2008,
+     "player": "Oogy749"
     },
     {
      "pos": 6,
      "entrant": "Gorgman",
-     "time": "22.47"
+     "time": "22.47",
+     "replay": 2009,
+     "player": "Gorgman"
     }
    ],
+   "checks": 1,
+   "replaysChecked": true
+  },
+  "45": {
+   "id": 265,
+   "title": "SpeedTAS Season2 #45 Finale",
+   "results": [],
    "checks": 1
   }
  },
@@ -2232,110 +3043,153 @@
     {
      "pos": 1,
      "entrant": "Thoman",
-     "time": "12.17"
+     "time": "12.17",
+     "replay": 1640,
+     "player": "Thoman"
     },
     {
      "pos": 2,
      "entrant": "SmithyTM",
-     "time": "12.20"
+     "time": "12.20",
+     "replay": 1649,
+     "player": "SmithyTM"
     },
     {
      "pos": 3,
      "entrant": "Glimse5678",
-     "time": "12.28"
+     "time": "12.28",
+     "replay": 1632,
+     "player": "Glimse5678"
     },
     {
      "pos": 4,
      "entrant": "rockskater89",
-     "time": "12.30"
+     "time": "12.30",
+     "replay": 1635,
+     "player": "rockskater89"
     },
     {
      "pos": 5,
      "entrant": "FrankTheHamster",
-     "time": "12.34"
+     "time": "12.34",
+     "replay": 1634,
+     "player": "FrankTheHamster"
     },
     {
      "pos": 6,
      "entrant": "lasyopp",
-     "time": "12.46"
+     "time": "12.46",
+     "replay": 1647,
+     "player": "lasyopp"
     },
     {
      "pos": 7,
      "entrant": "Elliott",
-     "time": "12.55"
+     "time": "12.55",
+     "replay": 1637,
+     "player": "Elliott"
     },
     {
      "pos": 8,
      "entrant": "vogtek",
-     "time": "12.70"
+     "time": "12.70",
+     "replay": 1646,
+     "player": "vogtek"
     },
     {
      "pos": 9,
      "entrant": "NewcastleBagel93",
-     "time": "12.77"
+     "time": "12.77",
+     "replay": 1648,
+     "player": "NewcastleBagel93"
     },
     {
      "pos": 10,
      "entrant": "Razzer",
-     "time": "12.78"
+     "time": "12.78",
+     "replay": 1641,
+     "player": "Razzer"
     },
     {
      "pos": 11,
      "entrant": "yhomas",
-     "time": "12.80"
+     "time": "12.80",
+     "replay": 1636,
+     "player": "yhomas"
     },
     {
      "pos": 12,
      "entrant": "QQ_kewkew",
-     "time": "12.80"
+     "time": "12.80",
+     "replay": 1651,
+     "player": "QQ_kewkew"
     },
     {
      "pos": 13,
      "entrant": "Magubv",
-     "time": "12.89"
+     "time": "12.89",
+     "replay": 1639,
+     "player": "Magubv"
     },
     {
      "pos": 14,
      "entrant": "Qwerter25c",
-     "time": "13.29"
+     "time": "13.29",
+     "replay": 1633,
+     "player": "Qwerter25c"
     },
     {
      "pos": 15,
      "entrant": "jakoblgn",
-     "time": "13.39"
+     "time": "13.39",
+     "replay": 1645,
+     "player": "jakoblgn"
     },
     {
      "pos": 16,
      "entrant": "Sneak",
-     "time": "13.50"
+     "time": "13.50",
+     "replay": 1650,
+     "player": "Sneak"
     },
     {
      "pos": 17,
      "entrant": "pena1g",
-     "time": "13.52"
+     "time": "13.52",
+     "replay": 1652,
+     "player": "pena1g"
     },
     {
      "pos": 18,
      "entrant": "NicoReborn",
-     "time": "14.01"
+     "time": "14.01",
+     "replay": 1642,
+     "player": "NicoReborn"
     },
     {
      "pos": 19,
      "entrant": "Jooff",
-     "time": "14.28"
+     "time": "14.28",
+     "replay": 1643,
+     "player": "Jooff"
     },
     {
      "pos": 20,
      "entrant": "jicbo",
-     "time": "14.94"
+     "time": "14.94",
+     "replay": 1638,
+     "player": "jicbo"
     },
     {
      "pos": 21,
      "entrant": "Dinoob",
-     "time": "48.21"
+     "time": "48.21",
+     "replay": 1644,
+     "player": "Dinoob"
     }
    ],
-   "checks": 1
+   "checks": 1,
+   "replaysChecked": true
   },
   "2": {
    "id": 240,
@@ -2344,65 +3198,90 @@
     {
      "pos": 1,
      "entrant": "Elliott",
-     "time": "15.98"
+     "time": "15.98",
+     "replay": 1796,
+     "player": "Elliott"
     },
     {
      "pos": 2,
      "entrant": "Glimse5678",
-     "time": "16.03"
+     "time": "16.03",
+     "replay": 1783,
+     "player": "Glimse5678"
     },
     {
      "pos": 3,
      "entrant": "yhomas",
-     "time": "16.05"
+     "time": "16.05",
+     "replay": 1787,
+     "player": "yhomas"
     },
     {
      "pos": 4,
      "entrant": "Thoman",
-     "time": "16.06"
+     "time": "16.06",
+     "replay": 1790,
+     "player": "Thoman"
     },
     {
      "pos": 5,
      "entrant": "Sneak",
-     "time": "16.08"
+     "time": "16.08",
+     "replay": 1792,
+     "player": "Sneak"
     },
     {
      "pos": 6,
      "entrant": "jicbo",
-     "time": "16.09"
+     "time": "16.09",
+     "replay": 1794,
+     "player": "jicbo"
     },
     {
      "pos": 7,
      "entrant": "QQ_kewkew",
-     "time": "16.20"
+     "time": "16.20",
+     "replay": 1791,
+     "player": "QQ_kewkew"
     },
     {
      "pos": 8,
      "entrant": "nyameless",
-     "time": "16.43"
+     "time": "16.43",
+     "replay": 1789,
+     "player": "nyameless"
     },
     {
      "pos": 9,
      "entrant": "MidnightEuphoria",
-     "time": "16.58"
+     "time": "16.58",
+     "replay": 1778,
+     "player": "MidnightEuphoria"
     },
     {
      "pos": 10,
      "entrant": "NewcastleBagel93",
-     "time": "16.60"
+     "time": "16.60",
+     "replay": 1776,
+     "player": "NewcastleBagel93"
     },
     {
      "pos": 11,
      "entrant": "Gorgman",
-     "time": "17.00"
+     "time": "17.00",
+     "replay": 1795,
+     "player": "Gorgman"
     },
     {
      "pos": 12,
      "entrant": "NicoReborn",
-     "time": "17.00"
+     "time": "17.00",
+     "replay": 1793,
+     "player": "NicoReborn"
     }
    ],
-   "checks": 1
+   "checks": 1,
+   "replaysChecked": true
   },
   "3": {
    "id": 251,
@@ -2411,80 +3290,110 @@
     {
      "pos": 1,
      "entrant": "Sneak",
-     "time": "16.91"
+     "time": "16.91",
+     "replay": 1874,
+     "player": "Sneak"
     },
     {
      "pos": 2,
      "entrant": "Kristiano",
-     "time": "16.93"
+     "time": "16.93",
+     "replay": 1883
     },
     {
      "pos": 3,
      "entrant": "pena1g",
-     "time": "17.14"
+     "time": "17.14",
+     "replay": 1875,
+     "player": "pena1g"
     },
     {
      "pos": 4,
      "entrant": "Thoman",
-     "time": "17.22"
+     "time": "17.22",
+     "replay": 1865,
+     "player": "Thoman"
     },
     {
      "pos": 5,
      "entrant": "QQ_kewkew",
-     "time": "17.42"
+     "time": "17.42",
+     "replay": 1877,
+     "player": "QQ_kewkew"
     },
     {
      "pos": 6,
      "entrant": "Glimse5678",
-     "time": "17.53"
+     "time": "17.53",
+     "replay": 1872,
+     "player": "Glimse5678"
     },
     {
      "pos": 7,
      "entrant": "rockskater89",
-     "time": "17.66"
+     "time": "17.66",
+     "replay": 1880,
+     "player": "rockskater89"
     },
     {
      "pos": 8,
      "entrant": "Elliott",
-     "time": "17.67"
+     "time": "17.67",
+     "replay": 1876,
+     "player": "Elliott"
     },
     {
      "pos": 9,
      "entrant": "yhomas",
-     "time": "17.68"
+     "time": "17.68",
+     "replay": 1870,
+     "player": "yhomas"
     },
     {
      "pos": 10,
      "entrant": "Magubv",
-     "time": "17.73"
+     "time": "17.73",
+     "replay": 1869,
+     "player": "Magubv"
     },
     {
      "pos": 11,
      "entrant": "jicbo",
-     "time": "18.08"
+     "time": "18.08",
+     "replay": 1882,
+     "player": "jicbo"
     },
     {
      "pos": 12,
      "entrant": "KunamiTM",
-     "time": "18.17"
+     "time": "18.17",
+     "replay": 1881,
+     "player": "KunamiTM"
     },
     {
      "pos": 13,
      "entrant": "EmilSPlayz",
-     "time": "18.37"
+     "time": "18.37",
+     "replay": 1873,
+     "player": "EmilSPlayz"
     },
     {
      "pos": 14,
      "entrant": "Gorgman",
-     "time": "18.74"
+     "time": "18.74",
+     "replay": 1879,
+     "player": "Gorgman"
     },
     {
      "pos": 15,
      "entrant": "NicoReborn",
-     "time": "19.42"
+     "time": "19.42",
+     "replay": 1878,
+     "player": "NicoReborn"
     }
    ],
-   "checks": 1
+   "checks": 1,
+   "replaysChecked": true
   },
   "4": {
    "id": 258,
@@ -2493,66 +3402,91 @@
     {
      "pos": 1,
      "entrant": "Sneak",
-     "time": "15.73"
+     "time": "15.73",
+     "replay": 1953,
+     "player": "Sneak"
     },
     {
      "pos": 2,
      "entrant": "Thoman",
-     "time": "15.88"
+     "time": "15.88",
+     "replay": 1947,
+     "player": "Thoman"
     },
     {
      "pos": 3,
      "entrant": "QQ_kewkew",
-     "time": "16.40"
+     "time": "16.40",
+     "replay": 1967,
+     "player": "QQ_kewkew"
     },
     {
      "pos": 4,
      "entrant": "Qwerter25c",
-     "time": "16.48"
+     "time": "16.48",
+     "replay": 1950,
+     "player": "Qwerter25c"
     },
     {
      "pos": 5,
      "entrant": "Razzer",
-     "time": "16.50"
+     "time": "16.50",
+     "replay": 1965,
+     "player": "Razzer"
     },
     {
      "pos": 6,
      "entrant": "rockskater89",
-     "time": "17.11"
+     "time": "17.11",
+     "replay": 1949,
+     "player": "rockskater89"
     },
     {
      "pos": 7,
      "entrant": "yhomas",
-     "time": "17.58"
+     "time": "17.58",
+     "replay": 1966,
+     "player": "yhomas"
     },
     {
      "pos": 8,
      "entrant": "NewcastleBagel93",
-     "time": "17.95"
+     "time": "17.95",
+     "replay": 1957,
+     "player": "NewcastleBagel93"
     },
     {
      "pos": 9,
      "entrant": "Glimse5678",
-     "time": "18.10"
+     "time": "18.10",
+     "replay": 1959,
+     "player": "Glimse5678"
     },
     {
      "pos": 10,
      "entrant": "Magubv",
-     "time": "18.13"
+     "time": "18.13",
+     "replay": 1960,
+     "player": "Magubv"
     },
     {
      "pos": 11,
      "entrant": "NicoReborn",
-     "time": "19.72"
+     "time": "19.72",
+     "replay": 1944,
+     "player": "NicoReborn"
     },
     {
      "pos": 12,
      "entrant": "jicbo",
-     "time": "21.76"
+     "time": "21.76",
+     "replay": 1968,
+     "player": "jicbo"
     }
    ],
-   "checks": 1
+   "checks": 1,
+   "replaysChecked": true
   }
  },
- "updatedAt": "2026-11-22T17:42:21.973Z"
+ "updatedAt": "2026-11-25T21:11:51.147Z"
 }
