@@ -1,5 +1,8 @@
 name: tmp compare extractor
-on: workflow_dispatch
+on:
+  push:
+    branches: [results-pipeline]
+    paths: ['.github/workflows/tmp-compare.yml']
 jobs:
   cmp:
     runs-on: ubuntu-latest
