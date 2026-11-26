@@ -379,7 +379,7 @@
 
     /* ============ RESULTS POST (copy into Discord) ============ */
     let EDITION_TIMES = {};
-    function resultsPostText(ed, seasonKey, data, clip = '') {
+    function resultsPostText(ed, seasonKey, data, clip = '', ping = false) {
       const entries = Object.entries(ed.results).sort((a, b) => a[1] - b[1]);
       const secs = Object.fromEntries(Object.entries(EDITION_TIMES).map(([n, en]) => [n, parseTimeSeconds(en.time)]));
       const best = Math.min(...Object.values(secs).filter(x => x != null));
@@ -407,6 +407,11 @@
       const mapLine = window.__editionMap;
       if (mapLine) lines.push('', mapLine);
       lines.push('', `🔗 Full results: ${location.origin}${location.pathname}${GAME === 'tm20' ? '#/tm20' : '#'}/edition/${seasonKey}/${encodeURIComponent(ed.edition)}`);
+      /* Discord mentions (<@id>) notify every racer with a known Discord ID; pasted by a person, they ping. */
+      if (ping) {
+        const ids = [...new Set(entries.map(([n]) => discordIdFor(n)).filter(Boolean))];
+        if (ids.length) lines.push('', `🔔 ${ids.map(id => `<@${id}>`).join(' ')}`);
+      }
       return lines.join('\n');
     }
     function openTextModal(title, text, hint) {
@@ -424,25 +429,31 @@
     /* Results post with an optional link to the winner's clip (Streamable, YouTube…), remembered per edition. */
     function openResultsPost(ed, seasonKey, data) {
       const key = `speedtas_clip_${GAME}_${seasonKey}_${ed.edition}`;
-      let clip = '';
-      try {clip = localStorage.getItem(key) || '';} catch (e) {}
-      openTextModal(`Edition #${ed.edition}`, resultsPostText(ed, seasonKey, data, clip), 'Results post for Discord');
+      let clip = '', ping = true;
+      try {clip = localStorage.getItem(key) || ''; ping = localStorage.getItem('speedtas_post_ping') !== '0';} catch (e) {}
+      openTextModal(`Edition #${ed.edition}`, resultsPostText(ed, seasonKey, data, clip, ping), 'Results post for Discord');
       const panel = document.querySelector('.inputs-overlay .inputs-body');
       if (!panel) return;
       const field = document.createElement('label');
       field.className = 'clip-field';
       field.innerHTML = `<span>Winner's clip</span><input type="url" inputmode="url" placeholder="https://streamable.com/…" value="${escapeHtml(clip)}">`;
       panel.insertBefore(field, panel.firstChild);
-      const input = field.querySelector('input'), pre = panel.querySelector('.post-text'), copy = panel.querySelector('[data-copy]');
-      let text = pre.textContent;
+      const pingBox = document.createElement('label');
+      pingBox.className = 'ping-field';
+      pingBox.innerHTML = `<input type="checkbox" ${ping ? 'checked' : ''}> <span>Ping racers <small>(adds a Discord mention for everyone in this edition)</small></span>`;
+      field.after(pingBox);
+      const input = field.querySelector('input'), pingInput = pingBox.querySelector('input'), pre = panel.querySelector('.post-text'), copy = panel.querySelector('[data-copy]');
+      let text = pre.textContent, url = clip;
+      const refresh = () => {text = resultsPostText(ed, seasonKey, data, url, pingInput.checked); pre.textContent = text; copy.textContent = 'Copy';};
       input.addEventListener('input', () => {
-        const url = input.value.trim(), ok = !url || /^https?:\/\/\S+$/i.test(url);
+        const v = input.value.trim(), ok = !v || /^https?:\/\/\S+$/i.test(v);
         input.classList.toggle('bad', !ok);
         if (!ok) return;
-        try {url ? localStorage.setItem(key, url) : localStorage.removeItem(key);} catch (e) {}
-        text = resultsPostText(ed, seasonKey, data, url);
-        pre.textContent = text; copy.textContent = 'Copy';
+        url = v;
+        try {v ? localStorage.setItem(key, v) : localStorage.removeItem(key);} catch (e) {}
+        refresh();
       });
+      pingInput.addEventListener('change', () => {try {localStorage.setItem('speedtas_post_ping', pingInput.checked ? '1' : '0');} catch (e) {} refresh();});
       // Copy always takes the latest text, clip included.
       const fresh = copy.cloneNode(true); copy.replaceWith(fresh);
       fresh.addEventListener('click', () => navigator.clipboard.writeText(text).then(() => {fresh.textContent = 'Copied';}, () => {fresh.textContent = 'Copy failed';}));
