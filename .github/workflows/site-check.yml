@@ -1,0 +1,42 @@
+name: Site check
+
+# Runs on every push that changes the website or its scripts. A failed run shows a red ✗ on the commit
+# and GitHub emails the person who pushed. Outside services are blocked during the check (no extra load on them).
+on:
+  push:
+    branches: [main]
+    paths: ['index.html', 'assets/**', 'scripts/**', 'data/*.json', '.github/workflows/site-check.yml']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: site-check-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Scripts parse
+        run: for f in assets/js/*.js scripts/*.mjs; do node --check "$f"; done
+      - name: Asset versions are up to date
+        # fails if assets/ changed without running: node scripts/stamp-assets.mjs
+        run: |
+          node scripts/stamp-assets.mjs
+          git diff --exit-code index.html || (echo "::error::Run node scripts/stamp-assets.mjs and commit index.html" && exit 1)
+      - name: Data parsers self-test
+        run: node scripts/update-data.mjs --selftest
+      - name: Install browser
+        run: |
+          npm install --no-save --no-package-lock --silent playwright@1
+          npx playwright install --with-deps chromium
+      - name: Every page on desktop and phone
+        run: node scripts/site-check.mjs

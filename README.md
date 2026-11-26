@@ -14,6 +14,7 @@ Live at https://kristiano55.github.io/SpeedTAS-Testing/ (GitHub Pages, plain HTM
 | `scripts/update-data.mjs` | The data Action: Google Sheets, TAS Exchange, TMX, YouTube, Discord avatars |
 | `scripts/og-image.mjs` | Draws `data/og/standings.png` (top 10) for Discord/X link previews |
 | `scripts/stamp-assets.mjs` | Adds `?v=<hash>` to every asset link in `index.html` |
+| `scripts/site-check.mjs` | Opens every page on desktop and phone and fails on errors (run on every push by `site-check.yml`) |
 
 ## Editing
 
@@ -21,5 +22,7 @@ Live at https://kristiano55.github.io/SpeedTAS-Testing/ (GitHub Pages, plain HTM
   (the data Action also runs it).
 - The script files run in order. Code that runs immediately at load must only use things from the same or an
   earlier file; inside functions and event handlers anything can be used.
+- Every push runs the Site check workflow; a red ✗ on the commit means something broke (GitHub emails you).
+  Run it by hand: `npm install --no-save playwright && npx playwright install chromium && node scripts/site-check.mjs`
 - The data Action (`.github/workflows/update-data.yml`) runs on Saturday and Sunday after each edition, or by hand
   from the Actions tab ("Run workflow").
