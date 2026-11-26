@@ -41,6 +41,8 @@ jobs:
         run: |
           npm install --no-save --no-package-lock --silent @resvg/resvg-js@2
           node scripts/og-image.mjs
+      - name: Stamp asset versions
+        run: node scripts/stamp-assets.mjs
       - name: Commit changed data
         run: |
           git config user.name "speedtas-bot"
