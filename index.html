@@ -135,6 +135,28 @@
       .search-wrap input { padding-right: 10px; }
       .nav-row { gap: 8px; }
     }
+    /* Phones: one compact row (logo, game, refresh, menu). The menu button opens search + all pages. */
+    .menu-btn { display: none; }
+    .menu-btn .ic-close { display: none; }
+    @media (max-width: 700px) {
+      .site-header { padding: 8px var(--gutter); gap: 8px; }
+      .logo { font-size: 21px; }
+      .nav-row { display: contents; }
+      .game-switch { order: 2; }
+      .tools { order: 3; margin-left: auto; }
+      .menu-btn { display: inline-grid; }
+      .search-wrap { order: 4; flex: 1 1 100%; max-width: none; margin: 4px 0 0; display: none; }
+      #nav { order: 5; flex: 1 1 100%; display: none; grid-template-columns: 1fr 1fr; gap: 6px; padding: 4px 0 6px; overflow: visible; }
+      #nav a { min-height: 46px; padding: 0 14px; font-size: 16px; background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-sm); }
+      #nav a::after { left: 0; right: auto; top: 8px; bottom: 8px; width: 3px; height: auto; transform: scaleY(0); }
+      #nav a.active { background: var(--card); border-color: var(--border-strong); }
+      #nav a.active::after { transform: scaleY(1); }
+      body.menu-open .search-wrap { display: block; }
+      body.menu-open #nav { display: grid; }
+      body.menu-open .menu-btn { color: var(--accent); border-color: var(--border-strong); }
+      body.menu-open .menu-btn .ic-open { display: none; }
+      body.menu-open .menu-btn .ic-close { display: block; }
+    }
 
     /* ============ LAYOUT ============ */
     main { position: relative; z-index: 1; flex: 1; width: 100%; max-width: 1240px; margin: 0 auto; padding: 34px var(--gutter) 72px; }
@@ -662,6 +684,10 @@
       <button class="icon-btn" id="refreshBtn" type="button" title="Refresh data" aria-label="Refresh data">
         <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13.5 8a5.5 5.5 0 1 1-1.7-4"/><path d="M13.6 2.2v3.2h-3.2"/></svg>
       </button>
+      <button class="icon-btn menu-btn" id="menuBtn" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="nav">
+        <svg class="ic-open" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M2.5 4h11M2.5 8h11M2.5 12h11"/></svg>
+        <svg class="ic-close" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M3.5 3.5l9 9M12.5 3.5l-9 9"/></svg>
+      </button>
       <a href="https://discord.gg/CCPP9FRHdx" target="_blank" rel="noopener" class="icon-btn discord" title="Join our Discord" aria-label="Join our Discord (opens in a new tab)">
         <svg viewBox="0 0 127.14 96.36" aria-hidden="true" fill="currentColor"><path d="M107.7 8.07A105.15 105.15 0 0 0 81.47 0a72.06 72.06 0 0 0-3.36 6.83 97.68 97.68 0 0 0-29 0A72.37 72.37 0 0 0 45.74 0a105.89 105.89 0 0 0-26.25 8.09C2.79 33.1-1.73 57.5.53 81.57a105.73 105.73 0 0 0 32.17 16.29 77.7 77.7 0 0 0 6.89-11.14 68.42 68.42 0 0 1-10.85-5.18c.91-.67 1.79-1.36 2.64-2.06 20.91 9.76 43.63 9.76 64.29 0 .86.7 1.74 1.39 2.64 2.06a68.68 68.68 0 0 1-10.87 5.19 77 77 0 0 0 6.89 11.13 105.25 105.25 0 0 0 32.19-16.29c2.65-27.92-4.52-52.1-18.82-73.5ZM42.45 66.89c-6.3 0-11.48-5.78-11.48-12.88s5.06-12.89 11.48-12.89 11.6 5.78 11.48 12.89c0 7.1-5.06 12.88-11.48 12.88Zm42.24 0c-6.3 0-11.48-5.78-11.48-12.88s5.06-12.89 11.48-12.89 11.6 5.78 11.48 12.89c0 7.1-5.06 12.88-11.48 12.88Z"/></svg>
       </a>
@@ -726,6 +752,11 @@
     const EDITION_HOUR_LISBON = 18;
     const curKey = () => GAME === 'tm20' ? 's2' : CURRENT_TMNF_SEASON; // TM2020 keeps its existing #/tm20/.../s2/... links
     const isSeasonKey = k => k === 's1' || k === 's2' || k === 's3';
+    /* Off-season: until the current TMNF season has its first result, pages open on the
+       previous season (Season 2) instead of an empty one. Switches back automatically. */
+    const ARCHIVE_DEFAULT = 's2';
+    const isOffSeason = () => GAME === 'tmnf' && !!RAW && !RAW.editions.length;
+    const viewKey = () => isOffSeason() ? ARCHIVE_DEFAULT : curKey();
     const S2L = () => GAME === 'tm20' ? 'TM2020' : SEASON_INFO[CURRENT_TMNF_SEASON].label; // label of the "current" data set
     function labelFor(key) {
       if (key === curKey()) return S2L();
@@ -1125,7 +1156,7 @@
         return out;
       });
     }
-    function renderMaps(seasonKey = curKey()) {
+    function renderMaps(seasonKey = viewKey()) {
       setSeasonTheme(seasonKey);
       main.innerHTML = `<div class="loader"><div class="spinner"></div> Loading maps…</div>`;
       loadSeasonData(seasonKey).then(data => Promise.all([repoMaps(), winnerTimes(seasonKey, data)]).then(([all, wins]) => {
@@ -2142,12 +2173,24 @@
     window.addEventListener('hashchange', () => window.scrollTo(0, 0));
 
     /* ============ RENDER: HOME ============ */
+    let HOME_ARCHIVE = null, HOME_ARCHIVE_FAILED = false;
     function renderHome() {
-      const {players, editionOrder, ranked} = computeAll(RAW);
-      const totalEditions = RAW.editions.length;
+      if (isOffSeason() && !HOME_ARCHIVE && !HOME_ARCHIVE_FAILED) {
+        main.innerHTML = `<div class="loader"><div class="spinner"></div> Loading ${escapeHtml(SEASON_INFO[ARCHIVE_DEFAULT].label)} final standings…</div>`;
+        const done = () => {if (GAME === 'tmnf' && currentRoute().length === 0) renderHome();};
+        loadSeasonData(ARCHIVE_DEFAULT).then(d => {HOME_ARCHIVE = d;}).catch(err => {console.warn('Off-season archive unavailable; showing the empty current season.', err); HOME_ARCHIVE_FAILED = true;}).then(done);
+        return;
+      }
+      const archive = isOffSeason() ? HOME_ARCHIVE : null; // Season 2 data while Season 3 has no results
+      const D = archive || RAW;
+      const homeKey = archive ? ARCHIVE_DEFAULT : curKey();
+      const sk = archive ? ARCHIVE_DEFAULT + '/' : ''; // season prefix for player/edition links
+      setSeasonTheme(archive ? ARCHIVE_DEFAULT : null);
+      const {players, editionOrder, ranked} = computeAll(D);
+      const totalEditions = D.editions.length;
       const totalPlayers = ranked.length;
       const totalPodiums = ranked.reduce((a, p) => a + p.podiums, 0);
-      const avgParticipants = totalEditions ? (RAW.editions.reduce((a, e) => a + Object.keys(e.results).length, 0) / totalEditions).toFixed(1) : 0;
+      const avgParticipants = totalEditions ? (D.editions.reduce((a, e) => a + Object.keys(e.results).length, 0) / totalEditions).toFixed(1) : 0;
       const leader = ranked[0];
       /* Closest battle: only players on 10+ points qualify, so the bottom of the
          table can't produce meaningless 0 vs 0 "battles". ranked is sorted by points,
@@ -2159,17 +2202,17 @@
         const gap = battleField[i].points - battleField[i + 1].points;
         if (closestGap === null || gap < closestGap) {closestGap = gap; closestPair = [battleField[i], battleField[i + 1]];}
       }
-      const latestEdition = RAW.editions[RAW.editions.length - 1];
+      const latestEdition = D.editions[D.editions.length - 1];
       const latestEntries = latestEdition ? Object.entries(latestEdition.results).sort((a, b) => a[1] - b[1]) : [];
       const latestWinner = latestEntries.find(([, place]) => place === 1)?.[0] || '—';
       const latestPodium = latestEntries.filter(([, place]) => place <= 3);
-      const beforeLatest = new Set(RAW.editions.slice(0, -1).flatMap(ed => Object.keys(ed.results)));
+      const beforeLatest = new Set(D.editions.slice(0, -1).flatMap(ed => Object.keys(ed.results)));
       const debutants = latestEntries.filter(([name]) => !beforeLatest.has(name)).map(([name]) => name);
       const climber = [...ranked].filter(p => p.movement > 0).sort((a, b) => b.movement - a.movement)[0];
 
-      const filteredEditions = leaderboardFilter === 'all' ? RAW.editions :
-        RAW.editions.slice(-parseInt(leaderboardFilter));
-      const filteredData = {editions: filteredEditions, players: RAW.players, bestOf: RAW.bestOf};
+      const filteredEditions = leaderboardFilter === 'all' ? D.editions :
+        D.editions.slice(-parseInt(leaderboardFilter));
+      const filteredData = {editions: filteredEditions, players: D.players, bestOf: D.bestOf};
       const filteredComputed = leaderboardFilter === 'all' ? {players, ranked} : computeAll(filteredData);
       const board = leaderboardFilter === 'all' ? ranked : filteredComputed.ranked;
 
@@ -2180,33 +2223,35 @@
       const boardTop = board.length ? Math.max(...board.map(p => p.points)) : 0;
       const runnerUp = ranked[1];
       const gameName = GAME === 'tm20' ? 'Trackmania 2020' : 'Trackmania Nations Forever';
-      const playerLink = n => `<a href="#/player/${enc(n)}">${E(n)}</a>`;
+      const playerLink = n => `<a href="#/player/${sk}${enc(n)}">${E(n)}</a>`;
       const notes = [
-        leader ? `<div class="note"><div><div class="panel-label">Championship leader</div><div class="note-title">${playerLink(leader.name)}</div></div><div class="note-fig">${leader.points} pts</div><div class="note-detail">${runnerUp ? (leader.points - runnerUp.points) + ' pt lead over ' + E(runnerUp.name) : 'No challenger yet'} · ${plural(leader.wins, 'win')}</div></div>` : '',
-        `<div class="note"><div><div class="panel-label">Closest battle</div><div class="note-title">${closestPair ? `<a href="#/versus/${curKey()}/${enc(closestPair[0].name)}/${enc(closestPair[1].name)}">${E(closestPair[0].name)} vs ${E(closestPair[1].name)}</a>` : 'Not yet'}</div></div><div class="note-fig">${closestPair ? closestGap + ' pt gap' : ''}</div><div class="note-detail">${closestPair ? 'P' + closestPair[0].rank + ' against P' + closestPair[1].rank + ' in the standings' : 'Needs two players on ' + CLOSEST_MIN_POINTS + '+ points'}</div></div>`,
+        leader ? `<div class="note"><div><div class="panel-label">${archive ? E(SEASON_INFO[ARCHIVE_DEFAULT].label) + ' champion' : 'Championship leader'}</div><div class="note-title">${playerLink(leader.name)}</div></div><div class="note-fig">${leader.points} pts</div><div class="note-detail">${runnerUp ? (leader.points - runnerUp.points) + ' pt lead over ' + E(runnerUp.name) : 'No challenger yet'} · ${plural(leader.wins, 'win')}</div></div>` : '',
+        `<div class="note"><div><div class="panel-label">Closest battle</div><div class="note-title">${closestPair ? `<a href="#/versus/${homeKey}/${enc(closestPair[0].name)}/${enc(closestPair[1].name)}">${E(closestPair[0].name)} vs ${E(closestPair[1].name)}</a>` : 'Not yet'}</div></div><div class="note-fig">${closestPair ? closestGap + ' pt gap' : ''}</div><div class="note-detail">${closestPair ? 'P' + closestPair[0].rank + ' against P' + closestPair[1].rank + ' in the standings' : 'Needs two players on ' + CLOSEST_MIN_POINTS + '+ points'}</div></div>`,
         `<div class="note"><div><div class="panel-label">Biggest climber</div><div class="note-title">${climber ? playerLink(climber.name) : 'No movement yet'}</div></div><div class="note-fig up">${climber ? '▲ ' + climber.movement : ''}</div><div class="note-detail">${climber ? plural(climber.movement, 'place') + ' gained after Edition ' + E(latestEdition?.edition || '—') : 'Rank shifts appear after another edition'}</div></div>`,
         `<div class="note"><div><div class="panel-label">First-timers</div><div class="note-title">${debutants.length ? debutants.map(E).join(', ') : (latestEdition ? 'No debuts' : 'Not yet')}</div></div><div class="note-avs">${debutants.slice(0, 4).map(name => avatarHTML(name, 26)).join('')}</div><div class="note-detail">${debutants.length ? 'Welcome to the SpeedTAS grid' : (latestEdition ? 'Every racer in the latest edition had competed before' : 'New names show up here after each edition')}</div></div>`
       ].join('');
       const info = GAME === 'tmnf' ? SEASON_INFO[CURRENT_TMNF_SEASON] : null;
       const next = GAME === 'tmnf' ? nextEditionLisbon() : null;
-      const preSeason = info && !totalEditions;
-      const bestOfNote = info && info.bestOf ? `Only each player's best ${info.bestOf} of ${info.editions} results count.` : '';
+      const preSeason = info && !RAW.editions.length;
+      const bestOfNote = !archive && info && info.bestOf ? `Only each player's best ${info.bestOf} of ${info.editions} results count.` : '';
       main.innerHTML = `
     <header class="page-head">
-      <div class="kicker">${gameName} · ${info && info.editions ? `${totalEditions} of ${info.editions} editions run` : plural(totalEditions, 'edition') + ' run'}</div>
+      ${archive ? `<div class="kicker">${gameName} · Off-season · ${E(info.label)} starts ${E(fmtLisbonDay(info.start))}</div>
+      <h1>${E(SEASON_INFO[ARCHIVE_DEFAULT].label)} <em>final standings</em></h1>
+      <p>One hour to TAS a map, fastest run wins. ${E(info.label)} is coming soon. Until then, here's how ${E(SEASON_INFO[ARCHIVE_DEFAULT].label)} finished after ${plural(totalEditions, 'edition')}.</p>` : `<div class="kicker">${gameName} · ${info && info.editions ? `${totalEditions} of ${info.editions} editions run` : plural(totalEditions, 'edition') + ' run'}</div>
       <h1>${E(S2L())} <em>standings</em></h1>
-      <p>One hour to TAS a map, fastest run wins. Live championship standings, the latest result and every battle worth watching.${bestOfNote ? ' ' + E(bestOfNote) : ''}</p>
+      <p>One hour to TAS a map, fastest run wins. Live championship standings, the latest result and every battle worth watching.${bestOfNote ? ' ' + E(bestOfNote) : ''}</p>`}
     </header>
-    ${GAME === 'tmnf' ? honorsHTML(CURRENT_TMNF_SEASON, seasonOutcome(CURRENT_TMNF_SEASON, RAW)) : ''}
+    ${GAME === 'tmnf' ? honorsHTML(homeKey, seasonOutcome(homeKey, D)) : ''}
 
     <div class="home-grid">
       <article class="panel latest" aria-label="Latest edition result">
         <div class="latest-head">
-          <div><div class="panel-label">Latest result</div><h2>${latestEdition ? 'Edition ' + E(latestEdition.edition) : (preSeason && info.start ? `${E(info.label)} starts ${E(fmtLisbonDay(info.start))}` : 'Waiting for the first result')}</h2>${preSeason ? `<p class="latest-sub">The opening edition's podium appears here right after the race.</p>` : ''}</div>
-          ${latestEdition ? `<a class="btn" href="#/edition/${enc(latestEdition.edition)}">Full results →</a>` : ''}
+          <div><div class="panel-label">${archive ? E(SEASON_INFO[ARCHIVE_DEFAULT].label) + ' finale' : 'Latest result'}</div><h2>${latestEdition ? 'Edition ' + E(latestEdition.edition) : (preSeason && info.start ? `${E(info.label)} starts ${E(fmtLisbonDay(info.start))}` : 'Waiting for the first result')}</h2>${preSeason && !archive ? `<p class="latest-sub">The opening edition's podium appears here right after the race.</p>` : ''}</div>
+          ${latestEdition ? `<a class="btn" href="#/edition/${sk}${enc(latestEdition.edition)}">Full results →</a>` : ''}
         </div>
-        ${latestEntries.length > 3 ? `<ol class="latest-rest" aria-label="Other finishers">${latestEntries.filter(([, place]) => place > 3).slice(0, 7).map(([n, place]) => `<li><a href="#/player/${enc(n)}"><span class="num">P${place}</span>${E(n)}</a></li>`).join('')}${latestEntries.length > 10 ? `<li class="more">+${latestEntries.length - 10} more</li>` : ''}</ol>` : ''}
-        ${podiumHTML(latestPodium)}
+        ${latestEntries.length > 3 ? `<ol class="latest-rest" aria-label="Other finishers">${latestEntries.filter(([, place]) => place > 3).slice(0, 7).map(([n, place]) => `<li><a href="#/player/${sk}${enc(n)}"><span class="num">P${place}</span>${E(n)}</a></li>`).join('')}${latestEntries.length > 10 ? `<li class="more">+${latestEntries.length - 10} more</li>` : ''}</ol>` : ''}
+        ${podiumHTML(latestPodium, `#/player/${sk}`)}
       </article>
       <aside class="home-side">
         ${GAME === 'tm20' ? '' : `<div class="panel next-up" aria-label="Next edition">
@@ -2228,7 +2273,7 @@
 
     <section>
       <div class="head-row">
-        <h2 class="section-title">Championship table</h2>${info && info.bestOf ? `<span class="head-note">Best ${info.bestOf} of ${info.editions} count · dropped results are faded</span>` : ''}
+        <h2 class="section-title">${archive ? 'Final table' : 'Championship table'}</h2>${!archive && info && info.bestOf ? `<span class="head-note">Best ${info.bestOf} of ${info.editions} count · dropped results are faded</span>` : ''}
         <div class="toolbar-group">
           <div class="seg" role="group" aria-label="Leaderboard range">
             <button type="button" class="filter-btn ${leaderboardFilter === 'all' ? 'active' : ''}" data-filter="all" aria-pressed="${leaderboardFilter === 'all'}">All editions</button>
@@ -2259,7 +2304,7 @@
                 <tr class="${p.rank <= 3 ? 'p' + p.rank : ''}">
                   <td class="rank-cell">${p.rank}</td>
                   <td class="col-move">${moveIcon(p.movement || 0)}</td>
-                  <td><a href="#/player/${enc(p.name)}"><div class="player-cell">${avatarHTML(p.name)}<b>${E(p.name)}</b><span class="move-inline">${moveIcon(p.movement || 0)}</span></div></a></td>
+                  <td><a href="#/player/${sk}${enc(p.name)}"><div class="player-cell">${avatarHTML(p.name)}<b>${E(p.name)}</b><span class="move-inline">${moveIcon(p.movement || 0)}</span></div></a></td>
                   <td class="col-form"><span class="form">${p.history.slice(-5).map(h => formChip(h.placement, 'Edition ' + h.edition + ': P' + h.placement + (h.dropped ? ' (dropped)' : ''), null, h.dropped)).join('')}</span></td>
                   <td class="numc r">${p.wins}</td>
                   <td class="numc r">${p.podiums}</td>
@@ -2288,7 +2333,7 @@
         b.addEventListener('click', () => {leaderboardFilter = b.dataset.filter; renderHome();});
       });
       document.getElementById('exportCsv').addEventListener('click', () => exportLeaderboardCSV(sorted));
-      if (GAME === 'tmnf') bindHonors(CURRENT_TMNF_SEASON, RAW);
+      if (GAME === 'tmnf') bindHonors(homeKey, D);
 
       startCountdown();
       renderProgressChart(players, editionOrder, ranked);
@@ -2440,7 +2485,7 @@
     }
 
     /* ============ RENDER: PLAYERS DIRECTORY ============ */
-    function renderPlayers(seasonKey = curKey(), seasonData = null) {
+    function renderPlayers(seasonKey = viewKey(), seasonData = null) {
       setSeasonTheme(seasonKey);
       if (seasonKey !== curKey() && !seasonData) {
         main.innerHTML = `<div class="loader"><div class="spinner"></div> Loading player directory…</div>`;
@@ -2478,7 +2523,7 @@
       const found = Object.values(computed.players).find(p => playerKey(p.name) === key || oneLetterApart(playerKey(p.name), key));
       return {player: found, computed};
     }
-    function renderPlayerProfileEnhanced(name, seasonKey = curKey(), seasonData = null) {
+    function renderPlayerProfileEnhanced(name, seasonKey = viewKey(), seasonData = null) {
       setSeasonTheme(seasonKey);
       let decoded = name;
       try {decoded = decodeURIComponent(name);} catch (e) {}
@@ -2567,7 +2612,7 @@
     }
 
     /* ============ RENDER: HISTORY ============ */
-    function renderHistory(seasonKey = curKey()) {
+    function renderHistory(seasonKey = viewKey()) {
       setSeasonTheme(seasonKey);
       main.innerHTML = `<div class="loader"><div class="spinner"></div> Loading ${escapeHtml(labelFor(seasonKey))} editions…</div>`;
       loadSeasonData(seasonKey).then(data => {
@@ -2678,7 +2723,7 @@
       return {players, editions: list.flatMap(([key, data]) => convert(data, `${SEASON_INFO[key].short} ·`))};
     }
 
-    function renderVersus(p1name, p2name, seasonKey = curKey(), suppliedData = null) {
+    function renderVersus(p1name, p2name, seasonKey = viewKey(), suppliedData = null) {
       setSeasonTheme(seasonKey);
       if (seasonKey !== curKey() && !suppliedData) {
         main.innerHTML = `<div class="loader"><div class="spinner"></div> Loading ${escapeHtml(labelFor(seasonKey))} Head-to-Head…</div>`;
@@ -2856,7 +2901,7 @@
       return `<div class="record-card shared">${head}${value}<div class="record-shared">Shared by ${holders.length} players</div><div class="record-holders">${chips}${more}</div><div class="record-note">${E(record.note)}</div></div>`;
     }
 
-    function renderRecords(season = curKey()) {
+    function renderRecords(season = viewKey()) {
       setSeasonTheme(season);
       main.innerHTML = `
     <header class="page-head"><div class="kicker">The record book</div><h1>Season <em>records</em></h1><p>Who leads for wins, streaks, consistency and more.</p></header>
@@ -2917,7 +2962,7 @@
       </article>`;
     }
 
-    function renderRivalries(season = curKey(), minShared = 3, selectedPlayer = '') {
+    function renderRivalries(season = viewKey(), minShared = 3, selectedPlayer = '') {
       setSeasonTheme(season);
       main.innerHTML = `
     <header class="page-head"><div class="kicker">Repeat matchups</div><h1>Rival<em>ries</em></h1><p>Pairs who keep meeting on track, ranked by how evenly matched they are.</p></header>
@@ -3186,7 +3231,19 @@
       }).sort((x, y) => y.total - x.total || y.played - x.played);
     }
     /* Wrapper keeps the nav's aria-current in step with its .active class after every route render */
+    /* Phone menu: opens search + every page; closes on navigation, Escape or a tap outside. */
+    const menuBtn = document.getElementById('menuBtn');
+    function setMenu(open) {
+      document.body.classList.toggle('menu-open', open);
+      menuBtn.setAttribute('aria-expanded', String(open));
+      menuBtn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+    }
+    menuBtn.addEventListener('click', () => setMenu(!document.body.classList.contains('menu-open')));
+    document.querySelectorAll('#nav a, #gameSwitch a').forEach(a => a.addEventListener('click', () => setMenu(false)));
+    document.addEventListener('keydown', e => {if (e.key === 'Escape' && document.body.classList.contains('menu-open')) {setMenu(false); menuBtn.focus();}});
+    document.addEventListener('click', e => {if (document.body.classList.contains('menu-open') && !e.target.closest('.site-header')) setMenu(false);});
     function render() {
+      setMenu(false);
       renderRoute();
       document.querySelectorAll('#nav a').forEach(a => {
         if (a.classList.contains('active')) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
