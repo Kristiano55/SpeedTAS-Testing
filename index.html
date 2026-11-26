@@ -193,6 +193,18 @@
       .title-calc .tr-nums { order: 4; }
     }
 
+    .panel.edition-video { padding: 0; overflow: hidden; margin-bottom: 16px; }
+    .video-poster { position: relative; display: block; width: 100%; aspect-ratio: 16 / 9; max-height: 520px; padding: 0; border: 0; background: #000; cursor: pointer; }
+    .video-poster img { width: 100%; height: 100%; object-fit: cover; opacity: .82; transition: opacity .2s; }
+    .video-poster:hover img, .video-poster:focus-visible img { opacity: 1; }
+    .video-play { position: absolute; left: 50%; top: 50%; width: 74px; height: 52px; transform: translate(-50%, -50%); border-radius: 14px; background: rgba(10,11,13,.82); border: 1px solid var(--border-strong); }
+    .video-play::after { content: ''; position: absolute; left: 30px; top: 15px; border-style: solid; border-width: 11px 0 11px 18px; border-color: transparent transparent transparent var(--accent); }
+    .video-poster:hover .video-play { background: var(--accent); }
+    .video-poster:hover .video-play::after { border-left-color: var(--on-accent); }
+    .video-title { position: absolute; left: 0; right: 0; bottom: 0; padding: 28px 18px 14px; text-align: left; font-weight: 600; color: #fff; background: linear-gradient(transparent, rgba(0,0,0,.75)); }
+    .video-frame { position: relative; aspect-ratio: 16 / 9; max-height: 520px; }
+    .video-frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+
     /* ============ LAYOUT ============ */
     main { position: relative; z-index: 1; flex: 1; width: 100%; max-width: 1240px; margin: 0 auto; padding: 34px var(--gutter) 72px; }
     main > * { animation: pageIn .28s ease both; }
@@ -1188,6 +1200,26 @@
       if (!prog) return '';
       const label = prog.equal ? 'Equal to the all-time TAS record' : prog.beat ? 'Faster than the all-time TAS record' : `${prog.pct.toFixed(0)}% of the way from author time to the TAS record`;
       return `<div class="rec-progress" title="0% = author time, 100% = the all-time TAS record on TAS Exchange"><div class="rec-bar"><span style="width:${prog.pct.toFixed(1)}%"></span></div><small>${label}</small></div>`;
+    }
+    /* ============ EDITION VIDEO ============
+       data/videos.json (GitHub Action) links each edition to its YouTube upload. The player only loads when
+       someone presses play, so an edition page doesn't pull in YouTube for nothing. */
+    let VIDEOS_PROMISE = null;
+    const repoVideos = () => VIDEOS_PROMISE || (VIDEOS_PROMISE = fetch('data/videos.json', {cache: 'no-cache'}).then(r => r.ok ? r.json() : {}).catch(() => ({})));
+    function fillEditionVideo(seasonKey, edition) {
+      repoVideos().then(all => {
+        const el = document.getElementById('editionVideo');
+        const id = ((all.editions || {})[GAME === 'tm20' ? 'tm20' : seasonKey] || {})[String(edition)];
+        if (!el || !id || !/^[\w-]{6,20}$/.test(id)) return;
+        const title = ((all.videos || {})[id] || {}).title || `Edition ${edition} on YouTube`;
+        el.innerHTML = `<button type="button" class="video-poster" aria-label="Play the video: ${escapeHtml(title)}">
+          <img src="https://i.ytimg.com/vi/${id}/hqdefault.jpg" alt="" loading="lazy"><span class="video-play" aria-hidden="true"></span>
+          <span class="video-title">${escapeHtml(title)}</span></button>`;
+        el.hidden = false;
+        el.querySelector('.video-poster').addEventListener('click', () => {
+          el.innerHTML = `<div class="video-frame"><iframe src="https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0" title="${escapeHtml(title)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>`;
+        });
+      });
     }
     function fillMapCard(seasonKey, edition, winnerSecs) {
       const card = document.getElementById('mapCard');
@@ -2882,6 +2914,7 @@
       </div>
     </div>
     <div class="panel race-podium">${podiumHTML(entries, `#/player/${seasonKey}/`)}</div>
+    <div class="panel edition-video" id="editionVideo" hidden></div>
     <div class="panel map-card" id="mapCard" hidden></div>
     <div class="panel flush">
       <div class="results-head"><b>Full classification</b><span class="head-note">${ed.auto ? '<span class="auto-tag" title="The sheet has no row for this edition yet, so the placements follow the times on TAS Exchange. The sheet takes over once it is filled in.">Auto-imported from TAS Exchange</span>' : 'Points by placement'}</span></div>
@@ -2905,6 +2938,7 @@
   `;
       EDITION_TIMES = {}; window.__editionMap = '';
       fillMapCard(seasonKey, ed.edition, null);
+      fillEditionVideo(seasonKey, ed.edition);
       document.getElementById('resultsPost').addEventListener('click', () => openResultsPost(ed, seasonKey, data));
       attachEditionEvent(ed, seasonKey);
     }

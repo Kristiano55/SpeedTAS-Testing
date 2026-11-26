@@ -455,6 +455,70 @@ async function updateAvatars(previous) {
   return { players, avatars, calls };
 }
 
+/* ============ YOUTUBE VIDEOS ============ */
+/* data/videos.json: {videos: {videoId: {title, published}}, editions: {s2: {"26": videoId}, tm20: {...}}, manual: {...}}
+   Every run reads the channel's feed (newest 15) and, best effort, the channel's video list (older uploads), and keeps
+   everything it has ever seen. "manual" is for pinning a video by hand when a title can't be read: it always wins. */
+const YT_CHANNEL = 'UCSLm9iD-GUV_HhMEc1ee3tA';
+const SEASON3_START = '2027-02-06';
+export function videoEdition(title, published) {
+  const t = String(title);
+  const ed = (t.match(/#\s*0*(\d+)/) || t.match(/\b(?:edition|ed\.?)\s*0*(\d+)/i) || [])[1];
+  if (!ed) return null;
+  if (/\bTM\s*20(?:20)?\b/i.test(t)) return { set: 'tm20', ed };
+  const season = (t.match(/\bseason\s*(\d)\b/i) || t.match(/\bS(\d)\b/) || t.match(/speed\s*tas\s*(\d)\s*#/i) || [])[1];
+  if (season) return { set: 's' + season, ed };
+  if (/speed\s*tas/i.test(t) && published && published >= SEASON3_START) return { set: 's3', ed };
+  return null;
+}
+function collectVideos(node, out) {
+  if (!node || typeof node !== 'object') return;
+  if (Array.isArray(node)) { node.forEach((n) => collectVideos(n, out)); return; }
+  const id = node.videoId || (node.contentType === 'LOCKUP_CONTENT_TYPE_VIDEO' && node.contentId);
+  const title = node.title && (node.title.simpleText || (node.title.runs || []).map((r) => r.text).join('') || node.title.content)
+    || (node.metadata && node.metadata.lockupMetadataViewModel && node.metadata.lockupMetadataViewModel.title && node.metadata.lockupMetadataViewModel.title.content);
+  if (id && title && !out[id]) out[id] = { title };
+  Object.values(node).forEach((v) => collectVideos(v, out));
+}
+async function fetchChannelList() {
+  const found = {};
+  const page = await (await get(`https://www.youtube.com/channel/${YT_CHANNEL}/videos`)).text();
+  const data = page.match(/var ytInitialData = (\{.*?\});<\/script>/s);
+  if (!data) throw new Error('no ytInitialData');
+  const initial = JSON.parse(data[1]);
+  collectVideos(initial, found);
+  const key = (page.match(/"INNERTUBE_API_KEY":"([^"]+)"/) || [])[1], version = (page.match(/"INNERTUBE_CLIENT_VERSION":"([^"]+)"/) || [])[1];
+  let token = (JSON.stringify(initial).match(/"continuationCommand":\{"token":"([^"]+)"/) || [])[1];
+  for (let i = 0; token && key && i < 10; i++) {
+    const res = await fetch(`https://www.youtube.com/youtubei/v1/browse?key=${key}`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'User-Agent': UA }, body: JSON.stringify({ context: { client: { clientName: 'WEB', clientVersion: version } }, continuation: token }) });
+    if (!res.ok) break;
+    const j = await res.json();
+    collectVideos(j, found);
+    token = (JSON.stringify(j).match(/"continuationCommand":\{"token":"([^"]+)"/) || [])[1];
+  }
+  return found;
+}
+async function updateVideos(previous) {
+  const out = { videos: { ...(previous.videos || {}) }, manual: previous.manual || {}, editions: {} };
+  const feed = await (await get(`https://www.youtube.com/feeds/videos.xml?channel_id=${YT_CHANNEL}`)).text();
+  for (const entry of feed.split('<entry>').slice(1)) {
+    const id = (entry.match(/<yt:videoId>([^<]+)</) || [])[1], title = stripTags((entry.match(/<title>([\s\S]*?)<\/title>/) || [])[1] || '');
+    const published = ((entry.match(/<published>([^<]+)</) || [])[1] || '').slice(0, 10);
+    if (id) out.videos[id] = { title, published };
+  }
+  try {
+    const list = await fetchChannelList();
+    Object.entries(list).forEach(([id, v]) => { if (!out.videos[id]) out.videos[id] = { title: v.title, published: null }; });
+  } catch (err) { console.warn(`videos: channel list unavailable, feed only (${err.message})`); }
+  // Oldest first, so if one edition has several uploads the newest wins.
+  Object.entries(out.videos).sort((a, b) => String(a[1].published || '').localeCompare(String(b[1].published || ''))).forEach(([id, v]) => {
+    const m = videoEdition(v.title, v.published);
+    if (m) (out.editions[m.set] = out.editions[m.set] || {})[m.ed] = id;
+  });
+  Object.entries(out.manual).forEach(([set, eds]) => Object.entries(eds || {}).forEach(([ed, id]) => { (out.editions[set] = out.editions[set] || {})[ed] = id; }));
+  return out;
+}
+
 /* ============ MAIN ============ */
 async function readJson(f, d) { try { return JSON.parse(await readFile(f, 'utf8')); } catch { return d; } }
 const writeJson = (f, data) => writeFile(f, JSON.stringify(data, null, 1) + '\n');
@@ -527,7 +591,21 @@ async function main() {
     console.log(`inputs: ${r.fetched} saved, ${r.unavailable} not available from TAS Exchange (replay download only), ${r.failed} failed, ${r.pending} left for the next run`);
     await writeInputsIndex();
   }
-  // 5. Discord avatars (one Worker pass per run instead of one per visitor).
+  // 5. YouTube videos per edition.
+  if (!process.argv.includes('--sheets')) {
+    try {
+      const prevVideos = await readJson(`${OUT}/videos.json`, {});
+      const v = await updateVideos(prevVideos);
+      const { updatedAt, ...prevComparable } = prevVideos;
+      if (JSON.stringify(prevComparable) !== JSON.stringify(v)) await writeJson(`${OUT}/videos.json`, { ...v, updatedAt: now });
+      const unmatched = Object.entries(v.videos).filter(([, x]) => !videoEdition(x.title, x.published)).map(([, x]) => x.title);
+      console.log(`videos: ${Object.keys(v.videos).length} known, matched ${Object.entries(v.editions).map(([k, e]) => `${k} ${Object.keys(e).length}`).join(', ') || 'none'}` + (unmatched.length ? `; not matched: ${unmatched.slice(0, 8).join(' | ')}` : ''));
+    } catch (err) {
+      failures++;
+      console.warn(`videos: kept the previous file (${err.message})`);
+    }
+  }
+  // 6. Discord avatars (one Worker pass per run instead of one per visitor).
   try {
     const prevAvatars = await readJson(`${OUT}/avatars.json`, {});
     const av = await updateAvatars(prevAvatars);
@@ -568,6 +646,11 @@ function selftest() {
   assert(imp.added[0] === '1' && imp.data.editions[0].results.Rio === 1 && imp.data.editions[0].results.Midnight === 1 && imp.data.editions[0].results.NewGuy === 3 && imp.data.editions[0].auto, 'auto import (ties share a place)');
   assert(autoImport({ editions: [{ edition: '1', results: { X: 1 } }], players: ['X'] }, evs.s3, al, ['X']).added.length === 0, 'sheet wins');
   assert(editionFromMapName('SpeedTAS 2 #7') === '7' && editionFromMapName('SpeedTAS nº12') === '12' && editionFromMapName('SpeedTAS n43') === '43' && editionFromMapName('SpeedTAS nº4 Mini_Trial') === '4' && editionFromMapName(' SpeedTAS GS Edition') === null && editionFromMapName('SpeedTAS #100') === '100', 'map names');
+  assert(JSON.stringify(videoEdition('SpeedTAS 2 #26', '2026-11-01')) === '{"set":"s2","ed":"26"}', 'video title s2');
+  assert(JSON.stringify(videoEdition('SpeedTAS Season 3 #4 | Results')) === '{"set":"s3","ed":"4"}', 'video title season 3');
+  assert(JSON.stringify(videoEdition('SpeedTAS TM20 #2')) === '{"set":"tm20","ed":"2"}', 'video title tm20');
+  assert(JSON.stringify(videoEdition('SpeedTAS #5', '2027-03-01')) === '{"set":"s3","ed":"5"}', 'video title no season after S3 start');
+  assert(videoEdition('SpeedTAS #5', '2025-03-01') === null, 'video title ambiguous');
   console.log('selftest ok');
 }
 
