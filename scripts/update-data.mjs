@@ -463,13 +463,18 @@ const YT_CHANNEL = 'UCSLm9iD-GUV_HhMEc1ee3tA';
 const SEASON3_START = '2027-02-06';
 export function videoEdition(title, published) {
   const t = String(title);
-  const ed = (t.match(/#\s*0*(\d+)/) || t.match(/\b(?:edition|ed\.?)\s*0*(\d+)/i) || [])[1];
-  if (!ed) return null;
-  if (/\bTM\s*20(?:20)?\b/i.test(t)) return { set: 'tm20', ed };
-  const season = (t.match(/\bseason\s*(\d)\b/i) || t.match(/\bS(\d)\b/) || t.match(/speed\s*tas\s*(\d)\s*#/i) || [])[1];
-  if (season) return { set: 's' + season, ed };
-  if (/speed\s*tas/i.test(t) && published && published >= SEASON3_START) return { set: 's3', ed };
-  return null;
+  // Channel titles look like "🏆 SpeedTAS 26", "🏆 SpeedTAS 17 | Triple Crown", "The First TM20 SpeedTAS".
+  if (/\bTM\s*20(?:20)?\b/i.test(t)) {
+    const n = (t.match(/#\s*0*(\d+)/) || t.match(/speed\s*tas\s*(?:TM\s*20(?:20)?\s*)?0*(\d+)/i) || [])[1] || (/\bfirst\b/i.test(t) ? '1' : null);
+    return n ? { set: 'tm20', ed: n } : null;
+  }
+  const explicit = t.match(/\b(?:season\s*|S)(\d)\b[^#\d]*#\s*0*(\d+)/i) || t.match(/speed\s*tas\s*(\d)\s*#\s*0*(\d+)/i);
+  if (explicit) return { set: 's' + explicit[1], ed: explicit[2] };
+  // No season in the title: the edition number belongs to the season running when it was published
+  // (Season 2 until Season 3 starts; uploads without a date are older ones, so Season 2).
+  const n = (t.match(/speed\s*tas\s*#?\s*0*(\d+)\b/i) || [])[1];
+  if (!n) return null;
+  return { set: published && published >= SEASON3_START ? 's3' : 's2', ed: n };
 }
 function collectVideos(node, out) {
   if (!node || typeof node !== 'object') return;
@@ -497,6 +502,19 @@ async function fetchChannelList() {
     token = (JSON.stringify(j).match(/"continuationCommand":\{"token":"([^"]+)"/) || [])[1];
   }
   return found;
+}
+/* Re-match the saved videos to editions without going online (after changing videoEdition). */
+async function relinkVideos() {
+  const v = await readJson(`${OUT}/videos.json`, null);
+  if (!v) return console.log('no data/videos.json yet');
+  v.editions = {};
+  Object.entries(v.videos).sort((a, b) => String(a[1].published || '').localeCompare(String(b[1].published || ''))).forEach(([id, x]) => {
+    const m = videoEdition(x.title, x.published);
+    if (m) (v.editions[m.set] = v.editions[m.set] || {})[m.ed] = id;
+  });
+  Object.entries(v.manual || {}).forEach(([set, eds]) => Object.entries(eds || {}).forEach(([ed, id]) => { (v.editions[set] = v.editions[set] || {})[ed] = id; }));
+  await writeJson(`${OUT}/videos.json`, v);
+  console.log(`videos relinked: ${Object.entries(v.editions).map(([k, e]) => `${k} ${Object.keys(e).length}`).join(', ')}`);
 }
 async function updateVideos(previous) {
   const out = { videos: { ...(previous.videos || {}) }, manual: previous.manual || {}, editions: {} };
@@ -650,10 +668,15 @@ function selftest() {
   assert(JSON.stringify(videoEdition('SpeedTAS Season 3 #4 | Results')) === '{"set":"s3","ed":"4"}', 'video title season 3');
   assert(JSON.stringify(videoEdition('SpeedTAS TM20 #2')) === '{"set":"tm20","ed":"2"}', 'video title tm20');
   assert(JSON.stringify(videoEdition('SpeedTAS #5', '2027-03-01')) === '{"set":"s3","ed":"5"}', 'video title no season after S3 start');
-  assert(videoEdition('SpeedTAS #5', '2025-03-01') === null, 'video title ambiguous');
+  assert(JSON.stringify(videoEdition('🏆 SpeedTAS 26', '2026-11-13')) === '{"set":"s2","ed":"26"}', 'channel title s2');
+  assert(JSON.stringify(videoEdition('🏆 SpeedTAS 17 | Triple Crown', null)) === '{"set":"s2","ed":"17"}', 'channel title with subtitle');
+  assert(JSON.stringify(videoEdition('🏆 The First TM20 SpeedTAS', '2026-09-25')) === '{"set":"tm20","ed":"1"}', 'channel title tm20 first');
+  assert(JSON.stringify(videoEdition('🏆 SpeedTAS 3', '2027-02-08')) === '{"set":"s3","ed":"3"}', 'channel title after S3 start');
+  assert(videoEdition('Trackmania vlog', '2026-01-01') === null, 'unrelated video');
   console.log('selftest ok');
 }
 
 if (process.argv.includes('--selftest')) selftest();
+else if (process.argv.includes('--relink-videos')) relinkVideos();
 else if (process.argv.includes('--index-inputs')) writeInputsIndex().then((n) => console.log(`inputs index: ${n} replays`));
-else if (!process.argv.includes('--index-inputs')) main().catch((err) => { console.error(err); process.exit(1); });
+else if (!process.argv.includes('--index-inputs') && !process.argv.includes('--relink-videos')) main().catch((err) => { console.error(err); process.exit(1); });
