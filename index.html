@@ -158,6 +158,41 @@
       body.menu-open .menu-btn .ic-close { display: block; }
     }
 
+    .history-times .t-win { color: var(--gold); font-weight: 700; }
+    .history-times .t-plus { color: var(--muted); }
+    .history-times td.t-time, .history-times td.t-gap { white-space: nowrap; }
+
+    .live-banner { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin: 0 0 22px; padding: 12px 16px; background: var(--card); border: 1px solid var(--border-strong); border-left: 3px solid var(--accent); border-radius: var(--radius); }
+    .live-banner > div { flex: 1 1 220px; }
+    .live-banner .live-clock { font-family: var(--font-mono); color: var(--accent); }
+    .live-tag { display: inline-flex; align-items: center; gap: 7px; padding: 4px 9px; border-radius: 3px; background: var(--bg2); border: 1px solid var(--border); font-family: var(--font-mono); font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+    .live-banner.on { border-left-color: #ff4d5e; }
+    .live-banner.on .live-tag { color: #ff4d5e; border-color: rgba(255,77,94,.45); }
+    .live-banner.on .live-tag i { width: 8px; height: 8px; border-radius: 50%; background: #ff4d5e; animation: livePulse 1.4s ease-in-out infinite; }
+    @keyframes livePulse { 50% { opacity: .25; } }
+    @media (prefers-reduced-motion: reduce) { .live-banner.on .live-tag i { animation: none; } }
+
+    .title-calc .tr-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+    .title-calc li { display: grid; grid-template-columns: minmax(130px, 200px) 1fr auto auto; align-items: center; gap: 14px; }
+    .title-calc .tr-name { display: flex; align-items: center; gap: 9px; min-width: 0; }
+    .title-calc .tr-name b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .tr-bar { position: relative; height: 10px; border-radius: 5px; background: var(--bg2); overflow: hidden; }
+    .tr-bar span { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 5px; }
+    .tr-bar .max { background: var(--border-strong); }
+    .tr-bar .now { background: var(--accent); z-index: 1; }
+    .tr-nums { font-family: var(--font-mono); font-size: 12px; color: var(--muted); white-space: nowrap; }
+    .tr-nums b { color: var(--text); }
+    .tr-tag { font-family: var(--font-mono); font-size: 11px; padding: 3px 8px; border-radius: 3px; border: 1px solid var(--border); color: var(--muted); white-space: nowrap; }
+    .tr-tag.lead, .tr-tag.win { color: var(--gold); border-color: rgba(255,207,63,.4); }
+    .tr-tag.edge { color: #ff9b5e; border-color: rgba(255,155,94,.4); }
+    .tr-clinched { margin: 0 0 14px; }
+    .tr-foot { margin: 12px 0 0; font-size: 13px; color: var(--muted); }
+    @media (max-width: 700px) {
+      .title-calc li { grid-template-columns: 1fr auto; row-gap: 6px; }
+      .title-calc .tr-bar { grid-column: 1 / -1; order: 3; }
+      .title-calc .tr-nums { order: 4; }
+    }
+
     /* ============ LAYOUT ============ */
     main { position: relative; z-index: 1; flex: 1; width: 100%; max-width: 1240px; margin: 0 auto; padding: 34px var(--gutter) 72px; }
     main > * { animation: pageIn .28s ease both; }
@@ -1037,6 +1072,33 @@
         const table = document.querySelector('.results-table');
         if (filled && table) table.classList.remove('no-runs');
       });
+    }
+    /* Every known time of a season, per edition and sheet name: {edition: {name: {time, secs, replay?, eventId?}}}.
+       Posted Discord times first; TAS Exchange times (with replays) win, as on the edition page. */
+    const SEASON_TIMES = {};
+    function seasonTimes(seasonKey) {
+      const key = (GAME === 'tm20' ? 'tm20:' : '') + seasonKey;
+      if (SEASON_TIMES[key]) return SEASON_TIMES[key];
+      return SEASON_TIMES[key] = Promise.all([GAME === 'tmnf' ? postedTimes() : {}, hasEvents(seasonKey) ? repoEvents() : null]).then(([posted, events]) => {
+        const out = {}, put = (ed, name, en) => {const secs = parseTimeSeconds(en.time); if (secs == null || !name) return; (out[ed] = out[ed] || {})[name] = {...en, secs};};
+        Object.entries((posted || {})[seasonKey] || {}).forEach(([ed, byName]) => Object.entries(byName).forEach(([name, time]) => put(ed, name, {time})));
+        Object.entries(((events || {})[eventKeyFor(seasonKey)]) || {}).forEach(([ed, ev]) => (ev.results || []).forEach(r => {if (r.player) put(ed, r.player, {time: r.time, replay: r.replay, eventId: ev.id});}));
+        return out;
+      }).catch(() => ({}));
+    }
+    /* Profile placement history: time, gap to the edition winner and the replay, filled in once the times are loaded. */
+    function fillHistoryTimes() {
+      const rows = [...document.querySelectorAll('.history-times tr[data-tseason]')];
+      [...new Set(rows.map(r => r.dataset.tseason))].forEach(season => seasonTimes(season).then(all => {
+        rows.filter(r => r.dataset.tseason === season && document.body.contains(r)).forEach(row => {
+          const ed = all[row.dataset.ted] || {}, mine = ed[row.dataset.twho];
+          if (!mine) return;
+          const best = Math.min(...Object.values(ed).map(x => x.secs)), gap = mine.secs - best;
+          row.querySelector('.t-time').textContent = mine.time;
+          row.querySelector('.t-gap').innerHTML = gap < 0.0005 ? '<span class="t-win">Winner</span>' : `<span class="t-plus">+${gap.toFixed(2)}</span>`;
+          if (mine.replay && mine.eventId) row.querySelector('.t-run').innerHTML = `<a class="run-btn" href="https://tmtas.exchange/events/${mine.eventId}/replays/${mine.replay}/download" target="_blank" rel="noopener" title="Download the replay (.Replay.Gbx) from TAS Exchange">Replay</a>`;
+        });
+      }));
     }
     document.addEventListener('click', e => {
       const btn = e.target.closest('[data-inputs]');
@@ -2243,11 +2305,12 @@
       const totalPodiums = ranked.reduce((a, p) => a + p.podiums, 0);
       const avgParticipants = totalEditions ? (D.editions.reduce((a, e) => a + Object.keys(e.results).length, 0) / totalEditions).toFixed(1) : 0;
       const leader = ranked[0];
-      /* Closest battle: only players on 10+ points qualify, so the bottom of the
+      /* Closest battle: only top-15 players on 10+ points qualify, so the bottom of the
          table can't produce meaningless 0 vs 0 "battles". ranked is sorted by points,
          so the closest pair is always two neighbours in the filtered list. */
       const CLOSEST_MIN_POINTS = 10;
-      const battleField = ranked.filter(p => p.points >= CLOSEST_MIN_POINTS);
+      const CLOSEST_TOP = 15; // only battles inside the top 15 are worth a headline
+      const battleField = ranked.filter(p => p.points >= CLOSEST_MIN_POINTS && p.rank <= CLOSEST_TOP);
       let closestGap = null, closestPair = null;
       for (let i = 0; i < battleField.length - 1; i++) {
         const gap = battleField[i].points - battleField[i + 1].points;
@@ -2286,6 +2349,7 @@
       const preSeason = info && !RAW.editions.length;
       const bestOfNote = !archive && info && info.bestOf ? `Only each player's best ${info.bestOf} of ${info.editions} results count.` : '';
       main.innerHTML = `
+    ${GAME === 'tmnf' ? '<div id="liveSlot"></div>' : ''}
     <header class="page-head">
       ${archive ? `<div class="kicker">${gameName} · Off-season · ${E(info.label)} starts ${E(fmtLisbonDay(info.start))}</div>
       <h1>${E(SEASON_INFO[ARCHIVE_DEFAULT].label)} <em>final standings</em></h1>
@@ -2371,6 +2435,8 @@
       </div>
     </section>
 
+    ${titleRaceHTML(archive ? null : info, ranked, totalEditions, sk)}
+
     <section>
       <div class="head-row"><h2 class="section-title">Title race</h2><span class="head-note">Cumulative points of the top six, edition by edition</span></div>
       <div class="panel">
@@ -2387,6 +2453,7 @@
       if (GAME === 'tmnf') bindHonors(homeKey, D);
 
       startCountdown();
+      if (GAME === 'tmnf') startLiveBanner();
       renderProgressChart(players, editionOrder, ranked);
     }
 
@@ -2486,6 +2553,92 @@
       }
       tick();
       countdownTimer = setInterval(tick, 1000);
+    }
+
+    /* ============ TITLE RACE CALCULATOR ============
+       Who can still be champion. Max possible = a player's best results if they win every remaining edition
+       (with "best N of M", a win replaces their lowest counted result). Anyone whose max possible can reach the
+       leader's current points is still in the race. Points never go down, so the leader's current total is safe. */
+    function titleRace(info, ranked, played) {
+      if (!info || !info.editions || !ranked.length || !played) return null;
+      const left = info.editions - played;
+      if (left <= 0) return null;
+      const win = pointsFor(1), bestOf = info.bestOf || info.editions;
+      const maxFor = p => p.history.map(h => h.points).concat(Array(left).fill(win)).sort((a, b) => b - a).slice(0, bestOf).reduce((a, b) => a + b, 0);
+      const leader = ranked[0];
+      const rows = ranked.map(p => ({p, max: maxFor(p)})).filter(r => r.max >= leader.points);
+      return {left, leader, rows, out: ranked.length - rows.length, clinched: rows.length === 1};
+    }
+    function titleRaceHTML(info, ranked, played, sk = '') {
+      const race = titleRace(info, ranked, played);
+      if (!race) return '';
+      const E = escapeHtml, top = Math.max(...race.rows.map(r => r.max)), shown = race.rows.slice(0, 10);
+      const status = r => r.p === race.leader ? (race.clinched ? '<span class="tr-tag win">Champion</span>' : '<span class="tr-tag lead">Leader</span>')
+        : r.max === race.leader.points ? '<span class="tr-tag edge">Needs a perfect run</span>' : '<span class="tr-tag">Can still win</span>';
+      return `<section>
+      <div class="head-row"><h2 class="section-title">Who can still win</h2><span class="head-note">${plural(race.left, 'edition')} left · max possible = winning every remaining edition${info.bestOf ? ` (best ${info.bestOf} of ${info.editions} count)` : ''}</span></div>
+      <div class="panel title-calc">
+        ${race.clinched ? `<p class="tr-clinched">🏆 <b>${E(race.leader.name)}</b> has clinched the title: nobody can reach ${race.leader.points} points any more.</p>` : ''}
+        <ol class="tr-list">${shown.map(r => `<li>
+          <a href="#/player/${sk}${enc(r.p.name)}" class="tr-name">${avatarHTML(r.p.name, 26)}<b>${E(r.p.name)}</b></a>
+          <div class="tr-bar" title="${r.p.points} points now, ${r.max} at most"><span class="now" style="width:${(r.p.points / top * 100).toFixed(1)}%"></span><span class="max" style="width:${(r.max / top * 100).toFixed(1)}%"></span></div>
+          <div class="tr-nums"><b>${r.p.points}</b> now · <b>${r.max}</b> max${r.p === race.leader ? '' : ` · −${race.leader.points - r.p.points}`}</div>
+          ${status(r)}</li>`).join('')}</ol>
+        <p class="tr-foot">${race.rows.length > shown.length ? `+${race.rows.length - shown.length} more can still win mathematically. ` : ''}${race.out ? `${plural(race.out, 'player')} can no longer catch ${E(race.leader.name)}.` : ''}</p>
+      </div>
+    </section>`;
+    }
+
+    /* ============ LIVE EDITION (Saturdays) ============
+       Around the edition hour the home page gets a banner: starting soon (30 min before), live (18:00-19:00 Lisbon,
+       with the time left), then "results coming" until the data update has run, then "results are in" until midnight.
+       data/updated.json tells when the GitHub Action last ran. */
+    let liveTimer = null, UPDATED_AT = 0, updatedPoll = 0;
+    const fetchUpdatedAt = () => fetch('data/updated.json', {cache: 'no-cache'}).then(r => r.ok ? r.json() : {}).then(j => {UPDATED_AT = Date.parse(j.at) || 0; return UPDATED_AT;}).catch(() => UPDATED_AT);
+    function todaysEdition() {
+      if (GAME !== 'tmnf') return null;
+      const t = Object.fromEntries(new Intl.DateTimeFormat('en-US', {timeZone: 'Europe/Lisbon', year: 'numeric', month: '2-digit', day: '2-digit', weekday: 'short'}).formatToParts(new Date()).map(p => [p.type, p.value]));
+      const iso = `${t.year}-${t.month}-${t.day}`, start = SEASON_INFO[CURRENT_TMNF_SEASON].start;
+      if (t.weekday !== 'Sat' || (start && iso < start) || SCHEDULE_BREAKS.includes(iso)) return null;
+      return {iso, at: lisbonMoment(+t.year, +t.month, +t.day, EDITION_HOUR_LISBON).getTime()};
+    }
+    function liveState() {
+      const today = todaysEdition();
+      if (!today) return null;
+      const now = Date.now(), end = today.at + 3600e3;
+      const next = RAW.editions.length + 1, label = `SpeedTAS ${CURRENT_TMNF_SEASON.slice(1)} #${next}`;
+      if (now < today.at - 1800e3) return null;
+      if (now < today.at) return {phase: 'soon', label, until: today.at};
+      if (now < end) return {phase: 'live', label, until: end};
+      if (UPDATED_AT > end && UPDATED_AT <= now + 6e4 && RAW.editions.length) {const last = RAW.editions[RAW.editions.length - 1]; return {phase: 'results', label: `SpeedTAS ${CURRENT_TMNF_SEASON.slice(1)} #${last.edition}`, edition: last.edition};}
+      return {phase: 'waiting', label};
+    }
+    const mmss = ms => {const t = Math.max(0, Math.floor(ms / 1000)); return `${Math.floor(t / 60)}:${String(t % 60).padStart(2, '0')}`;};
+    function liveBannerHTML(st) {
+      const E = escapeHtml, ex = '<a class="btn" href="https://tmtas.exchange/events" target="_blank" rel="noopener">TAS Exchange ↗</a>';
+      if (st.phase === 'soon') return `<div class="live-banner soon"><span class="live-tag">Soon</span><div><b>${E(st.label)}</b> starts in <b class="live-clock">${mmss(st.until - Date.now())}</b></div>${ex}</div>`;
+      if (st.phase === 'live') return `<div class="live-banner on"><span class="live-tag"><i></i>Live</span><div><b>${E(st.label)}</b> is running · submissions close in <b class="live-clock">${mmss(st.until - Date.now())}</b></div>${ex}</div>`;
+      if (st.phase === 'waiting') return `<div class="live-banner"><span class="live-tag">Done</span><div><b>${E(st.label)}</b> has finished · results appear here shortly</div>${ex}</div>`;
+      return `<div class="live-banner"><span class="live-tag">Results</span><div><b>${E(st.label)}</b> results are in</div><a class="btn" href="#/edition/${enc(st.edition)}">See results →</a></div>`;
+    }
+    function startLiveBanner() {
+      if (liveTimer) clearInterval(liveTimer);
+      const tick = () => {
+        const el = document.getElementById('liveSlot');
+        if (!el) {clearInterval(liveTimer); liveTimer = null; return;}
+        const st = liveState(), sig = st ? st.phase + st.label : '';
+        if (el.dataset.sig !== sig) {el.dataset.sig = sig; el.innerHTML = st ? liveBannerHTML(st) : '';} // rebuild only when the phase changes
+        else if (st && st.until) {const c = el.querySelector('.live-clock'); if (c) c.textContent = mmss(st.until - Date.now());}
+        /* While waiting for results, check every 2 minutes whether the data update has run, then reload the data. */
+        if (st && st.phase === 'waiting' && Date.now() - updatedPoll > 120e3) {
+          updatedPoll = Date.now();
+          const before = UPDATED_AT;
+          fetchUpdatedAt().then(t => {if (t > before && t > Date.now() - 6 * 3600e3) init();});
+        }
+      };
+      fetchUpdatedAt().then(tick);
+      tick();
+      liveTimer = setInterval(tick, 1000);
     }
 
     /* ============ CHARTS ============ */
@@ -2593,7 +2746,7 @@
         const found = per.filter(x => x.player && x.player.played);
         if (!found.length) {notFound(`Player "${E(decoded)}" was not found.`); return;}
         const latest = found[found.length - 1].player;
-        history = found.flatMap(x => x.player.history.map(h => ({...h, edition: `${SEASON_INFO[x.key].short} · ${h.edition}`, season: x.key, raw: h.edition})));
+        history = found.flatMap(x => x.player.history.map(h => ({...h, edition: `${SEASON_INFO[x.key].short} · ${h.edition}`, season: x.key, raw: h.edition, who: x.player.name})));
         const sumOf = f => found.reduce((a, x) => a + (x.player[f] || 0), 0), maxOf = f => Math.max(...found.map(x => x.player[f] || 0));
         const points = sumOf('points'), played = history.length, wins = sumOf('wins'), podiums = sumOf('podiums');
         const placements = history.map(h => h.placement), allRows = comparisonRows(...per.map(x => x.computed.ranked)), own = allRows.find(r => r.key === playerKey(latest.name));
@@ -2605,7 +2758,7 @@
         p = selected.player;
         seasonLabel = labelFor(seasonKey);
         if (!p || !p.played) {notFound(`${E(decoded)} has no results in ${E(seasonLabel)}.${GAME === 'tm20' ? '' : ' Try another season below.'}<div style="margin-top:14px">${profileTabs(seasonKey)}</div>`); bindProfileTabs(decoded); return;}
-        history = p.history.map(h => ({...h, season: seasonKey, raw: h.edition})); profileName = p.name; rankLabel = seasonLabel;
+        history = p.history.map(h => ({...h, season: seasonKey, raw: h.edition, who: p.name})); profileName = p.name; rankLabel = seasonLabel;
       }
       /* "Compare" pairs the player with their nearest neighbour in the same standings. */
       let compare = '';
@@ -2643,9 +2796,10 @@
     </section>
     <section>
       <h2 class="section-title">Placement history</h2>
-      <div class="panel flush"><div class="table-wrap"><table><thead><tr><th>Edition</th><th>Placement</th><th class="r">Points</th></tr></thead><tbody>${[...history].reverse().map(h => `<tr><td><a href="#/edition/${h.season}/${enc(h.raw)}">Edition ${E(h.edition)}</a></td><td>${h.placement <= 3 ? medalFor(h.placement) : ''}P${h.placement}</td><td class="ptsc r">${h.dropped ? `<s class="dropped-pts" title="Dropped: only a player's best ${SEASON_INFO[h.season] ? SEASON_INFO[h.season].bestOf : ''} results count">${h.points}</s>` : h.points}</td></tr>`).join('')}</tbody></table></div></div>${(() => {const d = history.find(h => h.dropped); return d && SEASON_INFO[d.season] ? `<p class="table-foot">Struck-through points are dropped results: only the best ${SEASON_INFO[d.season].bestOf} count towards the ${E(SEASON_INFO[d.season].label)} championship.</p>` : '';})()}
+      <div class="panel flush"><div class="table-wrap"><table class="history-times"><thead><tr><th>Edition</th><th>Placement</th><th class="r">Time</th><th class="r">Gap to winner</th><th>Run</th><th class="r">Points</th></tr></thead><tbody>${[...history].reverse().map(h => `<tr data-tseason="${E(h.season)}" data-ted="${E(h.raw)}" data-twho="${E(h.who)}"><td><a href="#/edition/${h.season}/${enc(h.raw)}">Edition ${E(h.edition)}</a></td><td>${h.placement <= 3 ? medalFor(h.placement) : ''}P${h.placement}</td><td class="numc r t-time">—</td><td class="numc r t-gap"></td><td class="t-run"></td><td class="ptsc r">${h.dropped ? `<s class="dropped-pts" title="Dropped: only a player's best ${SEASON_INFO[h.season] ? SEASON_INFO[h.season].bestOf : ''} results count">${h.points}</s>` : h.points}</td></tr>`).join('')}</tbody></table></div></div>${(() => {const d = history.find(h => h.dropped); return d && SEASON_INFO[d.season] ? `<p class="table-foot">Struck-through points are dropped results: only the best ${SEASON_INFO[d.season].bestOf} count towards the ${E(SEASON_INFO[d.season].label)} championship.</p>` : '';})()}
     </section>`;
       bindProfileTabs(decoded);
+      fillHistoryTimes();
       const shareBtn = document.getElementById('shareCard');
       if (shareBtn) shareBtn.addEventListener('click', () => openSeasonCard(p, seasonKey === 'all' ? 'All-time' : (GAME === 'tm20' ? 'TM2020' : labelFor(seasonKey)), p.rank ? `P${p.rank} ${seasonKey === 'all' ? 'all-time' : 'in the standings'}` : '', seasonKey, profileHonor));
       profileCharts.forEach(c => c.destroy()); profileCharts = [];
