@@ -22,11 +22,11 @@
   <meta name="color-scheme" content="dark">
   <meta name="theme-color" content="#0a0b0d">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230a0b0d'/%3E%3Cpath d='M9 6h17l-4 9h-7l-2 5h7l-3 6H5l4-9h7l2-5h-9z' fill='%23b388ff'/%3E%3C/svg%3E">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:ital,wght@0,600;0,700;1,600;1,700;1,800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js" defer></script>
-  <link rel="stylesheet" href="assets/site.css?v=0779b51a3d">
+  <!-- Fonts are served from this site (assets/fonts), no Google Fonts round trip. The two most visible ones load first. -->
+  <link rel="preload" href="assets/fonts/barlow-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/barlow-condensed-latin-800-italic.woff2" as="font" type="font/woff2" crossorigin>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js" async></script>
+  <link rel="stylesheet" href="assets/site.css?v=73e933176b">
 </head>
 
 <body>
@@ -81,16 +81,16 @@
       </nav>
     </div>
   </footer>
-  <script src="assets/js/01-config.js?v=994e7aa6af"></script>
-  <script src="assets/js/02-sources.js?v=3bcdcdf8e1"></script>
-  <script src="assets/js/03-season-data.js?v=3c3fb31a68"></script>
-  <script src="assets/js/04-stats.js?v=dd61eecee7"></script>
-  <script src="assets/js/05-view-helpers.js?v=7eee4d3895"></script>
-  <script src="assets/js/06-home.js?v=bed252e1d8"></script>
-  <script src="assets/js/07-charts-pages.js?v=957de84339"></script>
-  <script src="assets/js/08-records.js?v=3efb87cae0"></script>
-  <script src="assets/js/09-router.js?v=8a77a2ad6d"></script>
-  <script src="assets/js/10-boot.js?v=26c80568cb"></script>
+  <script src="assets/js/01-config.js?v=994e7aa6af" defer></script>
+  <script src="assets/js/02-sources.js?v=3bcdcdf8e1" defer></script>
+  <script src="assets/js/03-season-data.js?v=3c3fb31a68" defer></script>
+  <script src="assets/js/04-stats.js?v=e6908d978e" defer></script>
+  <script src="assets/js/05-view-helpers.js?v=7eee4d3895" defer></script>
+  <script src="assets/js/06-home.js?v=bed252e1d8" defer></script>
+  <script src="assets/js/07-charts-pages.js?v=957de84339" defer></script>
+  <script src="assets/js/08-records.js?v=3efb87cae0" defer></script>
+  <script src="assets/js/09-router.js?v=8a77a2ad6d" defer></script>
+  <script src="assets/js/10-boot.js?v=27ab6297fb" defer></script>
 
 </body>
 

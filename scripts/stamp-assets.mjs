@@ -7,7 +7,8 @@ import { createHash } from 'node:crypto';
 
 let html = await readFile('index.html', 'utf8');
 const before = html;
-const refs = [...html.matchAll(/(?:href|src)="(assets\/[^"?]+)(?:\?v=[^"]*)?"/g)].map((m) => m[1]);
+const refs = [...html.matchAll(/(?:href|src)="(assets\/[^"?]+)(?:\?v=[^"]*)?"/g)].map((m) => m[1])
+  .filter((f) => !f.startsWith('assets/fonts/')); // font files never change, and fonts.css links them without ?v
 for (const file of new Set(refs)) {
   const hash = createHash('sha1').update(await readFile(file)).digest('hex').slice(0, 10);
   html = html.replace(new RegExp(`((?:href|src)="${file.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})(?:\\?v=[^"]*)?"`, 'g'), `$1?v=${hash}"`);

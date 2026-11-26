@@ -138,6 +138,7 @@
       const existingBanner = document.getElementById('statusBanner');
       if (existingBanner) existingBanner.remove();
       try {
+        loadSeason2().catch(() => {}); // starts right away: the off-season home page shows Season 2, and it's needed later anyway
         RAW = withBestOf(await loadData(), CURRENT_TMNF_SEASON);
         dataSourceStatus = 'live';
         render();

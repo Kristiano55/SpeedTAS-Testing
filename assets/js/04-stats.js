@@ -158,10 +158,21 @@
       AVATAR_OVERRIDES_CACHE = cache;
     }
 
+    /* Discord serves any size and format: ask for WebP at 128 px (enough for the 72 px podium on sharp screens)
+       instead of the stored PNG, several times lighter. Animated avatars (a_...) keep their own format. */
+    function sizedAvatar(url) {
+      if (!url || !/^https:\/\/cdn\.discordapp\.com\/avatars\//.test(url)) return url;
+      try {
+        const u = new URL(url);
+        if (!/\/a_[^/]+$/.test(u.pathname)) u.pathname = u.pathname.replace(/\.(png|jpe?g)$/i, '.webp');
+        u.searchParams.set('size', '128');
+        return u.toString();
+      } catch (e) {return url;}
+    }
     function getAvatarOverride(name) {
       if (Object.prototype.hasOwnProperty.call(AVATAR_OVERRIDES_CACHE, name)) return AVATAR_OVERRIDES_CACHE[name];
       const id = discordIdFor(name);
-      return id ? (DISCORD_AVATARS[id] || null) : null;
+      return id ? sizedAvatar(DISCORD_AVATARS[id] || null) : null;
     }
     function saveAvatarOverride(name, dataUrl) {
       try {localStorage.setItem(AVATAR_KEY_PREFIX + encodeURIComponent(name), dataUrl); AVATAR_OVERRIDES_CACHE[name] = dataUrl; return true;}

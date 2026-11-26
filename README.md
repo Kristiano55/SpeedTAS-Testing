@@ -9,7 +9,8 @@ where changes are tried first. GitHub Pages, plain HTML/CSS/JS, no build step. N
 | Path | What it is |
 |---|---|
 | `index.html` | The page shell: header, link-preview tags, and the list of styles/scripts |
-| `assets/site.css` | All styles |
+| `assets/site.css` | All styles, starting with the self-hosted fonts |
+| `assets/fonts/` | Barlow, Barlow Condensed, JetBrains Mono (OFL, latin + latin-ext); never renamed, so not version-stamped |
 | `assets/js/01-config.js` … `10-boot.js` | The app, split by section and loaded in this order (they share one global scope) |
 | `data/` | Results, events, maps, videos, avatars, map thumbnails and the preview image, written by the data Action |
 | `scripts/update-data.mjs` | The data Action: Google Sheets, TAS Exchange, TMX, YouTube, Discord avatars |
