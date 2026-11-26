@@ -16,7 +16,7 @@
 // A source that fails keeps its previous file, so one bad fetch never blanks the site.
 // The parsing below is a port of speedtas-api-worker.js: keep the two in step.
 
-import { readFile, writeFile, mkdir } from 'node:fs/promises';
+import { readFile, writeFile, mkdir, access } from 'node:fs/promises';
 
 const OUT = 'data';
 const UA = 'SpeedTAS data updater (github.com/Kristiano55/SpeedTAS-Testing)';
@@ -395,6 +395,66 @@ async function updateMaps(previous) {
   return maps;
 }
 
+/* ============ MAP THUMBNAILS ============ */
+/* Each TMX map picture is downloaded once into data/thumbs/, so visitors never load it from tmnf.exchange.
+   Map pictures don't change, so a saved file is never fetched again. */
+const THUMB_FETCHES = 150; // most new pictures downloaded per run
+const exists = (f) => access(f).then(() => true, () => false);
+async function saveThumbs(maps) {
+  await mkdir(`${OUT}/thumbs`, { recursive: true });
+  let fetched = 0, failed = 0;
+  for (const season of Object.keys(MAP_PACKS)) {
+    for (const map of Object.values(maps[season] || {})) {
+      if (!map.tmx || !map.thumb) continue;
+      const base = `thumbs/tmx-${map.tmx}`;
+      const known = ['jpg', 'png', 'webp'].map((x) => `${base}.${x}`);
+      let file = null;
+      for (const f of known) if (await exists(`${OUT}/${f}`)) { file = f; break; }
+      if (!file && fetched < THUMB_FETCHES) {
+        try {
+          const res = await get(`https://tmnf.exchange/trackshow/${map.tmx}/image/1`);
+          const type = res.headers.get('content-type') || '';
+          if (!res.ok || !type.startsWith('image/')) throw new Error(`HTTP ${res.status} ${type}`);
+          const ext = type.includes('png') ? 'png' : type.includes('webp') ? 'webp' : 'jpg';
+          file = `${base}.${ext}`;
+          await writeFile(`${OUT}/${file}`, Buffer.from(await res.arrayBuffer()));
+          fetched++;
+        } catch (err) { failed++; console.warn(`thumb ${map.tmx}: ${err.message}`); }
+      }
+      if (file) map.thumbFile = `${OUT}/${file}`; else delete map.thumbFile;
+    }
+  }
+  return { fetched, failed };
+}
+
+/* ============ DISCORD AVATARS ============ */
+/* data/avatars.json: {players: {name: discordId}, avatars: {discordId: url}}. Read from the SpeedTAS Worker once per
+   run, so visitors load one small file instead of asking the Worker (and Discord) on every visit. */
+const WORKER = 'https://speedtas-api.kristianogeorgiev652.workers.dev';
+async function updateAvatars(previous) {
+  const prev = { players: {}, avatars: {}, ...previous };
+  const res = await get(`${WORKER}/players`);
+  if (!res.ok) throw new Error(`Worker /players HTTP ${res.status}`);
+  const players = {};
+  Object.entries((await res.json()).players || {}).forEach(([name, id]) => { if (/^\d{15,25}$/.test(String(id))) players[name] = String(id); });
+  if (!Object.keys(players).length) throw new Error('Worker returned no players');
+  const avatars = {}, queue = [...new Set(Object.values(players))];
+  let calls = 0;
+  while (queue.length && calls < 60) {
+    const batch = queue.splice(0, 20); calls++;
+    try {
+      const r = await get(`${WORKER}/avatars?ids=${encodeURIComponent(batch.join(','))}`);
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      const j = await r.json();
+      Object.entries(j.avatars || {}).forEach(([id, url]) => { avatars[id] = url || null; });
+      (j.pending || []).forEach((id) => queue.push(id));
+    } catch (err) { console.warn(`avatars batch: ${err.message}`); }
+  }
+  // A lookup that failed this time keeps last run's picture.
+  Object.values(players).forEach((id) => { if (!(id in avatars) && prev.avatars[id]) avatars[id] = prev.avatars[id]; });
+  return { players, avatars, calls };
+}
+
 /* ============ MAIN ============ */
 async function readJson(f, d) { try { return JSON.parse(await readFile(f, 'utf8')); } catch { return d; } }
 const writeJson = (f, data) => writeFile(f, JSON.stringify(data, null, 1) + '\n');
@@ -457,14 +517,28 @@ async function main() {
   // Maps: TMX packs + TAS Exchange records (a handful of requests).
   if (!process.argv.includes('--sheets')) {
     const maps = await updateMaps(await readJson(`${OUT}/maps.json`, {}));
+    const thumbs = await saveThumbs(maps);
     await writeJson(`${OUT}/maps.json`, { ...maps, updatedAt: now });
-    console.log(`maps: ${Object.entries(maps).map(([k, v]) => `${k} ${Object.keys(v).length}`).join(', ')}`);
+    console.log(`maps: ${Object.entries(maps).map(([k, v]) => `${k} ${Object.keys(v).length}`).join(', ')} (thumbnails: ${thumbs.fetched} new, ${thumbs.failed} failed)`);
   }
   // 4. Inputs for every replay with downloads enabled.
   if (!process.argv.includes('--sheets')) {
     const r = await saveInputs(events);
     console.log(`inputs: ${r.fetched} saved, ${r.unavailable} not available from TAS Exchange (replay download only), ${r.failed} failed, ${r.pending} left for the next run`);
     await writeInputsIndex();
+  }
+  // 5. Discord avatars (one Worker pass per run instead of one per visitor).
+  try {
+    const prevAvatars = await readJson(`${OUT}/avatars.json`, {});
+    const av = await updateAvatars(prevAvatars);
+    const { updatedAt, ...prevComparable } = prevAvatars;
+    const next = { players: av.players, avatars: av.avatars };
+    // only rewrite the file when something changed, so a run without changes makes no commit
+    if (JSON.stringify(prevComparable) !== JSON.stringify(next)) await writeJson(`${OUT}/avatars.json`, { ...next, updatedAt: now });
+    console.log(`avatars: ${Object.keys(av.players).length} players, ${Object.values(av.avatars).filter(Boolean).length} pictures (${av.calls} Worker calls)`);
+  } catch (err) {
+    failures++;
+    console.warn(`avatars: kept the previous file (${err.message})`);
   }
   await writeJson(`${OUT}/updated.json`, { at: now });
   if (failures) console.log(`${failures} source(s) failed; their previous data was kept.`);

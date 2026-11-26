@@ -12,7 +12,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:ital,wght@0,600;0,700;1,600;1,700;1,800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js" defer></script>
   <style>
     /* ============ TOKENS ============ */
     :root {
@@ -720,6 +720,11 @@
        Both seasons' Editions data (via /data), Discord avatars, and videos are
        all proxied through it; its Discord and YouTube keys stay in Worker
        secrets, never here. */
+    /* Chart.js loads with "defer" so it never holds up the first paint; charts drawn before it arrives wait for it. */
+    function whenChart(fn) {
+      if (window.Chart) return fn();
+      window.addEventListener('load', () => {if (window.Chart) fn();}, {once: true});
+    }
     const SPEEDTAS_API_URL = "https://speedtas-api.kristianogeorgiev652.workers.dev";
     const TMNF_POINTS = {1: 10, 2: 7, 3: 6, 4: 5, 5: 4, 6: 3, 7: 2, 8: 1};
     const TM20_POINTS = {1: 12, 2: 9, 3: 8, 4: 7, 5: 6, 6: 5, 7: 4, 8: 3, 9: 2, 10: 1}; // top 10 score
@@ -828,7 +833,7 @@
       if (SEASON_1) return Promise.resolve(SEASON_1);
       if (!season1Promise) {
         const proxyUrl = (SPEEDTAS_API_URL || '').replace(/\/+$/, '');
-        const viaWorker = proxyUrl
+        const viaWorker = () => proxyUrl
           ? fetch(proxyUrl + '/data?season=s1').then(async r => {
               if (!r.ok) {
                 let msg = `Worker responded with ${r.status}`;
@@ -840,11 +845,12 @@
             })
           : Promise.reject(new Error('No SPEEDTAS_API_URL configured.'));
 
-        season1Promise = viaWorker
+        /* Repo file first: same server as the page and kept fresh by the GitHub Action. */
+        season1Promise = fetchRepoData('s1')
           .catch(err => {
-            console.warn('Season 1 via Worker failed; trying the repo data file.', err);
-            return fetchRepoData('s1').catch(err2 => {
-              console.warn('Season 1 repo data file unavailable; trying direct sheet fetch.', err2);
+            console.warn('Season 1 repo data file unavailable; trying the Worker.', err);
+            return viaWorker().catch(err2 => {
+              console.warn('Season 1 via Worker failed; trying direct sheet fetch.', err2);
               return fetch(SEASON_1_CSV_URL)
                 .then(r => {if (!r.ok) throw new Error('Season 1 sheet could not be reached.'); return r.text();})
                 .then(text => parseDelimitedText(text));
@@ -870,7 +876,7 @@
       if (DATA.tm20) return Promise.resolve(DATA.tm20);
       if (!tm20Promise) {
         const proxyUrl = (SPEEDTAS_API_URL || '').replace(/\/+$/, '');
-        const viaWorker = proxyUrl
+        const viaWorker = () => proxyUrl
           ? fetch(proxyUrl + '/data?season=tm20').then(async r => {
               if (!r.ok) {
                 let msg = `Worker responded with ${r.status}`;
@@ -881,10 +887,10 @@
               return {editions: payload.editions, players: payload.players};
             })
           : Promise.reject(new Error('No SPEEDTAS_API_URL configured.'));
-        tm20Promise = viaWorker
+        tm20Promise = fetchRepoData('tm20')
           .catch(err => {
-            console.warn('TM2020 via Worker failed; trying the repo data file.', err);
-            return fetchRepoData('tm20').catch(err2 => {console.warn('TM2020 repo data file unavailable; trying the published sheet directly.', err2); return null;});
+            console.warn('TM2020 repo data file unavailable; trying the Worker.', err);
+            return viaWorker().catch(err2 => {console.warn('TM2020 via Worker failed; trying the published sheet directly.', err2); return null;});
           })
           .then(d => d || fetch(tm20CsvUrl()).then(r => {if (!r.ok) throw new Error('The TM2020 sheet could not be reached.'); return r.text();}).then(parseTM20Text))
           /* Name merging looks at the TMNF seasons, so wait for the archives (which preload anyway) before canonicalising. */
@@ -907,7 +913,8 @@
     const hasEvents = seasonKey => GAME === 'tm20' || seasonKey === 's2' || seasonKey === 's3';
     /* data/events.json is written by the GitHub Action: {"s3": {"1": {id, title, results: [{pos, entrant, time}]}}, ...} */
     let REPO_EVENTS = null;
-    const repoEvents = () => REPO_EVENTS || (REPO_EVENTS = fetch('data/events.json', {cache: 'no-cache'}).then(r => r.ok ? r.json() : {}).catch(() => ({})));
+    /* null = the file could not be read (then the Worker is the backup); {} or more = the Action's answer. */
+    const repoEvents = () => REPO_EVENTS || (REPO_EVENTS = fetch('data/events.json', {cache: 'no-cache'}).then(r => r.ok ? r.json() : null).catch(() => null));
     /* Hosts sometimes upload a competitor's run under their own name. Their entry is then handed to the competitor
        who has no time of their own - unless the sheet shows the host competed (then it's the host's own run). */
     const EVENT_HOSTS = {s2: ['Kristiano'], s3: ['Kristiano'], tm20: ['Kristiano']};
@@ -932,8 +939,8 @@
         } else {
           eventPromises[game] = (async () => {
             /* The repo's events.json (GitHub Action) answers without touching TAS Exchange; the Worker scan is the backup. */
-            const fromRepo = (await repoEvents())[game];
-            if (fromRepo && Object.keys(fromRepo).length) {EVENT_INDEX[game] = fromRepo; return fromRepo;}
+            const repo = await repoEvents();
+            if (repo) {EVENT_INDEX[game] = repo[game] || {}; return EVENT_INDEX[game];} // no TAS Exchange scan when the Action's file is there
             const [from, to] = EVENT_ID_RANGE[game];
             for (let i = 0; i < 12; i++) {
               const r = await fetch(`${proxyUrl}/events-index?pattern=${encodeURIComponent(EVENT_PATTERN[game])}&from=${from}&to=${to}`);
@@ -1078,9 +1085,15 @@
         if (link) {link.href = eventUrl(ev.id); link.style.display = '';}
         const proxyUrl = (SPEEDTAS_API_URL || '').replace(/\/+$/, '');
         return repoEvents().then(repo => {
-          const saved = repo[game] && repo[game][String(edition)];
+          const saved = repo && repo[game] && repo[game][String(edition)];
           if (saved && saved.id === ev.id && Array.isArray(saved.results) && saved.results.length) return saved;
-          return fetch(`${proxyUrl}/event-results?id=${ev.id}`).then(r => r.ok ? r.json() : null);
+          /* Not saved by the Action (e.g. times still hidden): ask the Worker, but at most once a day per event. */
+          const missKey = 'speedtas_evmiss_' + ev.id;
+          try {const t = +localStorage.getItem(missKey); if (t && Date.now() - t < 864e5) return null;} catch (e) {}
+          return fetch(`${proxyUrl}/event-results?id=${ev.id}`).then(r => r.ok ? r.json() : null).then(d => {
+            if (!d || !d.results || !d.results.length) {try {localStorage.setItem(missKey, String(Date.now()));} catch (e) {}}
+            return d;
+          });
         }).then(data => {
           if (!data || !data.results || !stillHere()) return;
           const matched = matchEntrantsToPlayers(data.results, Object.keys(ed.results), {placements: ed.results, hosts: EVENT_HOSTS[game]});
@@ -1099,7 +1112,7 @@
     const repoMaps = () => MAPS_PROMISE || (MAPS_PROMISE = fetch('data/maps.json', {cache: 'no-cache'}).then(r => r.ok ? r.json() : {}).catch(() => ({})));
     const mapKeyFor = seasonKey => GAME === 'tm20' ? 'tm20' : seasonKey;
     const fmtMs = ms => {if (ms == null) return '—'; const s = ms / 1000, m = Math.floor(s / 60); return m ? `${m}:${(s - m * 60).toFixed(2).padStart(5, '0')}` : s.toFixed(2);};
-    const mapThumb = map => map.thumbUrl || (map.tmx && map.thumb ? `https://tmnf.exchange/trackshow/${map.tmx}/image/1` : '');
+    const mapThumb = map => map.thumbFile || map.thumbUrl || (map.tmx && map.thumb ? `https://tmnf.exchange/trackshow/${map.tmx}/image/1` : ''); // thumbFile = copy saved in the repo by the Action
     const mapLink = map => map.tmx ? `https://tmnf.exchange/trackshow/${map.tmx}` : (map.tas ? `https://tmtas.exchange/trackshow/${map.tas.track}?exchange=tm2020` : '');
     /* How far one hour got: 0% = author time, 100% = the all-time TAS record. */
     function recordProgress(map, winnerSecs) {
@@ -1594,12 +1607,12 @@
       return {editions: payload.editions, players: payload.players};
     }
 
-    /* Season 2 (archive): Worker -> repo file -> direct Google Sheets -> built-in snapshot. */
+    /* Season 2 (archive): repo file -> Worker -> direct Google Sheets -> built-in snapshot. */
     async function loadSeason2Live() {
-      try {return await fetchWorkerData('s2');}
-      catch (err) {console.warn('Season 2 via Worker failed; trying the repo data file.', err);}
       try {return await fetchRepoData('s2');}
-      catch (err) {console.warn('Season 2 repo data file unavailable; trying direct Google Sheets connection.', err);}
+      catch (err) {console.warn('Season 2 repo data file unavailable; trying the Worker.', err);}
+      try {return await fetchWorkerData('s2');}
+      catch (err) {console.warn('Season 2 via Worker failed; trying direct Google Sheets connection.', err);}
       const response = await fetchViaJSONP(SHEET_NAME);
       return parseGvizResponse(response);
     }
@@ -1703,9 +1716,46 @@
       }, delay));
     }
 
+    /* data/avatars.json is written by the GitHub Action ({players: {name: discordId}, avatars: {discordId: url}}),
+       so a visit normally needs no Worker or Discord lookups at all. The Worker is only asked about players the
+       file has no picture for, at most once a day per browser. */
+    const AVATAR_CHECK_KEY = 'speedtas_avatar_check_t';
+    async function loadAvatarsFromRepo(proxyUrl) {
+      let file = null;
+      try {const r = await fetch('data/avatars.json', {cache: 'no-cache'}); if (r.ok) file = await r.json();} catch (e) {}
+      if (!file || !file.players || !Object.keys(file.players).length) return false;
+      Object.entries(file.players).forEach(([name, id]) => {if (/^\d{15,25}$/.test(String(id))) DISCORD_IDS[playerKey(name)] = String(id);});
+      Object.entries(file.avatars || {}).forEach(([id, url]) => {if (url) DISCORD_AVATARS[id] = url;});
+      saveAvatarStore();
+      const missing = [...new Set(Object.values(DISCORD_IDS))].filter(id => !DISCORD_AVATARS[id] && !(file.avatars && id in file.avatars && file.avatars[id] === null));
+      let last = 0; try {last = +localStorage.getItem(AVATAR_CHECK_KEY) || 0;} catch (e) {}
+      if (proxyUrl && missing.length && Date.now() - last > 864e5) {
+        try {localStorage.setItem(AVATAR_CHECK_KEY, String(Date.now()));} catch (e) {}
+        const fresh = await fetchAvatarsInBatches(proxyUrl, missing);
+        Object.assign(DISCORD_AVATARS, fresh); saveAvatarStore();
+      }
+      return true;
+    }
+    /* A saved picture that no longer loads (the player changed it): ask the Worker for that one, once a day at most. */
+    let avatarFixQueue = new Set(), avatarFixTimer = null;
+    function queueAvatarRefresh(id) {
+      const proxyUrl = (SPEEDTAS_API_URL || getAvatarProxyUrl() || '').replace(/\/+$/, '');
+      if (!proxyUrl || !id) return;
+      const key = 'speedtas_avfix_' + id;
+      try {const t = +localStorage.getItem(key); if (t && Date.now() - t < 864e5) return; localStorage.setItem(key, String(Date.now()));} catch (e) {}
+      avatarFixQueue.add(id);
+      clearTimeout(avatarFixTimer);
+      avatarFixTimer = setTimeout(async () => {
+        const ids = [...avatarFixQueue]; avatarFixQueue = new Set();
+        const fresh = await fetchAvatarsInBatches(proxyUrl, ids);
+        const changed = ids.filter(id => fresh[id] && fresh[id] !== DISCORD_AVATARS[id]);
+        if (changed.length) {Object.assign(DISCORD_AVATARS, fresh); saveAvatarStore(); swapInAvatars();}
+      }, 1500);
+    }
     async function loadDiscordProfiles() {
       try {
         const proxyUrl = (SPEEDTAS_API_URL || getAvatarProxyUrl() || '').replace(/\/+$/, '');
+        if (await loadAvatarsFromRepo(proxyUrl)) return;
         DISCORD_IDS = {...DISCORD_IDS}; let freshRoster = 0; // keep last visit's IDs until the new roster arrives
         // The Worker fetches the Players tab so public browsers never have
         // to execute a Google JSONP script to build the avatar roster.
@@ -2132,6 +2182,7 @@
        colored-initials avatar avatarHTML() would have used anyway. */
     function handleAvatarError(img, encodedName) {
       const name = decodeURIComponent(encodedName);
+      queueAvatarRefresh(discordIdFor(name));
       const s = img.clientWidth || img.offsetWidth || 32;
       const div = document.createElement('div');
       div.className = 'avatar';
@@ -2459,7 +2510,8 @@
     function renderProgressChart(players, editionOrder, ranked) {
       const top6 = ranked.slice(0, 6);
       const ctx = document.getElementById('progressChart');
-      if (!ctx || !window.Chart) return;
+      if (!ctx) return;
+      if (!window.Chart) {whenChart(() => {if (document.body.contains(ctx)) renderProgressChart(players, editionOrder, ranked);}); return;}
       if (progressChartInstance) progressChartInstance.destroy();
       const colors = seriesColors();
       const opts = chartOptions();
@@ -2597,7 +2649,11 @@
       const shareBtn = document.getElementById('shareCard');
       if (shareBtn) shareBtn.addEventListener('click', () => openSeasonCard(p, seasonKey === 'all' ? 'All-time' : (GAME === 'tm20' ? 'TM2020' : labelFor(seasonKey)), p.rank ? `P${p.rank} ${seasonKey === 'all' ? 'all-time' : 'in the standings'}` : '', seasonKey, profileHonor));
       profileCharts.forEach(c => c.destroy()); profileCharts = [];
-      if (!window.Chart) return;
+      if (!window.Chart) { // Chart.js is still loading (deferred): draw the profile again once it's there
+        const canvas = document.getElementById('chartPlacement');
+        whenChart(() => {if (canvas && document.body.contains(canvas)) renderPlayerProfileEnhanced(decoded, seasonKey, seasonData);});
+        return;
+      }
       const labels = history.map(h => h.edition), placements = history.map(h => h.placement), cumulative = []; let running = 0; history.forEach(h => {running += h.points; cumulative.push(running);});
       const color = accentHex();
       const medalColor = pl => pl === 1 ? '#ffcf3f' : pl === 2 ? '#c9ccd6' : pl === 3 ? '#d98a4a' : color;
