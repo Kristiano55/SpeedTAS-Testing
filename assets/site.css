@@ -867,11 +867,13 @@
     .rec-bar { height: 8px; border-radius: 99px; background: rgba(255,255,255,.07); overflow: hidden; }
     .rec-bar span { display: block; height: 100%; background: var(--accent); border-radius: 99px; }
     .rec-progress small { display: block; margin-top: 6px; color: var(--muted); font-size: 12.5px; }
+    .maps-note { margin: 14px 0 0; color: var(--muted); font-size: 14px; }
     .maps-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; margin-top: 18px; }
     .map-tile { display: flex; flex-direction: column; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; color: var(--text); text-decoration: none; transition: border-color .15s; }
     .map-tile:hover, .map-tile:focus-visible { border-color: var(--accent); outline: none; }
     .map-tile-img { position: relative; aspect-ratio: 16 / 9; background: var(--bg2); }
     .map-tile-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .map-tile-img:not(:has(img)) { background: repeating-linear-gradient(135deg, var(--bg2) 0 14px, var(--card) 14px 28px); } /* no picture yet */
     .map-tile-num { position: absolute; left: 10px; top: 10px; font: 800 14px var(--font-mono); background: rgba(10,11,13,.8); color: var(--accent); padding: 3px 8px; border-radius: 6px; }
     .map-tile-body { padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 4px; }
     .map-tile-body small { color: var(--muted); font-size: 12.5px; }

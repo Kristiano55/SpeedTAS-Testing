@@ -364,6 +364,7 @@
       <p>Every SpeedTAS map, with its author time, the all-time TAS record on TAS Exchange and how close the one-hour winner got to it.</p></header>
     <div class="versus-controls">${seasonSeg(seasonKey, 'maps-season', seasonOptions())}</div>
     ${eds.length ? '' : `<div class="empty-state"><b>No maps yet</b>Maps show up here once ${E(labelFor(seasonKey))} has editions.</div>`}
+    ${eds.length && !known ? `<p class="maps-note">Map names, pictures and records for ${E(labelFor(seasonKey))} appear after the next data update.</p>` : ''}
     <div class="maps-grid">${eds.map(ed => {
       const map = maps[ed.edition], w = wins[ed.edition] || {}, thumb = map ? mapThumb(map) : '';
       return `<a class="map-tile" href="${base}/edition/${seasonKey}/${enc(ed.edition)}">

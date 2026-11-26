@@ -48,14 +48,24 @@
       const latestWinner = latestEntries.find(([, place]) => place === 1)?.[0] || '—';
       const latestPodium = latestEntries.filter(([, place]) => place <= 3);
       const beforeLatest = new Set(D.editions.slice(0, -1).flatMap(ed => Object.keys(ed.results)));
-      const debutants = latestEntries.filter(([name]) => !beforeLatest.has(name)).map(([name]) => name);
+      /* First-timers = never raced SpeedTAS before, earlier seasons included (TMNF), not just new to this season. */
+      const earlierSeasons = GAME === 'tmnf' ? (homeKey === 's3' ? [SEASON_2, SEASON_1] : homeKey === 's2' ? [SEASON_1] : []) : [];
+      const earlierKeys = new Set(earlierSeasons.filter(Boolean).flatMap(d => d.editions.flatMap(ed => Object.keys(ed.results))).map(playerKey));
+      const debutants = latestEntries.filter(([name]) => !beforeLatest.has(name) && !earlierKeys.has(playerKey(name))).map(([name]) => name);
+      const archivesPending = earlierSeasons.some(d => !d); // older seasons still loading: redraw once they're in
+      /* Season complete (all editions run): final wording instead of "leader". */
+      const infoNow = GAME === 'tmnf' ? SEASON_INFO[CURRENT_TMNF_SEASON] : null;
+      const seasonDone = !archive && !!(infoNow && infoNow.editions && D.editions.length >= infoNow.editions);
+      /* "Last N" ranges only when the season has more than N editions. */
+      const rangeOpts = [5, 10, 25].filter(n => n < D.editions.length);
+      const range = rangeOpts.includes(+leaderboardFilter) ? leaderboardFilter : 'all';
       const climber = [...ranked].filter(p => p.movement > 0).sort((a, b) => b.movement - a.movement)[0];
 
-      const filteredEditions = leaderboardFilter === 'all' ? D.editions :
-        D.editions.slice(-parseInt(leaderboardFilter));
+      const filteredEditions = range === 'all' ? D.editions :
+        D.editions.slice(-parseInt(range));
       const filteredData = {editions: filteredEditions, players: D.players, bestOf: D.bestOf};
-      const filteredComputed = leaderboardFilter === 'all' ? {players, ranked} : computeAll(filteredData);
-      const board = leaderboardFilter === 'all' ? ranked : filteredComputed.ranked;
+      const filteredComputed = range === 'all' ? {players, ranked} : computeAll(filteredData);
+      const board = range === 'all' ? ranked : filteredComputed.ranked;
 
       const sorted = sortBoard(board, sortState);
 
@@ -66,7 +76,7 @@
       const gameName = GAME === 'tm20' ? 'Trackmania 2020' : 'Trackmania Nations Forever';
       const playerLink = n => `<a href="#/player/${sk}${enc(n)}">${E(n)}</a>`;
       const notes = [
-        leader ? `<div class="note"><div><div class="panel-label">${archive ? E(SEASON_INFO[ARCHIVE_DEFAULT].label) + ' champion' : 'Championship leader'}</div><div class="note-title">${playerLink(leader.name)}</div></div><div class="note-fig">${leader.points} pts</div><div class="note-detail">${runnerUp ? (leader.points - runnerUp.points) + ' pt lead over ' + E(runnerUp.name) : 'No challenger yet'} · ${plural(leader.wins, 'win')}</div></div>` : '',
+        leader ? `<div class="note"><div><div class="panel-label">${archive ? E(SEASON_INFO[ARCHIVE_DEFAULT].label) + ' champion' : seasonDone ? E(infoNow.label) + ' champion' : 'Championship leader'}</div><div class="note-title">${playerLink(leader.name)}</div></div><div class="note-fig">${leader.points} pts</div><div class="note-detail">${runnerUp ? (leader.points - runnerUp.points) + ' pt lead over ' + E(runnerUp.name) : 'No challenger yet'} · ${plural(leader.wins, 'win')}</div></div>` : '',
         `<div class="note"><div><div class="panel-label">Closest battle</div><div class="note-title">${closestPair ? `<a href="#/versus/${homeKey}/${enc(closestPair[0].name)}/${enc(closestPair[1].name)}">${E(closestPair[0].name)} vs ${E(closestPair[1].name)}</a>` : 'Not yet'}</div></div><div class="note-fig">${closestPair ? closestGap + ' pt gap' : ''}</div><div class="note-detail">${closestPair ? 'P' + closestPair[0].rank + ' against P' + closestPair[1].rank + ' in the standings' : 'Needs two players on ' + CLOSEST_MIN_POINTS + '+ points'}</div></div>`,
         `<div class="note"><div><div class="panel-label">Biggest climber</div><div class="note-title">${climber ? playerLink(climber.name) : 'No movement yet'}</div></div><div class="note-fig up">${climber ? '▲ ' + climber.movement : ''}</div><div class="note-detail">${climber ? plural(climber.movement, 'place') + ' gained after Edition ' + E(latestEdition?.edition || '—') : 'Rank shifts appear after another edition'}</div></div>`,
         `<div class="note"><div><div class="panel-label">First-timers</div><div class="note-title">${debutants.length ? debutants.map(E).join(', ') : (latestEdition ? 'No debuts' : 'Not yet')}</div></div><div class="note-avs">${debutants.slice(0, 4).map(name => avatarHTML(name, 26)).join('')}</div><div class="note-detail">${debutants.length ? 'Welcome to the SpeedTAS grid' : (latestEdition ? 'Every racer in the latest edition had competed before' : 'New names show up here after each edition')}</div></div>`
@@ -81,8 +91,8 @@
       ${archive ? `<div class="kicker">${gameName} · Off-season · ${E(info.label)} starts ${E(fmtLisbonDay(info.start))}</div>
       <h1>${E(SEASON_INFO[ARCHIVE_DEFAULT].label)} <em>final standings</em></h1>
       <p>One hour to TAS a map, fastest run wins. ${E(info.label)} is coming soon. Until then, here's how ${E(SEASON_INFO[ARCHIVE_DEFAULT].label)} finished after ${plural(totalEditions, 'edition')}.</p>` : `<div class="kicker">${gameName} · ${info && info.editions ? `${totalEditions} of ${info.editions} editions run` : plural(totalEditions, 'edition') + ' run'}</div>
-      <h1>${E(S2L())} <em>standings</em></h1>
-      <p>One hour to TAS a map, fastest run wins. Live championship standings, the latest result and every battle worth watching.${bestOfNote ? ' ' + E(bestOfNote) : ''}</p>`}
+      <h1>${E(S2L())} <em>${seasonDone ? 'final standings' : 'standings'}</em></h1>
+      <p>${seasonDone ? `One hour to TAS a map, fastest run wins. ${E(info.label)} is complete: here's how all ${info.editions} editions finished.${bestOfNote ? ' ' + E(bestOfNote) : ''}` : `One hour to TAS a map, fastest run wins. Live championship standings, the latest result and every battle worth watching.${bestOfNote ? ' ' + E(bestOfNote) : ''}`}</p>`}
     </header>
     ${GAME === 'tmnf' ? honorsHTML(homeKey, seasonOutcome(homeKey, D)) : ''}
 
@@ -115,12 +125,11 @@
 
     <section>
       <div class="head-row">
-        <h2 class="section-title">${archive ? 'Final table' : 'Championship table'}</h2>${!archive && info && info.bestOf ? `<span class="head-note">Best ${info.bestOf} of ${info.editions} count · dropped results are faded</span>` : ''}
+        <h2 class="section-title">${archive || seasonDone ? 'Final table' : 'Championship table'}</h2>${!archive && info && info.bestOf ? `<span class="head-note">Best ${info.bestOf} of ${info.editions} count · dropped results are faded</span>` : ''}
         <div class="toolbar-group">
           <div class="seg" role="group" aria-label="Leaderboard range">
-            <button type="button" class="filter-btn ${leaderboardFilter === 'all' ? 'active' : ''}" data-filter="all" aria-pressed="${leaderboardFilter === 'all'}">All editions</button>
-            <button type="button" class="filter-btn ${leaderboardFilter === '10' ? 'active' : ''}" data-filter="10" aria-pressed="${leaderboardFilter === '10'}">Last 10</button>
-            <button type="button" class="filter-btn ${leaderboardFilter === '25' ? 'active' : ''}" data-filter="25" aria-pressed="${leaderboardFilter === '25'}">Last 25</button>
+            <button type="button" class="filter-btn ${range === 'all' ? 'active' : ''}" data-filter="all" aria-pressed="${range === 'all'}">All editions</button>
+            ${rangeOpts.map(n => `<button type="button" class="filter-btn ${range === String(n) ? 'active' : ''}" data-filter="${n}" aria-pressed="${range === String(n)}">Last ${n}</button>`).join('')}
           </div>
           <button type="button" class="btn" id="exportCsv">Export CSV</button>
         </div>
@@ -181,6 +190,7 @@
 
       startCountdown();
       if (GAME === 'tmnf') startLiveBanner();
+      if (archivesPending) Promise.all([loadSeason1(), loadSeason2()]).catch(() => {}).then(() => {if (currentRoute().length === 0 && GAME === 'tmnf') renderHome();});
       renderProgressChart(players, editionOrder, ranked);
     }
 
@@ -298,7 +308,7 @@
     }
     function titleRaceHTML(info, ranked, played, sk = '') {
       const race = titleRace(info, ranked, played);
-      if (!race) return '';
+      if (!race || (!race.out && race.left > 4)) return ''; // shown once someone is out of it, or in the last 4 editions
       const E = escapeHtml, top = Math.max(...race.rows.map(r => r.max)), shown = race.rows.slice(0, 10);
       const status = r => r.p === race.leader ? (race.clinched ? '<span class="tr-tag win">Champion</span>' : '<span class="tr-tag lead">Leader</span>')
         : r.max === race.leader.points ? '<span class="tr-tag edge">Needs a perfect run</span>' : '<span class="tr-tag">Can still win</span>';
