@@ -35,11 +35,17 @@ jobs:
         run: node scripts/update-data.mjs --selftest
       - name: Fetch sheets and events
         run: node scripts/update-data.mjs ${{ inputs.sheets_only && '--sheets' || '' }}
+      - name: Draw the link-preview image (top 10)
+        # resvg is only needed here, never by the website. A failure keeps the previous image.
+        continue-on-error: true
+        run: |
+          npm install --no-save --no-package-lock --silent @resvg/resvg-js@2
+          node scripts/og-image.mjs
       - name: Commit changed data
         run: |
           git config user.name "speedtas-bot"
           git config user.email "actions@users.noreply.github.com"
-          git add data
+          git add data index.html
           # updated.json changes on every run; only commit when results actually changed
           if git diff --cached --quiet -- data ':!data/updated.json'; then
             echo "No result changes."
