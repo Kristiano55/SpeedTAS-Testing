@@ -1,7 +1,8 @@
 # SpeedTAS stats site
 
 Standings, results, records and rivalries for SpeedTAS, the one-hour Trackmania TAS competition.
-Live at https://kristiano55.github.io/SpeedTAS-Testing/ (GitHub Pages, plain HTML/CSS/JS, no build step).
+Two copies: **SpeedTAS** is the live site, **SpeedTAS-Testing** (https://kristiano55.github.io/SpeedTAS-Testing/) is the test copy
+where changes are tried first. GitHub Pages, plain HTML/CSS/JS, no build step. Nothing in the code is tied to one of them.
 
 ## Files
 

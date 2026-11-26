@@ -19,7 +19,7 @@
 import { readFile, writeFile, mkdir, access } from 'node:fs/promises';
 
 const OUT = 'data';
-const UA = 'SpeedTAS data updater (github.com/Kristiano55/SpeedTAS-Testing)';
+const UA = `SpeedTAS data updater (github.com/${process.env.GITHUB_REPOSITORY || 'Kristiano55/SpeedTAS'})`;
 
 /* ============ SOURCES ============ */
 const SHEETS = {

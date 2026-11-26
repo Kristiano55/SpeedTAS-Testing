@@ -8,7 +8,9 @@ import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 
 const OUT = 'data/og';
-const SITE = 'https://kristiano55.github.io/SpeedTAS-Testing/';
+// The site's own address, from the repo the Action runs in (SpeedTAS = live site, SpeedTAS-Testing = test copy).
+const [OWNER, REPO] = (process.env.GITHUB_REPOSITORY || 'Kristiano55/SpeedTAS-Testing').split('/');
+const SITE = `https://${OWNER.toLowerCase()}.github.io/${REPO}/`;
 const SEASONS = {
   s3: { label: 'Season 3', bestOf: 9, editions: 12, accent: '#b388ff' },
   s2: { label: 'Season 2', bestOf: null, editions: null, accent: '#e9fb59' },
@@ -106,6 +108,7 @@ async function updateIndex(version, description) {
   const before = html;
   html = html.replace(/(<meta property="og:image" content=")[^"]*(")/, `$1${img}$2`)
     .replace(/(<meta name="twitter:image" content=")[^"]*(")/, `$1${img}$2`)
+    .replace(/(<meta property="og:url" content=")[^"]*(")/, `$1${SITE}$2`)
     .replace(/(<meta property="og:description" content=")[^"]*(")/, `$1${esc(description)}$2`)
     .replace(/(<meta name="twitter:description" content=")[^"]*(")/, `$1${esc(description)}$2`);
   if (html !== before) await writeFile(file, html);
