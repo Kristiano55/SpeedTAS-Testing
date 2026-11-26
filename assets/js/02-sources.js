@@ -373,7 +373,7 @@
           ${map && map.tas ? `<small>TAS record ${fmtMs(map.tas.time)}${map.tas.by ? ' · ' + E(map.tas.by) : ''}</small>` : ''}
           ${progressHTML(recordProgress(map, w.secs))}</div></a>`;
     }).join('')}</div>`;
-        main.querySelectorAll('[data-maps-season]').forEach(btn => btn.addEventListener('click', () => renderMaps(btn.dataset.mapsSeason)));
+        main.querySelectorAll('[data-maps-season]').forEach(btn => btn.addEventListener('click', () => goSeason('/maps/' + btn.dataset.mapsSeason)));
       })).catch(seasonError);
     }
 

@@ -288,28 +288,28 @@
         renderHome();
       } else if (route[0] === 'players') {
         document.querySelector('nav a[data-route="/players"]').classList.add('active');
-        renderPlayers();
+        renderPlayers(seasonArg(route[1], ['both']));
       } else if (route[0] === 'player' && route[1]) {
         if ((isSeasonKey(route[1]) || route[1] === 'all') && route[2]) renderPlayerProfileEnhanced(route[2], route[1]);
         else renderPlayerProfileEnhanced(route[1]);
       } else if (route[0] === 'history') {
         document.querySelector('nav a[data-route="/history"]').classList.add('active');
-        renderHistory();
+        renderHistory(seasonArg(route[1]));
       } else if (route[0] === 'maps') {
         document.querySelector('nav a[data-route="/maps"]').classList.add('active');
-        renderMaps();
+        renderMaps(seasonArg(route[1]));
       } else if (route[0] === 'records') {
         document.querySelector('nav a[data-route="/records"]').classList.add('active');
-        renderRecords();
+        renderRecords(seasonArg(route[1], ['both']));
       } else if (route[0] === 'rivalries') {
         document.querySelector('nav a[data-route="/rivalries"]').classList.add('active');
-        renderRivalries();
+        renderRivalries(seasonArg(route[1], ['both']));
       } else if (route[0] === 'edition' && route[1]) {
         if (isSeasonKey(route[1]) && route[2]) renderEditionDetail(route[2], route[1]);
         else renderEditionDetail(route[1]);
       } else if (route[0] === 'versus') {
         document.querySelector('nav a[data-route="/versus"]').classList.add('active');
-        if ((isSeasonKey(route[1]) || route[1] === 'both') && route[2] && route[3]) renderVersus(route[2], route[3], route[1]);
+        if (isSeasonKey(route[1]) || route[1] === 'both') renderVersus(route[2], route[3], route[1]); // #/versus/s2 or #/versus/s2/A/B
         else renderVersus(route[1], route[2]);
       } else if (route[0] === 'videos') {
         document.querySelector('nav a[data-route="/videos"]').classList.add('active');

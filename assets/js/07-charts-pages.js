@@ -26,7 +26,7 @@
       const colors = seriesColors();
       const opts = chartOptions();
       opts.plugins.legend = {display: true, position: 'bottom', labels: {color: '#eef0ea', usePointStyle: true, pointStyle: 'rectRounded', boxWidth: 10, boxHeight: 10, padding: 18, font: {family: "'Barlow', sans-serif", size: 13, weight: 600}}};
-      opts.scales.x.title = {display: true, text: 'Edition', color: '#5f636e'};
+      opts.scales.x.title = {display: true, text: 'Edition', color: '#80848f'};
       progressChartInstance = new Chart(ctx, {
         type: 'line',
         data: {
@@ -68,7 +68,7 @@
     <div class="directory" id="directoryGrid">${ranked.map(p => `<a href="#/player/${linkSeason}/${enc(p.name)}" class="player-card-link" data-name="${E(p.name.toLowerCase())}"><div class="player-card ${p.rank <= 3 ? 'top r' + p.rank : ''}">${avatarHTML(p.name, 44)}<div><div class="pname">${E(p.name)}</div><div class="pmeta"><b>${p.points}</b> pts · ${plural(p.played, 'race')}</div></div><span class="prank" aria-label="Rank ${p.rank}">${p.rank}</span></div></a>`).join('')}</div>
     <div class="empty-state" id="dirEmpty" hidden>No player matches that filter.</div>
     ${ranked.length ? '' : `<div class="empty-state"><b>No players yet</b>Players appear here after their first ${E(label)} edition.</div>`}`;
-      main.querySelectorAll('[data-directory-season]').forEach(btn => btn.addEventListener('click', () => renderPlayers(btn.dataset.directorySeason)));
+      main.querySelectorAll('[data-directory-season]').forEach(btn => btn.addEventListener('click', () => goSeason('/players/' + btn.dataset.directorySeason)));
       document.getElementById('dirSearch').addEventListener('input', e => {
         const q = e.target.value.trim().toLowerCase(); let shown = 0;
         document.querySelectorAll('#directoryGrid .player-card-link').forEach(link => {const hit = link.dataset.name.includes(q); link.style.display = hit ? '' : 'none'; if (hit) shown++;});
@@ -169,13 +169,13 @@
       const color = accentHex();
       const medalColor = pl => pl === 1 ? '#ffcf3f' : pl === 2 ? '#c9ccd6' : pl === 3 ? '#d98a4a' : color;
       const placeOpts = chartOptions();
-      placeOpts.scales.y = {...placeOpts.scales.y, reverse: true, min: 1, title: {display: true, text: 'Placement (lower is better)', color: '#5f636e'}};
+      placeOpts.scales.y = {...placeOpts.scales.y, reverse: true, min: 1, title: {display: true, text: 'Placement (lower is better)', color: '#80848f'}};
       profileCharts.push(new Chart(document.getElementById('chartPlacement'), {type: 'line', data: {labels, datasets: [{label: 'Placement', data: placements, borderColor: color, borderWidth: 2, tension: .25, pointRadius: 4, pointHoverRadius: 6, pointBackgroundColor: placements.map(medalColor), pointBorderColor: '#14161a', pointBorderWidth: 1.5}]}, options: placeOpts}));
       profileCharts.push(new Chart(document.getElementById('chartCumulative'), {type: 'line', data: {labels, datasets: [{label: 'Points', data: cumulative, borderColor: color, backgroundColor: color + '22', fill: true, borderWidth: 2, tension: .25, pointRadius: 0, pointHoverRadius: 5}]}, options: chartOptions()}));
     }
     function profileTabs(active) {return seasonSeg(active, 'profile-season', seasonOptions('all', 'All-time'));}
     function bindProfileTabs(decoded) {
-      main.querySelectorAll('[data-profile-season]').forEach(btn => btn.addEventListener('click', () => renderPlayerProfileEnhanced(decoded, btn.dataset.profileSeason)));
+      main.querySelectorAll('[data-profile-season]').forEach(btn => btn.addEventListener('click', () => goSeason(`/player/${btn.dataset.profileSeason}/${enc(decoded)}`)));
     }
 
     /* ============ RENDER: HISTORY ============ */
@@ -206,7 +206,7 @@
         </a>`;
       }).join('')}
     </div>`;
-        main.querySelectorAll('[data-history-season]').forEach(btn => btn.addEventListener('click', () => renderHistory(btn.dataset.historySeason)));
+        main.querySelectorAll('[data-history-season]').forEach(btn => btn.addEventListener('click', () => goSeason('/history/' + btn.dataset.historySeason)));
         bindHonors(seasonKey, data);
         if (hasEvents(seasonKey)) loadEventIndex(eventKeyFor(seasonKey), fillHistoryEventLinks);
       }).catch(seasonError);
@@ -306,7 +306,10 @@
         main.innerHTML = `<header class="page-head"><div class="kicker">Player A against Player B</div><h1>Head<em>2</em>Head</h1></header>
     <div class="versus-controls">${seasonSeg(seasonKey, 'h2h-season', seasonOptions('both'))}</div>
     <div class="empty-state"><b>No results yet</b>Head-to-heads open up once ${escapeHtml(labelFor(seasonKey))} has its first edition. Try an earlier season.</div>`;
-        main.querySelectorAll('[data-h2h-season]').forEach(btn => btn.addEventListener('click', () => renderVersus(undefined, undefined, btn.dataset.h2hSeason)));
+        main.querySelectorAll('[data-h2h-season]').forEach(btn => btn.addEventListener('click', () => {
+        const a = document.getElementById('selA'), b = document.getElementById('selB');
+        goSeason(`/versus/${btn.dataset.h2hSeason}` + (a && b && a.value && b.value ? `/${enc(a.value)}/${enc(b.value)}` : ''));
+      }));
         return;
       }
       const a = p1name || names[0];
@@ -358,6 +361,8 @@
       function draw() {
         const pa = players[document.getElementById('selA').value];
         const pb = players[document.getElementById('selB').value];
+        /* keep the address in step with the chosen pair (no reload, no new Back step) */
+        try {history.replaceState(null, '', routeHash(`/versus/${seasonKey}/${enc(pa.name)}/${enc(pb.name)}`));} catch (e) {}
         const colorA = 'var(--side-a)', colorB = 'var(--side-b)';
         const E = escapeHtml, nA = E(pa.name), nB = E(pb.name);
 
@@ -415,7 +420,10 @@
       }
       document.getElementById('selA').addEventListener('change', draw);
       document.getElementById('selB').addEventListener('change', draw);
-      main.querySelectorAll('[data-h2h-season]').forEach(btn => btn.addEventListener('click', () => renderVersus(undefined, undefined, btn.dataset.h2hSeason)));
+      main.querySelectorAll('[data-h2h-season]').forEach(btn => btn.addEventListener('click', () => {
+        const a = document.getElementById('selA'), b = document.getElementById('selB');
+        goSeason(`/versus/${btn.dataset.h2hSeason}` + (a && b && a.value && b.value ? `/${enc(a.value)}/${enc(b.value)}` : ''));
+      }));
       document.getElementById('swapH2H').addEventListener('click', () => {
         const selA = document.getElementById('selA'), selB = document.getElementById('selB');
         const oldA = selA.value; selA.value = selB.value; selB.value = oldA; draw();

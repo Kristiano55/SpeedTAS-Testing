@@ -51,7 +51,7 @@
     <header class="page-head"><div class="kicker">The record book</div><h1>Season <em>records</em></h1><p>Who leads for wins, streaks, consistency and more.</p></header>
     <div class="toolbar" data-tmnf-only>${seasonSeg(season, 'record-season', seasonOptions('both'))}</div>
     <div id="recordContent" class="record-grid"><div class="loader"><div class="spinner"></div> Opening the record book…</div></div>`;
-      main.querySelectorAll('[data-record-season]').forEach(b => b.addEventListener('click', () => renderRecords(b.dataset.recordSeason)));
+      main.querySelectorAll('[data-record-season]').forEach(b => b.addEventListener('click', () => goSeason('/records/' + b.dataset.recordSeason)));
       seasonSource(season).then(data => {
         const host = document.getElementById('recordContent'); if (!host) return;
         host.innerHTML = recordDefinitions(computeAll(data).ranked).map(recordCard).join('');
@@ -116,7 +116,7 @@
       <span class="toolbar-group"><span class="toolbar-label">Shared races</span><div class="seg" role="group" aria-label="Minimum shared races">${[3, 5, 8].map(n => `<button type="button" class="filter-btn ${minShared === n ? 'active' : ''}" data-rival-min="${n}" aria-pressed="${minShared === n}">${n}+</button>`).join('')}</div></span>
     </div>
     <section><div class="head-row"><h2 id="rivalryHeading" class="section-title">Closest rivalries</h2><span class="head-note">Even records · repeat races · close finishes</span></div><div id="rivalryContent" class="rivalry-grid"><div class="loader"><div class="spinner"></div> Finding matchups…</div></div></section>`;
-      main.querySelectorAll('[data-rival-season]').forEach(b => b.addEventListener('click', () => renderRivalries(b.dataset.rivalSeason, minShared, selectedPlayer)));
+      main.querySelectorAll('[data-rival-season]').forEach(b => b.addEventListener('click', () => goSeason('/rivalries/' + b.dataset.rivalSeason)));
       main.querySelectorAll('[data-rival-min]').forEach(b => b.addEventListener('click', () => renderRivalries(season, Number(b.dataset.rivalMin), selectedPlayer)));
       seasonSource(season).then(data => {
         const host = document.getElementById('rivalryContent'), select = document.getElementById('rivalPlayer'), heading = document.getElementById('rivalryHeading'); if (!host || !select) return;
@@ -126,7 +126,16 @@
         const rows = rivalryRows(data, minShared).filter(r => !selectedPlayer || r.a === selectedPlayer || r.b === selectedPlayer);
         if (heading && selectedPlayer) heading.textContent = selectedPlayer + '’s rivalries';
         /* rows are already sorted most-competitive first; the top one gets the featured card. */
-        host.innerHTML = rows.length ? rows.map((r, i) => rivalryCard(r, season, i, i === 0)).join('') : `<div class="empty-state" style="grid-column:1/-1"><b>No rivalries yet</b>${selectedPlayer ? escapeHtml(selectedPlayer) + ' has not shared ' + minShared + ' races with another player yet.' : 'No pairs have raced together ' + minShared + ' times yet.'}</div>`;
+        /* Long lists (hundreds of pairs) show 20 at a time with a "Show more" button. */
+        const PAGE = 20;
+        const showUpTo = n => {
+          host.innerHTML = rows.slice(0, n).map((r, i) => rivalryCard(r, season, i, i === 0)).join('') +
+            (rows.length > n ? `<div class="show-more-row"><button type="button" class="btn" id="rivalMore">Show ${Math.min(PAGE, rows.length - n)} more <small>(${rows.length - n} left)</small></button></div>` : '');
+          const more = document.getElementById('rivalMore');
+          if (more) more.addEventListener('click', () => {showUpTo(n + PAGE); const next = host.children[n]; if (next) next.querySelector('a, button')?.focus({preventScroll: true});});
+        };
+        if (rows.length) {showUpTo(PAGE); return;}
+        host.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><b>No rivalries yet</b>${selectedPlayer ? escapeHtml(selectedPlayer) + ' has not shared ' + minShared + ' races with another player yet.' : 'No pairs have raced together ' + minShared + ' times yet.'}</div>`;
       }).catch(err => { const host = document.getElementById('rivalryContent'); if (host) host.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><b>Rivalries unavailable</b>${escapeHtml(err.message)}</div>`; });
     }
 

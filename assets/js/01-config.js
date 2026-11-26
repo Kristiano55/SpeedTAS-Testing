@@ -42,6 +42,10 @@
     /* Saturdays without a points edition (mid-season and off-season breaks), Lisbon dates. */
     const SCHEDULE_BREAKS = ['2027-03-20', '2027-05-08', '2027-05-15', '2027-05-22', '2027-05-29', '2027-07-17', '2027-09-04', '2027-09-11', '2027-09-18', '2027-11-06', '2027-12-25', '2028-01-01', '2028-01-08', '2028-01-15', '2028-01-22'];
     const EDITION_HOUR_LISBON = 18;
+    /* Season pickers change the address (#/history/s1), so a shared link, Back and refresh keep the chosen season. */
+    const routeHash = path => (GAME === 'tm20' ? '#/tm20' : '#') + path;
+    function goSeason(path) {location.hash = routeHash(path);}
+    const seasonArg = (k, extra = []) => (isSeasonKey(k) || extra.includes(k)) ? k : undefined; // undefined = the page's default season
     const curKey = () => GAME === 'tm20' ? 's2' : CURRENT_TMNF_SEASON; // TM2020 keeps its existing #/tm20/.../s2/... links
     const isSeasonKey = k => k === 's1' || k === 's2' || k === 's3';
     /* Off-season: until the current TMNF season has its first result, pages open on the
