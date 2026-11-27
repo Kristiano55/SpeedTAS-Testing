@@ -42,6 +42,17 @@ where changes are tried first. GitHub Pages, plain HTML/CSS/JS, no build step. N
 - Every outside service is optional: the site must still work (with a note) when the Worker, Google Sheets,
   YouTube, Discord or TAS Exchange is down. The site check blocks all of them to make sure.
 - Every push runs the Site check workflow; a red ✗ on the commit means something broke (GitHub emails you).
-  Run it by hand: `npm install --no-save playwright && npx playwright install chromium && node scripts/site-check.mjs`
-- The data Action (`.github/workflows/update-data.yml`) runs on Saturday and Sunday after each edition, or by hand
-  from the Actions tab ("Run workflow").
+  It also runs an accessibility audit (axe-core) on every page. Run it by hand:
+  `npm install --no-save playwright axe-core && npx playwright install chromium && node scripts/site-check.mjs`
+- The data Action (`.github/workflows/update-data.yml`) keeps `data/` up to date on its own:
+  - **When:** every 30 minutes on Saturday 17:17–21:47 UTC (covers the edition in summer and winter time), Sunday 12:17 UTC,
+    and a Wednesday maintenance run. Or by hand from the Actions tab ("Run workflow").
+  - **Safe:** a source that's down keeps its previous file. Sheet data that would lose editions the site already has is
+    refused (run by hand with "allow removals" if you deleted them on purpose). The new data is tested with the full
+    site check before it's published; if the site breaks with it, nothing is published.
+  - **Quiet:** a file is only rewritten when its content changes, so runs without news make no commit. Commit messages
+    say what changed ("data: s3 #4 added; s3 times for #4").
+  - **Alerts:** any problem (a source down, refused sheet data, a Saturday edition still without results the next day,
+    a failed site check) opens a GitHub issue labelled `data-update` (GitHub emails you). The next clean run closes it.
+  - **Season 3 maps** are found on TMX by name ("SpeedTAS 3 #4"); no pack id needed.
+  - Each run's report is on the run's summary page in the Actions tab.
