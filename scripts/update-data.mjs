@@ -488,7 +488,9 @@ async function updateAvatars(previous) {
   }
   // A lookup that failed this time keeps last run's picture.
   Object.values(players).forEach((id) => { if (!(id in avatars) && prev.avatars[id]) avatars[id] = prev.avatars[id]; });
-  return { players, avatars, calls };
+  // Sorted, so the file only changes when a picture does (the Worker answers batches in any order).
+  const sorted = (o) => Object.fromEntries(Object.entries(o).sort(([a], [b]) => a.localeCompare(b)));
+  return { players: sorted(players), avatars: sorted(avatars), calls };
 }
 
 /* ============ YOUTUBE VIDEOS ============ */
