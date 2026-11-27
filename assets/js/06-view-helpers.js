@@ -136,7 +136,7 @@
       const s = size || 32;
       const photo = getAvatarOverride(name);
       if (photo) {
-        return `<img src="${escapeHtml(photo)}" alt="${escapeHtml(name)}" loading="lazy" onerror="handleAvatarError(this,'${encodeURIComponent(name).replace(/'/g, '%27')}')" style="width:${s}px;height:${s}px;border-radius:50%;object-fit:cover;flex-shrink:0;display:inline-block;vertical-align:middle;">`;
+        return `<img src="${escapeHtml(photo)}" alt="${escapeHtml(name)}" loading="lazy" onerror="handleAvatarError(this,'${encodeURIComponent(name).replace(/'/g, '%27')}')" style="width:${s}px;height:${s}px;border-radius:50%;object-fit:cover;flex-shrink:0;background:${colorForName(name)};display:inline-block;vertical-align:middle;">`;
       }
       const c = colorForName(name);
       return `<div class="avatar" style="background:${c};${size ? `width:${size}px;height:${size}px;font-size:${size * 0.35}px;` : ''}" role="img" aria-label="${escapeHtml(name)}">${escapeHtml(initials(name))}</div>`;

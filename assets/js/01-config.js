@@ -99,6 +99,8 @@
     let STATE = {players: {}, editions: []};
     let sortState = {key: 'points', dir: 'desc'};
     let leaderboardFilter = 'all'; // all | 10 | 25
+    const BOARD_PREVIEW = 20; // rows shown before "Show all" on long standings tables
+    let boardExpanded = false;
     let DISCORD_IDS = {}, DISCORD_AVATARS = {};
 
     /* Season 1 is embedded so Season 1 / Both views (records, rivalries, head-to-head, profiles) remain usable

@@ -157,6 +157,7 @@
     <div class="stat-grid">
       ${stat('Avg placement', p.avgPlacement.toFixed(2))}${stat('Best finish', 'P' + p.best)}${stat('Worst finish', 'P' + p.worst)}${stat('Win rate', pct(p.winRate))}${stat('Podium rate', pct(p.podiumRate))}${stat('Avg pts / edition', p.avgPoints.toFixed(2))}${stat('Best win streak', p.maxWinStreak)}${stat('Best podium streak', p.maxPodiumStreak)}
     </div>
+    ${seasonKey !== 'all' ? outlookHTML(p, selected.computed.ranked, seasonKey, seasonKey === curKey() ? RAW : seasonData) : ''}
     ${p.badges && p.badges.length ? `<section><h2 class="section-title">Achievements</h2><div class="badge-list">${p.badges.map(b => `<span class="badge">${E(b.label)}</span>`).join('')}</div></section>` : ''}
     <section>
       <div class="head-row"><h2 class="section-title">Results strip</h2><span class="head-note">Every finish, oldest to newest</span></div>
@@ -190,6 +191,37 @@
       placeOpts.scales.y = {...placeOpts.scales.y, reverse: true, min: 1, title: {display: true, text: 'Placement (lower is better)', color: cssVar('--dim', '#80848f')}};
       profileCharts.push(new Chart(document.getElementById('chartPlacement'), {type: 'line', data: {labels, datasets: [{label: 'Placement', data: placements, borderColor: color, borderWidth: 2, tension: .25, pointRadius: 4, pointHoverRadius: 6, pointBackgroundColor: placements.map(medalColor), pointBorderColor: cssVar('--card', '#14161a'), pointBorderWidth: 1.5}]}, options: placeOpts}));
       profileCharts.push(new Chart(document.getElementById('chartCumulative'), {type: 'line', data: {labels, datasets: [{label: 'Points', data: cumulative, borderColor: color, backgroundColor: color + '22', fill: true, borderWidth: 2, tension: .25, pointRadius: 0, pointHoverRadius: 5}]}, options: chartOptions()}));
+    }
+    /* "Standing" panel on a season profile: the gap to the places either side and, in a best-of season,
+       which results count and what a new result has to beat to add points. */
+    function outlookHTML(p, table, seasonKey, data) {
+      const E = escapeHtml, at = table.findIndex(x => x.name === p.name);
+      if (at < 0) return '';
+      const sk = GAME === 'tm20' ? '#/tm20' : '#', link = x => `<a href="${sk}/player/${seasonKey}/${enc(x.name)}">${E(x.name)}</a>`;
+      const above = table[at - 1], below = table[at + 1], info = GAME === 'tm20' ? null : SEASON_INFO[seasonKey];
+      const total = info && info.editions, left = total ? Math.max(0, total - data.editions.length) : 0;
+      const item = (label, title, detail, fig = '') => `<div class="note"><div><div class="panel-label">${label}</div><div class="note-title">${title}</div></div><div class="note-fig">${fig}</div><div class="note-detail">${detail}</div></div>`;
+      const done = seasonKey !== curKey() || (total && !left), items = [];
+      if (above) {
+        const gap = above.points - p.points;
+        items.push(item(done ? `Finished behind (P${at})` : `Chasing P${at}`, link(above), gap ? (done ? `${plural(gap, 'point')} short` : `${plural(gap, 'point')} to catch up${left ? ` · ${plural(left, 'edition')} left` : ''}`) : 'Level on points, behind on the tie-break', gap ? `−${gap}` : '='));
+      }
+      if (below) {
+        const gap = p.points - below.points;
+        items.push(item(done ? `Finished ahead of (P${at + 2})` : `Ahead of P${at + 2}`, link(below), gap ? (done ? `${plural(gap, 'point')} clear` : `${plural(gap, 'point')} of breathing room`) : 'Level on points, ahead on the tie-break', gap ? `+${gap}` : '='));
+      }
+      if (data.bestOf) {
+        const counted = p.history.filter(h => !h.dropped), slotsLeft = data.bestOf - counted.length;
+        const lowest = counted.length ? counted.reduce((a, h) => (h.points < a.points || (h.points === a.points && h.placement > a.placement)) ? h : a) : null;
+        items.push(slotsLeft > 0
+          ? item('Counting results', `${counted.length} of ${data.bestOf} used`, `The next ${plural(slotsLeft, 'result')} count in full; after that only the best ${data.bestOf} stay.`, `${slotsLeft} free`)
+          : item('Counting results', `All ${data.bestOf} slots used`, lowest ? `A new result adds points only if it beats the lowest counting one: P${lowest.placement} in Edition ${E(lowest.edition)} (${plural(lowest.points, 'pt')}).` : '', p.droppedPoints ? `−${p.droppedPoints}` : ''));
+        if (left) {
+          const max = p.history.map(h => h.points).concat(Array(left).fill(pointsFor(1))).sort((a, b) => b - a).slice(0, data.bestOf).reduce((a, b) => a + b, 0);
+          items.push(item('Ceiling', `${max} pts possible`, `Winning every remaining edition, with the best ${data.bestOf} counting`, `+${max - p.points}`));
+        }
+      }
+      return items.length ? `<section><h2 class="section-title">Standing</h2><div class="panel notes outlook">${items.join('')}</div></section>` : '';
     }
     function profileTabs(active) {return seasonSeg(active, 'profile-season', seasonOptions('all', 'All-time'));}
     function bindProfileTabs(decoded) {

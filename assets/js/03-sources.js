@@ -358,10 +358,13 @@
       loadSeasonData(seasonKey).then(data => Promise.all([repoMaps(), winnerTimes(seasonKey, data)]).then(([all, wins]) => {
         const E = escapeHtml, maps = all[mapKeyFor(seasonKey)] || {}, base = GAME === 'tm20' ? '#/tm20' : '#';
         const eds = [...data.editions].reverse();
-        const known = eds.filter(ed => maps[ed.edition]).length;
+        const known = eds.filter(ed => maps[ed.edition]).length, withTas = eds.filter(ed => maps[ed.edition] && maps[ed.edition].tas).length;
+        const intro = !known ? 'Every SpeedTAS map, with its author time and how the one-hour winner did.'
+          : withTas === known ? 'Every SpeedTAS map, with its author time, the all-time TAS record on TAS Exchange and how close the one-hour winner got to it.'
+          : `Every SpeedTAS map, with its author time and the one-hour winner. ${withTas ? `${withTas} of ${plural(known, 'map')} also have an all-time TAS record on TAS Exchange, with how close the winner got to it` : 'None has an all-time TAS record on TAS Exchange yet'}.`;
         main.innerHTML = `
     <header class="page-head"><div class="kicker">${E(labelFor(seasonKey))} · ${plural(known, 'map')}</div><h1>The <em>maps</em></h1>
-      <p>Every SpeedTAS map, with its author time, the all-time TAS record on TAS Exchange and how close the one-hour winner got to it.</p></header>
+      <p>${E(intro)}</p></header>
     <div class="versus-controls">${seasonSeg(seasonKey, 'maps-season', seasonOptions())}</div>
     ${eds.length ? '' : `<div class="empty-state"><b>No maps yet</b>Maps show up here once ${E(labelFor(seasonKey))} has editions.</div>`}
     ${eds.length && !known ? `<p class="maps-note">Map names, pictures and records for ${E(labelFor(seasonKey))} appear after the next data update.</p>` : ''}
@@ -371,6 +374,7 @@
         <div class="map-tile-img">${thumb ? `<img src="${E(thumb)}" alt="" loading="lazy" onerror="this.remove()">` : ''}<span class="map-tile-num">#${E(ed.edition)}</span></div>
         <div class="map-tile-body"><b>${E(map ? map.name : 'Edition ' + ed.edition)}</b>
           <small>${w.winner ? `🏆 ${E(w.winner)}${w.secs != null ? ' · ' + fmtMs(Math.round(w.secs * 1000)) : ''}` : ''}</small>
+          ${map && map.authorTime ? `<small>Author time ${fmtMs(map.authorTime)}</small>` : ''}
           ${map && map.tas ? `<small>TAS record ${fmtMs(map.tas.time)}${map.tas.by ? ' · ' + E(map.tas.by) : ''}</small>` : ''}
           ${progressHTML(recordProgress(map, w.secs))}</div></a>`;
     }).join('')}</div>`;

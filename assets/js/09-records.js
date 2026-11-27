@@ -45,16 +45,72 @@
       return `<div class="record-card shared">${head}${value}<div class="record-shared">Shared by ${holders.length} players</div><div class="record-holders">${chips}${more}</div><div class="record-note">${E(record.note)}</div></div>`;
     }
 
+    /* ---------- Race records: single editions, from the times (TAS Exchange + posted results) ---------- */
+    /* [[seasonKey, data], ...] for the record-book choice: one season, or every TMNF season for "both". */
+    function recordSeasons(season) {
+      if (GAME === 'tmnf' && (season === 'both' || season === 'all')) return loadAllTmnfSeasons();
+      return seasonSource(season).then(data => [[season, data]]);
+    }
+    function raceRecordCards(seasons) {
+      return Promise.all([repoMaps(), ...seasons.map(([key]) => seasonTimes(key))]).then(([maps, ...timesList]) => {
+        const races = [];
+        seasons.forEach(([key, data], i) => (data.editions || []).forEach(ed => {
+          const entries = Object.entries(ed.results).sort((a, b) => a[1] - b[1]);
+          if (!entries.length) return;
+          /* Margins use the times of the actual P1, P2 and P3, so a missing time never makes a gap look bigger. */
+          const byName = timesList[i][String(ed.edition)] || {}, at = place => {const e = entries[place - 1], t = e && byName[e[0]]; return t && t.secs != null ? t.secs : null;};
+          const t1 = at(1), t2 = at(2), t3 = at(3);
+          const map = (maps[mapKeyFor(key)] || {})[ed.edition];
+          races.push({key, edition: ed.edition, winner: entries[0][0], runnerUp: entries[1] && entries[1][0], field: entries.length,
+            margin: t1 != null && t2 != null && t2 >= t1 ? t2 - t1 : null, podiumSpread: t1 != null && t2 != null && t3 != null && t3 >= t1 ? t3 - t1 : null,
+            progress: map && t1 != null ? recordProgress(map, t1) : null});
+        }));
+        if (!races.length) return '';
+        const multi = seasons.length > 1;
+        const where = r => `${multi && SEASON_INFO[r.key] ? SEASON_INFO[r.key].short + ' · ' : ''}Edition ${r.edition}`;
+        const best = (list, score) => list.length ? list.reduce((a, r) => score(r) > score(a) ? r : a) : null;
+        const card = (label, r, value, unit, note, empty = 'No race times yet') => r
+          ? `<a class="record-card race" href="#/edition/${r.key}/${enc(r.edition)}"><div class="record-label">${escapeHtml(label)}</div><div class="record-value">${escapeHtml(value)}${unit ? `<small>${escapeHtml(unit)}</small>` : ''}</div><div class="record-holder">${avatarHTML(r.winner, 30)} <span>${escapeHtml(r.winner)}</span></div><div class="record-note">${note}</div></a>`
+          : `<div class="record-card race"><div class="record-label">${escapeHtml(label)}</div><div class="record-value">—</div><div class="record-note">${empty}</div></div>`;
+        const timed = races.filter(r => r.margin != null);
+        const closest = best(timed, r => -r.margin), widest = best(timed, r => r.margin), biggest = best(races, r => r.field);
+        const nearTas = best(races.filter(r => r.progress && !r.progress.beat), r => r.progress.pct); // "beat" = the record on file is older than the race
+        const tightest = best(races.filter(r => r.podiumSpread != null), r => -r.podiumSpread);
+        const tasValue = r => !r ? '' : r.progress.equal ? 'Equal' : r.progress.pct.toFixed(0) + '%';
+        const winners = new Set(races.map(r => playerKey(r.winner))).size;
+        const E = escapeHtml;
+        return [
+          card('Closest win', closest, closest ? '+' + closest.margin.toFixed(2) : '', 's', closest ? `${where(closest)}: ahead of ${E(closest.runnerUp || 'P2')}` : ''),
+          card('Biggest winning margin', widest, widest ? '+' + widest.margin.toFixed(2) : '', 's', widest ? `${where(widest)}: clear of ${E(widest.runnerUp || 'P2')}` : ''),
+          card('Biggest field', biggest, biggest ? String(biggest.field) : '', 'racers', biggest ? `${where(biggest)}` : ''),
+          card('Tightest podium', tightest, tightest ? tightest.podiumSpread.toFixed(2) : '', 's P1–P3', tightest ? `${where(tightest)}: the top three within ${tightest.podiumSpread.toFixed(2)} s` : ''),
+          card('Closest to the TAS record', nearTas, tasValue(nearTas), nearTas && !nearTas.progress.equal ? 'of the way' : 'to the record', nearTas ? `${where(nearTas)}: ${nearTas.progress.equal ? 'the one-hour winner matched the all-time TAS record' : 'from author time to the all-time TAS record'}` : '', 'No map with both a TAS record and a winning time yet'),
+          `<div class="record-card race"><div class="record-label">Different winners</div><div class="record-value">${winners}<small>${winners === 1 ? 'winner' : 'winners'}</small></div><div class="record-note">Across ${plural(races.length, 'edition')}</div></div>`
+        ].join('');
+      });
+    }
+
     function renderRecords(season = viewKey()) {
       setSeasonTheme(season);
       main.innerHTML = `
     <header class="page-head"><div class="kicker">The record book</div><h1>Season <em>records</em></h1><p>Who leads for wins, streaks, consistency and more.</p></header>
     <div class="toolbar" data-tmnf-only>${seasonSeg(season, 'record-season', seasonOptions('both'))}</div>
-    <div id="recordContent" class="record-grid"><div class="loader"><div class="spinner"></div> Opening the record book…</div></div>`;
+    <div id="recordContent" class="record-grid"><div class="loader"><div class="spinner"></div> Opening the record book…</div></div>
+    <section class="race-records"><div class="head-row"><h2 class="section-title">Race records</h2><span class="head-note">Single editions, from the race times</span></div>
+    <div id="raceRecords" class="record-grid"></div></section>`;
       main.querySelectorAll('[data-record-season]').forEach(b => b.addEventListener('click', () => goSeason('/records/' + b.dataset.recordSeason)));
       seasonSource(season).then(data => {
         const host = document.getElementById('recordContent'); if (!host) return;
         host.innerHTML = recordDefinitions(computeAll(data).ranked).map(recordCard).join('');
+        recordSeasons(season).then(raceRecordCards).then(html => {
+          const races = document.getElementById('raceRecords');
+          if (races && html) races.innerHTML = html;
+          else if (races) races.closest('.race-records').remove();
+        }).catch(err => {
+          console.warn('Race records unavailable:', err);
+          const races = document.getElementById('raceRecords');
+          if (races) races.closest('.race-records').remove();
+        });
       }).catch(err => { const host = document.getElementById('recordContent'); if (host) host.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><b>Records unavailable</b>${escapeHtml(err.message)}</div>`; });
     }
 

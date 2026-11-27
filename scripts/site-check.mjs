@@ -51,6 +51,11 @@ try {
   check(await d.evaluate(() => !!(window.Chart && Chart.getChart(document.getElementById('progressChart')))), 'title-race chart drawn');
   check(await d.evaluate(() => !document.getElementById('latestMap') || !document.getElementById('latestMap').hidden), 'latest result shows its map');
   check(/ · SpeedTAS Stats$/.test(await d.title()), `tab title follows the page ("${await d.title()}")`);
+  const more = await d.$('#boardMore');
+  if (more) {
+    await more.click(); await d.waitForTimeout(200);
+    check(await d.evaluate(() => !document.querySelector('#leaderboardTable .extra-row') && !document.getElementById('boardMore')), '"Show all players" reveals the full table');
+  }
   const routes = { '#/players': /player/i, '#/history': /history/i, '#/maps': /maps/i, '#/records': /records/i, '#/rivalries': /rival/i, '#/versus': /head/i, '#/videos': /video/i, '#/tm20': /TM2020/i, '#/': /standings/i };
   for (const [hash, re] of Object.entries(routes)) { await go(d, hash); check(re.test(await h1(d)), `${hash} renders ("${(await h1(d)).trim()}")`); }
   const profile = await d.evaluate(() => (document.querySelector('#leaderboardTable tbody a') || {}).getAttribute?.('href'));
@@ -58,6 +63,7 @@ try {
     await go(d, profile, 2500);
     check(await d.evaluate(() => document.querySelectorAll('.history-times tbody tr').length > 0), `profile ${profile} has placement history`);
     check(await d.evaluate(() => [...document.querySelectorAll('canvas')].some((c) => window.Chart && Chart.getChart(c))), 'profile charts drawn');
+    check(await d.evaluate(() => document.querySelectorAll('.outlook .note').length > 0), 'profile shows its standing');
   } else fail('no profile link on the home table');
   const edition = await d.evaluate(async () => { location.hash = '#/history'; await new Promise((r) => setTimeout(r, 1500)); return (document.querySelector('a[href*="#/edition/"]') || {}).getAttribute?.('href'); });
   if (edition) {
@@ -69,6 +75,8 @@ try {
   } else fail('no edition link on the history page');
   await go(d, '#/'); await d.keyboard.press('/'); await d.keyboard.type('a'); await d.waitForTimeout(800);
   check(await d.evaluate(() => document.querySelectorAll('#searchResults a').length > 0), 'search finds results');
+  await go(d, '#/records', 2500);
+  check(await d.evaluate(() => document.querySelectorAll('#raceRecords .record-card').length >= 5), 'race records drawn');
   await go(d, '#/videos', 2500);
   check(await d.evaluate(() => document.querySelectorAll('.video-card').length > 0), 'videos list from the saved file when YouTube is down');
   check(!d.errors.length, `no script errors on desktop${d.errors.length ? ': ' + d.errors.join(' | ') : ''}`);
@@ -78,6 +86,7 @@ try {
   const m = await newPage({ width: 390, height: 844 });
   await m.goto(BASE); await m.waitForTimeout(3000);
   check(await m.isVisible('#menuBtn'), 'menu button visible');
+  check(await m.evaluate(() => { const el = document.querySelector('#leaderboardTable .player-sub'); return !!el && getComputedStyle(el).display !== 'none'; }), 'phone table shows races and gap under each name');
   await m.click('#menuBtn'); await m.waitForTimeout(300);
   check(await m.isVisible('#nav a[data-route="/videos"]'), 'menu shows every page');
   await m.click('#nav a[data-route="/records"]'); await m.waitForTimeout(1500);

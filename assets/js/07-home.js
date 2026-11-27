@@ -54,6 +54,8 @@
       const board = range === 'all' ? ranked : filteredComputed.ranked;
 
       const sorted = sortBoard(board, sortState);
+      /* Long tables (the 58-player Season 2 final) show the top BOARD_PREVIEW rows until "Show all" is pressed. */
+      const collapse = !boardExpanded && sorted.length > BOARD_PREVIEW + 5;
 
       const E = escapeHtml;
       const restPodium = latestPodium.filter(([, place]) => place > 1);
@@ -138,23 +140,24 @@
             </tr></thead>
             <tbody>
               ${sorted.length ? '' : `<tr class="empty-row"><td colspan="10">No results yet. The table fills in after the first edition.</td></tr>`}
-              ${sorted.map(p => `
-                <tr class="${p.rank <= 3 ? 'p' + p.rank : ''}">
+              ${sorted.map((p, i) => `
+                <tr class="${p.rank <= 3 ? 'p' + p.rank : ''}${collapse && i >= BOARD_PREVIEW ? ' extra-row' : ''}">
                   <td class="rank-cell">${p.rank}</td>
                   <td class="col-move">${moveIcon(p.movement || 0)}</td>
-                  <td><a href="#/player/${sk}${enc(p.name)}"><div class="player-cell">${avatarHTML(p.name)}<b>${E(p.name)}</b><span class="move-inline">${moveIcon(p.movement || 0)}</span></div></a></td>
+                  <td><a href="#/player/${sk}${enc(p.name)}"><div class="player-cell">${avatarHTML(p.name)}<span class="name-stack"><span class="name-line"><b>${E(p.name)}</b><span class="move-inline">${moveIcon(p.movement || 0)}</span></span><span class="player-sub">${plural(p.played, 'race')}${p.points === boardTop ? '' : ` · −${boardTop - p.points}`}<span class="form mini" aria-hidden="true">${p.history.slice(-3).map(h => formChip(h.placement, '', null, h.dropped)).join('')}</span></span></span></div></a></td>
                   <td class="col-form"><span class="form">${p.history.slice(-5).map(h => formChip(h.placement, 'Edition ' + h.edition + ': P' + h.placement + (h.dropped ? ' (dropped)' : ''), null, h.dropped)).join('')}</span></td>
                   <td class="numc r">${p.wins}</td>
                   <td class="numc r">${p.podiums}</td>
                   <td class="numc r col-avg">${p.avgPlacement ? p.avgPlacement.toFixed(2) : '—'}</td>
                   <td class="numc r col-played">${p.played}</td>
                   <td class="numc r col-gap">${p.points === boardTop ? '—' : '−' + (boardTop - p.points)}</td>
-                  <td class="pts-cell r"${p.droppedPoints ? ` title="${p.scored} scored, ${p.droppedPoints} dropped"` : ''}><b>${p.points}</b><span class="pts-bar" style="width:${boardTop ? Math.round(p.points / boardTop * 100) : 0}%"></span></td>
+                  <td class="pts-cell r"${p.droppedPoints ? ` title="${p.scored} scored, ${p.droppedPoints} dropped"` : ''}><b>${p.points}</b>${p.droppedPoints ? `<small class="pts-dropped">−${p.droppedPoints} dropped</small>` : ''}<span class="pts-bar" style="width:${boardTop ? Math.round(p.points / boardTop * 100) : 0}%"></span></td>
                 </tr>
               `).join('')}
             </tbody>
           </table>
         </div>
+        ${collapse ? `<div class="board-more"><button type="button" class="btn" id="boardMore" aria-expanded="false">Show all ${sorted.length} players</button></div>` : ''}
       </div>
     </section>
 
@@ -173,6 +176,13 @@
         b.addEventListener('click', () => {leaderboardFilter = b.dataset.filter; renderHome();});
       });
       document.getElementById('exportCsv').addEventListener('click', () => exportLeaderboardCSV(sorted));
+      const more = document.getElementById('boardMore');
+      if (more) more.addEventListener('click', () => {
+        boardExpanded = true;
+        document.querySelectorAll('#leaderboardTable .extra-row').forEach(r => r.classList.remove('extra-row'));
+        more.parentNode.remove();
+        const next = document.querySelector(`#leaderboardTable tbody tr:nth-child(${BOARD_PREVIEW + 1}) a`); if (next) next.focus();
+      });
       if (GAME === 'tmnf') bindHonors(homeKey, D);
 
       startCountdown();
