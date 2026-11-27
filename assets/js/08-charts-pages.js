@@ -1,18 +1,36 @@
     /* ============ CHARTS ============ */
+    /* Chart.js (assets/vendor, served from this site) loads async so it never holds up the first paint.
+       Charts drawn before it arrives wait for it; if it never arrives, every empty chart says so instead
+       of staying a blank box. */
+    function whenChart(fn) {
+      if (window.Chart) return fn();
+      if (document.readyState === 'complete') return showChartsUnavailable();
+      window.addEventListener('load', () => {if (window.Chart) fn(); else showChartsUnavailable();}, {once: true});
+    }
+    function showChartsUnavailable() {
+      document.querySelectorAll('.chart-box').forEach(box => {
+        if (box.querySelector('.chart-fallback')) return;
+        box.classList.add('chart-missing');
+        box.insertAdjacentHTML('beforeend', '<p class="chart-fallback">Charts couldn\'t load. Refresh the page to try again.</p>');
+      });
+    }
     const accentHex = () => getComputedStyle(document.body).getPropertyValue('--accent').trim() || (GAME === 'tm20' ? '#59d6fb' : '#b388ff');
     /* Series colours for the top-six chart: the game accent leads, the rest stay clearly apart from it. */
     const seriesColors = () => GAME === 'tm20' ? [accentHex(), '#ff4f79', '#4d8dff', '#ffb347', '#b08bff', '#e9fb59'] : [accentHex(), '#ff4f79', '#4d8dff', '#ffb347', document.body.classList.contains('season-legacy') ? '#b388ff' : '#e9fb59', '#59d6fb'];
+    /* Chart colours come from the CSS variables in site.css, so the charts follow any palette change there. */
+    const cssVar = (name, fallback) => getComputedStyle(document.body).getPropertyValue(name).trim() || fallback;
     function chartOptions(extra = {}) {
-      const tick = {color: '#9094a0', font: {family: "'JetBrains Mono', monospace", size: 11}};
+      const tick = {color: cssVar('--muted', '#9094a0'), font: {family: "'JetBrains Mono', monospace", size: 11}};
       const grid = {color: '#1c1f25'};
+      const edge = cssVar('--border', '#23262d');
       return {
         responsive: true, maintainAspectRatio: false,
         interaction: {mode: 'index', intersect: false},
         plugins: {
           legend: {display: false},
-          tooltip: {backgroundColor: '#14161a', borderColor: '#363b45', borderWidth: 1, titleColor: accentHex(), bodyColor: '#eef0ea', padding: 10, cornerRadius: 5, usePointStyle: true, boxPadding: 4}
+          tooltip: {backgroundColor: cssVar('--card', '#14161a'), borderColor: cssVar('--border-strong', '#363b45'), borderWidth: 1, titleColor: accentHex(), bodyColor: cssVar('--text', '#eef0ea'), padding: 10, cornerRadius: 5, usePointStyle: true, boxPadding: 4}
         },
-        scales: {x: {ticks: tick, grid, border: {color: '#23262d'}}, y: {ticks: {...tick, precision: 0}, grid, border: {color: '#23262d'}}},
+        scales: {x: {ticks: tick, grid, border: {color: edge}}, y: {ticks: {...tick, precision: 0}, grid, border: {color: edge}}},
         ...extra
       };
     }
@@ -25,8 +43,8 @@
       if (progressChartInstance) progressChartInstance.destroy();
       const colors = seriesColors();
       const opts = chartOptions();
-      opts.plugins.legend = {display: true, position: 'bottom', labels: {color: '#eef0ea', usePointStyle: true, pointStyle: 'rectRounded', boxWidth: 10, boxHeight: 10, padding: 18, font: {family: "'Barlow', sans-serif", size: 13, weight: 600}}};
-      opts.scales.x.title = {display: true, text: 'Edition', color: '#80848f'};
+      opts.plugins.legend = {display: true, position: 'bottom', labels: {color: cssVar('--text', '#eef0ea'), usePointStyle: true, pointStyle: 'rectRounded', boxWidth: 10, boxHeight: 10, padding: 18, font: {family: "'Barlow', sans-serif", size: 13, weight: 600}}};
+      opts.scales.x.title = {display: true, text: 'Edition', color: cssVar('--dim', '#80848f')};
       progressChartInstance = new Chart(ctx, {
         type: 'line',
         data: {
@@ -167,10 +185,10 @@
       }
       const labels = history.map(h => h.edition), placements = history.map(h => h.placement), cumulative = []; let running = 0; history.forEach(h => {running += h.points; cumulative.push(running);});
       const color = accentHex();
-      const medalColor = pl => pl === 1 ? '#ffcf3f' : pl === 2 ? '#c9ccd6' : pl === 3 ? '#d98a4a' : color;
+      const medalColor = pl => pl === 1 ? cssVar('--gold', '#ffcf3f') : pl === 2 ? cssVar('--silver', '#c9ccd6') : pl === 3 ? cssVar('--bronze', '#d98a4a') : color;
       const placeOpts = chartOptions();
-      placeOpts.scales.y = {...placeOpts.scales.y, reverse: true, min: 1, title: {display: true, text: 'Placement (lower is better)', color: '#80848f'}};
-      profileCharts.push(new Chart(document.getElementById('chartPlacement'), {type: 'line', data: {labels, datasets: [{label: 'Placement', data: placements, borderColor: color, borderWidth: 2, tension: .25, pointRadius: 4, pointHoverRadius: 6, pointBackgroundColor: placements.map(medalColor), pointBorderColor: '#14161a', pointBorderWidth: 1.5}]}, options: placeOpts}));
+      placeOpts.scales.y = {...placeOpts.scales.y, reverse: true, min: 1, title: {display: true, text: 'Placement (lower is better)', color: cssVar('--dim', '#80848f')}};
+      profileCharts.push(new Chart(document.getElementById('chartPlacement'), {type: 'line', data: {labels, datasets: [{label: 'Placement', data: placements, borderColor: color, borderWidth: 2, tension: .25, pointRadius: 4, pointHoverRadius: 6, pointBackgroundColor: placements.map(medalColor), pointBorderColor: cssVar('--card', '#14161a'), pointBorderWidth: 1.5}]}, options: placeOpts}));
       profileCharts.push(new Chart(document.getElementById('chartCumulative'), {type: 'line', data: {labels, datasets: [{label: 'Points', data: cumulative, borderColor: color, backgroundColor: color + '22', fill: true, borderWidth: 2, tension: .25, pointRadius: 0, pointHoverRadius: 5}]}, options: chartOptions()}));
     }
     function profileTabs(active) {return seasonSeg(active, 'profile-season', seasonOptions('all', 'All-time'));}

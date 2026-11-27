@@ -7,11 +7,6 @@
        Both seasons' Editions data (via /data), Discord avatars, and videos are
        all proxied through it; its Discord and YouTube keys stay in Worker
        secrets, never here. */
-    /* Chart.js loads with "defer" so it never holds up the first paint; charts drawn before it arrives wait for it. */
-    function whenChart(fn) {
-      if (window.Chart) return fn();
-      window.addEventListener('load', () => {if (window.Chart) fn();}, {once: true});
-    }
     const SPEEDTAS_API_URL = "https://speedtas-api.kristianogeorgiev652.workers.dev";
     const TMNF_POINTS = {1: 10, 2: 7, 3: 6, 4: 5, 5: 4, 6: 3, 7: 2, 8: 1};
     const TM20_POINTS = {1: 12, 2: 9, 3: 8, 4: 7, 5: 6, 6: 5, 7: 4, 8: 3, 9: 2, 10: 1}; // top 10 score
@@ -99,6 +94,7 @@
     const pointsFor = p => POINTS[p] ?? 0;
 
     /* ============ STATE ============ */
+    const main = document.getElementById('app'); // every page renders into this
     let RAW = null;        // { editions: [...], players: [...] }
     let STATE = {players: {}, editions: []};
     let sortState = {key: 'points', dir: 'desc'};

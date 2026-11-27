@@ -1,17 +1,3 @@
-    /* ============ ROUTER ============ */
-    function currentRoute() {
-      const hash = location.hash.replace(/^#/, '') || '/';
-      const parts = hash.split('/').filter(Boolean).map(part => {
-        try { return decodeURIComponent(part); } catch (e) { return part; }
-      });
-      ROUTE_GAME = 'tmnf';
-      if (parts[0] === 'tm20') {ROUTE_GAME = 'tm20'; parts.shift();}
-      return parts;
-    }
-    window.addEventListener('hashchange', () => render()); // render() lives in 09-router.js, loaded later
-    /* A page change starts at the top (hash links to non-anchors otherwise keep the old scroll position) */
-    window.addEventListener('hashchange', () => window.scrollTo(0, 0));
-
     /* ============ RENDER: HOME ============ */
     let HOME_ARCHIVE = null, HOME_ARCHIVE_FAILED = false;
     function renderHome() {
@@ -103,6 +89,7 @@
           ${latestEdition ? `<a class="btn" href="#/edition/${sk}${enc(latestEdition.edition)}">Full results →</a>` : ''}
         </div>
         ${latestEntries.length > 3 ? `<ol class="latest-rest" aria-label="Other finishers">${latestEntries.filter(([, place]) => place > 3).slice(0, 7).map(([n, place]) => `<li><a href="#/player/${sk}${enc(n)}"><span class="num">P${place}</span>${E(n)}</a></li>`).join('')}${latestEntries.length > 10 ? `<li class="more">+${latestEntries.length - 10} more</li>` : ''}</ol>` : ''}
+        ${latestEdition ? '<div class="latest-map" id="latestMap" hidden></div>' : ''}
         ${podiumHTML(latestPodium, `#/player/${sk}`)}
       </article>
       <aside class="home-side">
@@ -192,6 +179,31 @@
       if (GAME === 'tmnf') startLiveBanner();
       if (archivesPending) Promise.all([loadSeason1(), loadSeason2()]).catch(() => {}).then(() => {if (currentRoute().length === 0 && GAME === 'tmnf') renderHome();});
       renderProgressChart(players, editionOrder, ranked);
+      if (latestEdition) fillLatestMap(homeKey, latestEdition, sk);
+    }
+
+    /* Latest-result card: the map (picture, name, author), the winning time and the margin to P2.
+       Filled in once maps.json and the times are loaded; stays hidden when neither is known. */
+    function fillLatestMap(seasonKey, edition, sk) {
+      Promise.all([repoMaps(), seasonTimes(seasonKey)]).then(([maps, times]) => {
+        const el = document.getElementById('latestMap');
+        if (!el) return;
+        const E = escapeHtml, ed = String(edition.edition);
+        const map = (maps[mapKeyFor(seasonKey)] || {})[ed];
+        const secs = Object.values(times[ed] || {}).map(t => t.secs).filter(x => x != null).sort((a, b) => a - b);
+        if (!map && !secs.length) return;
+        const thumb = map ? mapThumb(map) : '', href = `#/edition/${sk}${enc(ed)}`;
+        const fig = (label, value) => value ? `<div><span class="panel-label">${label}</span><b>${value}</b></div>` : '';
+        el.innerHTML = `
+          ${thumb ? `<a class="latest-map-img" href="${href}" tabindex="-1" aria-hidden="true"><img src="${E(thumb)}" alt="" loading="lazy" onerror="this.parentNode.remove()"></a>` : ''}
+          <div class="latest-map-info"><span class="panel-label">Map</span><b>${E(map ? map.name : 'Edition ' + ed)}</b>${map && map.authors && map.authors.length ? `<small>by ${E(map.authors.join(', '))}</small>` : ''}</div>
+          <div class="latest-map-figs">
+            ${fig('Winning time', secs.length ? fmtMs(Math.round(secs[0] * 1000)) : '')}
+            ${fig('Margin', secs.length > 1 ? '+' + (secs[1] - secs[0]).toFixed(2) : '')}
+            ${fig('Author time', map && map.authorTime ? fmtMs(map.authorTime) : '')}
+          </div>`;
+        el.hidden = false;
+      });
     }
 
     function sortBoard(board, state) {

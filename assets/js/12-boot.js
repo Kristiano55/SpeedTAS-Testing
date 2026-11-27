@@ -170,6 +170,14 @@
         }
       }
     }
-    new MutationObserver(() => prefixLinks(main)).observe(main, {childList: true, subtree: true});
+    /* Tab title follows the page heading ("Sneak · SpeedTAS Stats"), so tabs, history and bookmarks are told apart. */
+    function syncTitle() {
+      const h = main.querySelector('h1');
+      let text = h ? h.textContent.replace(/\s+/g, ' ').trim() : '';
+      if (GAME === 'tm20' && !/TM2020/i.test(text)) text = text ? `${text} · TM2020` : 'TM2020';
+      const title = text ? `${text} · SpeedTAS Stats` : 'SpeedTAS Stats';
+      if (document.title !== title) document.title = title;
+    }
+    new MutationObserver(() => {prefixLinks(main); syncTitle();}).observe(main, {childList: true, subtree: true});
     init();
 
