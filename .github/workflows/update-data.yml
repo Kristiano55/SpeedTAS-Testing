@@ -48,11 +48,6 @@ jobs:
         run: node scripts/update-data.mjs --selftest
       - name: Fetch sheets and events
         run: node scripts/update-data.mjs ${{ inputs.sheets_only && '--sheets' || '' }} ${{ inputs.allow_removals && '--allow-removals' || '' }}
-      - name: TEMP inject a test problem
-        if: env.TEST_PROBLEM == '1'
-        run: |
-          node -e "const f=require('fs');const j=require('./run-report.json');j.problems+=1;f.writeFileSync('run-report.json',JSON.stringify(j))"
-          printf '\n### Problems\n- TEST: this issue was opened on purpose to check the alert, and closes itself on the next run.\n' >> run-report.md
       - name: Draw the link-preview image (top 10)
         # resvg is only needed here, never by the website. A failure keeps the previous image.
         continue-on-error: true
@@ -98,7 +93,7 @@ jobs:
           fi
           cat run-report.md >> "$GITHUB_STEP_SUMMARY"
       - name: Open or close the "data update" issue
-        if: always()
+        if: always() && github.ref_name == github.event.repository.default_branch
         run: |
           problems=$(node -e "try{console.log(require('./run-report.json').problems)}catch{console.log(1)}")
           [ "${{ steps.sitecheck.outcome }}" = "failure" ] && problems=$((problems + 1))
