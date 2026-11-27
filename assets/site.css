@@ -402,6 +402,7 @@
     .kicker::before { content: ''; width: 22px; height: 8px; background: var(--accent); clip-path: polygon(5px 0, 100% 0, calc(100% - 5px) 100%, 0 100%); }
     .page-head h1 { margin-top: 8px; font-size: clamp(40px, 7vw, 76px); line-height: .92; font-weight: 800; font-style: italic; text-transform: uppercase; letter-spacing: -.005em; overflow-wrap: anywhere; }
     .page-head h1 em { color: var(--accent); font-style: inherit; }
+    .page-head p a { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
     .page-head p { margin: 12px 0 0; max-width: 60ch; color: var(--muted); font-size: 16px; }
     .head-row { display: flex; align-items: flex-end; justify-content: space-between; gap: 14px 20px; flex-wrap: wrap; margin-bottom: 14px; }
     h2.section-title { display: flex; align-items: center; gap: 10px; margin: 0 0 14px; font-size: 26px; line-height: 1; font-weight: 700; font-style: italic; text-transform: uppercase; letter-spacing: .01em; }
@@ -411,7 +412,7 @@
     .panel { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; }
     .panel-label { font-family: var(--font-mono); font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
     .breadcrumb { margin-bottom: 18px; font-family: var(--font-mono); font-size: 12px; color: var(--dim); }
-    .breadcrumb a { color: var(--muted); }
+    .breadcrumb a { color: var(--text); text-decoration: underline; text-decoration-color: var(--border-strong); text-underline-offset: 3px; }
     .breadcrumb a:hover { color: var(--accent); }
     .empty-state { padding: 40px 20px; border: 1px dashed var(--border-strong); border-radius: var(--radius); color: var(--muted); text-align: center; }
     .empty-state b { display: block; margin-bottom: 4px; color: var(--text); font-family: var(--font-display); font-size: 24px; font-style: italic; text-transform: uppercase; }
@@ -579,7 +580,7 @@
     .directory { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 10px; }
     .player-card { position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 12px; height: 100%; padding: 14px 14px 14px 12px; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); transition: border-color .15s, transform .15s, background .15s; }
     .player-card-link:hover .player-card { border-color: var(--accent); background: var(--card-hover); transform: translateY(-2px); }
-    .player-card .prank { position: absolute; right: 10px; top: 4px; font-family: var(--font-display); font-style: italic; font-weight: 800; font-size: 30px; line-height: 1; color: var(--border-strong); }
+    .player-card .prank { position: absolute; right: 10px; top: 4px; font-family: var(--font-display); font-style: italic; font-weight: 800; font-size: 30px; line-height: 1; color: var(--dim); }
     .player-card.top .prank { color: var(--pc); }
     .player-card.r1 { --pc: var(--gold); } .player-card.r2 { --pc: var(--silver); } .player-card.r3 { --pc: var(--bronze); }
     .player-card.top { border-color: color-mix(in srgb, var(--pc) 45%, var(--border)); }
@@ -818,7 +819,7 @@
       #leaderboardTable .avatar, #leaderboardTable .player-cell img { width: 28px !important; height: 28px !important; }
       .player-cell { gap: 9px; }
       .pts-cell { min-width: 0; }
-      th .full { display: none; } th .abbr { display: inline; }
+      th .full { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; } th .abbr { display: inline; }
       #leaderboardTable td:nth-child(3) { white-space: normal; }
       .latest, .race-podium { padding: 18px 14px 0; }
       .latest-head h2 { font-size: 28px; }
@@ -831,7 +832,18 @@
       .player-card { grid-template-columns: 1fr; gap: 8px; }
       .profile-hero { gap: 16px; }
       .profile-hero > img, .profile-hero > .avatar { width: 64px !important; height: 64px !important; }
-      .rivalry-grid, .history-grid { grid-template-columns: 1fr; }
+      .rivalry-grid { grid-template-columns: 1fr; }
+      /* Phones: editions as a two-column grid of compact cards instead of one tall card each */
+      .history-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+      .history-card { gap: 9px; padding: 12px; }
+      .history-edition { font-size: 32px; }
+      .history-edition small { font-size: 17px; }
+      .history-tag { font-size: 9.5px; letter-spacing: .06em; }
+      .history-winner { gap: 8px; }
+      .history-winner img, .history-winner .avatar { width: 28px !important; height: 28px !important; font-size: 10px !important; }
+      .history-winner-name { font-size: 14px; }
+      .history-foot { padding-top: 8px; font-size: 11.5px; flex-wrap: wrap; }
+      .history-foot .also > span { display: none; }
       .rv-card.featured { padding: 18px 16px 14px; }
       .featured .rv-score { font-size: 42px; }
       .featured .rv-side { font-size: 15px; }
@@ -889,9 +901,9 @@
     .map-thumb { flex: 0 0 280px; border-radius: var(--radius-sm); overflow: hidden; background: var(--card); }
     .map-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; aspect-ratio: 16 / 10; }
     .map-info { flex: 1; min-width: 0; }
-    .map-info h3 { margin: 4px 0 2px; font-family: var(--font-display); font-size: 22px; }
-    .map-info h3 a { color: var(--text); text-decoration: none; }
-    .map-info h3 a:hover { color: var(--accent); }
+    .map-info .map-name { margin: 4px 0 2px; font-family: var(--font-display); font-size: 22px; font-weight: 700; line-height: 1.15; font-style: normal; text-transform: none; }
+    .map-info .map-name a { color: var(--text); text-decoration: none; }
+    .map-info .map-name a:hover { color: var(--accent); }
     .map-by { color: var(--muted); font-size: 13px; margin-bottom: 12px; }
     .map-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px 18px; }
     .map-stat span { display: block; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--dim); }

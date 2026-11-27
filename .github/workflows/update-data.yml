@@ -1,22 +1,32 @@
 name: Update results data
 
-# Rebuilds data/*.json (the website reads these first) from the Google Sheets and TAS Exchange.
+# Rebuilds data/*.json (the website reads these first) from the Google Sheets, TAS Exchange, TMX, YouTube and
+# the Discord Worker, tests the site with the new data, and only then publishes it.
+# Problems (a source down, sheet data that would lose editions, a Saturday edition with no results by Sunday,
+# a failed site check) open a GitHub issue labelled "data-update"; the next clean run closes it again.
 # Schedules only run on the default branch, so on a feature branch use "Run workflow" by hand.
 on:
   schedule:
     # Off the hour on purpose: GitHub delays runs scheduled exactly on the hour.
-    - cron: '17 19 * * 6'  # Saturday 19:17 UTC, right after the edition (18:00-19:00 Lisbon = 18-19 UTC in winter, 17-18 UTC in summer)
-    - cron: '47 20 * * 6'  # Saturday 20:47 UTC, in case the times were revealed a bit later
-    - cron: '17 12 * * 0'  # Sunday 12:17 UTC, last try for the weekend
+    # Saturday 17:17-21:47 UTC every 30 min: the edition is 18:00-19:00 Lisbon (17-18 UTC in summer, 18-19 UTC in winter),
+    # so results are picked up within half an hour of being posted, whatever the season.
+    - cron: '17,47 17-21 * * 6'
+    - cron: '17 12 * * 0'   # Sunday 12:17 UTC: last try, and the "results still missing?" check
+    - cron: '37 3 * * 3'    # Wednesday 03:37 UTC: maintenance (avatars, videos, map pictures, replay inputs backlog)
   workflow_dispatch:
     inputs:
       sheets_only:
-        description: 'Only refresh the Google Sheets (skip TAS Exchange)'
+        description: 'Only refresh the Google Sheets (skip TAS Exchange, maps, videos)'
+        type: boolean
+        default: false
+      allow_removals:
+        description: 'Allow editions to disappear from a sheet (only if you deleted them on purpose)'
         type: boolean
         default: false
 
 permissions:
   contents: write
+  issues: write
 
 concurrency:
   group: update-data
@@ -25,7 +35,10 @@ concurrency:
 jobs:
   update:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -34,7 +47,7 @@ jobs:
       - name: Check the parsers
         run: node scripts/update-data.mjs --selftest
       - name: Fetch sheets and events
-        run: node scripts/update-data.mjs ${{ inputs.sheets_only && '--sheets' || '' }}
+        run: node scripts/update-data.mjs ${{ inputs.sheets_only && '--sheets' || '' }} ${{ inputs.allow_removals && '--allow-removals' || '' }}
       - name: Draw the link-preview image (top 10)
         # resvg is only needed here, never by the website. A failure keeps the previous image.
         continue-on-error: true
@@ -43,16 +56,57 @@ jobs:
           node scripts/og-image.mjs
       - name: Stamp asset versions
         run: node scripts/stamp-assets.mjs
-      - name: Commit changed data
+      - name: Anything to publish?
+        id: diff
+        run: |
+          git add -A data index.html
+          # updated.json changes on every run; only publish when results actually changed
+          if git diff --cached --quiet -- data index.html ':!data/updated.json'; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"; echo "No result changes."
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"; git diff --cached --stat -- data | tail -5
+          fi
+      # Commits made by this workflow don't start the "Site check" workflow, so the new data is tested here,
+      # before it goes live. If the site breaks with it, nothing is published and an issue is opened.
+      - name: Test the site with the new data
+        id: sitecheck
+        if: steps.diff.outputs.changed == 'true'
+        run: |
+          npm install --no-save --no-package-lock --silent playwright@1 axe-core@4
+          npx playwright install --with-deps chromium > /dev/null
+          node scripts/site-check.mjs
+      - name: Publish the new data
+        if: steps.diff.outputs.changed == 'true' && steps.sitecheck.outcome == 'success'
         run: |
           git config user.name "speedtas-bot"
           git config user.email "actions@users.noreply.github.com"
-          git add data index.html
-          # updated.json changes on every run; only commit when results actually changed
-          if git diff --cached --quiet -- data ':!data/updated.json'; then
-            echo "No result changes."
-          else
-            git commit -m "data: refresh $(date -u +'%F %H:%M') UTC"
-            git pull --rebase origin "${GITHUB_REF_NAME}"
-            git push origin "HEAD:${GITHUB_REF_NAME}"
+          git commit -q -F commit-message.txt
+          git pull -q --rebase origin "${GITHUB_REF_NAME}"
+          git push -q origin "HEAD:${GITHUB_REF_NAME}"
+          echo "Published: $(head -1 commit-message.txt)"
+      - name: Report
+        if: always()
+        run: |
+          [ -f run-report.md ] || printf '## SpeedTAS data update\n\n**The update script stopped before writing its report.** See the log: %s\n' "$RUN_URL" > run-report.md
+          if [ "${{ steps.sitecheck.outcome }}" = "failure" ]; then
+            printf '\n### Not published\n- The site check failed with the new data, so nothing was published. The site still shows the previous data. See the log: %s\n' "$RUN_URL" >> run-report.md
+          fi
+          cat run-report.md >> "$GITHUB_STEP_SUMMARY"
+      - name: Open or close the "data update" issue
+        if: always() && github.ref_name == github.event.repository.default_branch
+        run: |
+          problems=$(node -e "try{console.log(require('./run-report.json').problems)}catch{console.log(1)}")
+          [ "${{ steps.sitecheck.outcome }}" = "failure" ] && problems=$((problems + 1))
+          [ "${{ job.status }}" = "failure" ] && problems=$((problems + 1))
+          open=$(gh issue list --state open --label data-update --json number --jq '.[0].number' 2>/dev/null || true)
+          if [ "$problems" -gt 0 ]; then
+            printf '\n[Run log](%s)\n' "$RUN_URL" >> run-report.md
+            if [ -n "$open" ]; then
+              gh issue comment "$open" --body-file run-report.md
+            else
+              gh label create data-update --color d73a4a --description "Problems found by the data update" 2>/dev/null || true
+              gh issue create --title "Data update needs attention" --label data-update --body-file run-report.md
+            fi
+          elif [ -n "$open" ]; then
+            gh issue close "$open" --comment "Fixed: the latest data update ran without problems. $RUN_URL"
           fi

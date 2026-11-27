@@ -136,16 +136,16 @@
       const s = size || 32;
       const photo = getAvatarOverride(name);
       if (photo) {
-        return `<img src="${escapeHtml(photo)}" alt="${escapeHtml(name)}" loading="lazy" onerror="handleAvatarError(this,'${encodeURIComponent(name).replace(/'/g, '%27')}')" style="width:${s}px;height:${s}px;border-radius:50%;object-fit:cover;flex-shrink:0;background:${colorForName(name)};display:inline-block;vertical-align:middle;">`;
+        return `<img src="${escapeHtml(photo)}" alt="" loading="lazy" onerror="handleAvatarError(this,'${encodeURIComponent(name).replace(/'/g, '%27')}')" style="width:${s}px;height:${s}px;border-radius:50%;object-fit:cover;flex-shrink:0;background:${colorForName(name)};display:inline-block;vertical-align:middle;">`;
       }
       const c = colorForName(name);
-      return `<div class="avatar" style="background:${c};${size ? `width:${size}px;height:${size}px;font-size:${size * 0.35}px;` : ''}" role="img" aria-label="${escapeHtml(name)}">${escapeHtml(initials(name))}</div>`;
+      return `<div class="avatar" style="background:${c};${size ? `width:${size}px;height:${size}px;font-size:${size * 0.35}px;` : ''}" data-name="${escapeHtml(name)}" aria-hidden="true">${escapeHtml(initials(name))}</div>`;
     }
     /* Pictures arrive after the page is drawn. Swap them into the initials placeholders in place, instead of
        redrawing the page, which used to reset whatever season or filter the visitor had just picked. */
     function swapInAvatars() {
-      document.querySelectorAll('.avatar[role="img"][aria-label]').forEach(div => {
-        const name = div.getAttribute('aria-label');
+      document.querySelectorAll('.avatar[data-name]').forEach(div => {
+        const name = div.getAttribute('data-name');
         if (!getAvatarOverride(name)) return;
         const size = parseInt(div.style.width, 10) || undefined;
         const tmp = document.createElement('div');
@@ -161,6 +161,7 @@
       const s = img.clientWidth || img.offsetWidth || 32;
       const div = document.createElement('div');
       div.className = 'avatar';
+      div.setAttribute('aria-hidden', 'true');
       div.style.cssText = `background:${colorForName(name)};width:${s}px;height:${s}px;font-size:${Math.round(s * 0.35)}px;`;
       div.textContent = initials(name);
       img.replaceWith(div);

@@ -12,11 +12,15 @@
 //     marked "auto"). As soon as the sheet has that edition, the sheet's version wins.
 //  4. Saves each replay's inputs as a TMInterface-style script in data/inputs/<replayId>.txt.
 //
-// Run by .github/workflows/update-data.yml (Saturday night + Sunday midday, or by hand).
+// Run by .github/workflows/update-data.yml (Saturday evening every 30 min, Sunday, a weekly maintenance run, or by hand).
 // A source that fails keeps its previous file, so one bad fetch never blanks the site.
+// Guard: sheet data that would lose editions the site already has is not taken (previous file kept, problem
+// reported) unless the run is started with --allow-removals. Every run writes run-report.md / run-report.json
+// (what changed, what went wrong) and commit-message.txt; the workflow turns problems into a GitHub issue.
 // The parsing below is a port of speedtas-api-worker.js: keep the two in step.
 
 import { readFile, writeFile, mkdir, access } from 'node:fs/promises';
+import { pathToFileURL } from 'node:url';
 
 const OUT = 'data';
 const UA = `SpeedTAS data updater (github.com/${process.env.GITHUB_REPOSITORY || 'Kristiano55/SpeedTAS'})`;
@@ -45,8 +49,11 @@ const MAX_CHECKS_PER_EVENT = 4;  // an event whose times stay hidden is given up
 const REPLAY_BACKFILL = 50;      // most older events re-read per run to pick up their replay ids
 const INPUT_FETCHES = 120;       // most input files downloaded per run (the backlog spreads over a few runs)
 const AUTO_IMPORT = { s3: 's3', tm20: 'tm20' }; // event set -> results file that receives auto-imported editions
-/* TrackMania Exchange map packs, one per TMNF season. Add the Season 3 pack id here once it exists. */
+/* TrackMania Exchange map packs, one per TMNF season. A season without a pack id is found on TMX by map name
+   instead (MAP_SEARCH), so Season 3 maps appear on the site without anyone adding a pack id. */
 const MAP_PACKS = { s1: 11621132, s2: 13122890 };
+const MAP_SEARCH = { s3: { query: 'SpeedTAS 3', name: /^\s*SpeedTAS\s*(?:S(?:eason)?\s*)?3\s*#\s*0*(\d+)\b/i } };
+const MAP_SEASONS = [...new Set([...Object.keys(MAP_PACKS), ...Object.keys(MAP_SEARCH)])];
 const MAP_FIELDS = 'TrackId,TrackName,Authors[],AuthorTime,WRReplay.ReplayTime,WRReplay.User.Name,HasThumbnail';
 /* TAS Exchange name -> sheet name, for names the history can't work out on its own. Keys are lower-case, letters/digits only. */
 const MANUAL_ALIASES = {};
@@ -161,7 +168,7 @@ async function updateEvents(state, events) {
   const ids = Object.keys(state.titles).map(Number);
   let id = ids.length ? Math.max(...ids) + 1 : EVENT_SCAN_FROM;
   // First run: walk every id from EVENT_SCAN_FROM. Later runs: only ids past the newest known event.
-  let missRun = 0;
+  let missRun = 0, reached = 0, errors = 0;
   while (id <= EVENT_SCAN_KNOWN || missRun < EVENT_LOOKAHEAD) {
     const batch = Array.from({ length: 6 }, (_, i) => id + i);
     const pages = await Promise.all(batch.map(fetchEventPage));
@@ -170,9 +177,12 @@ async function updateEvents(state, events) {
       const p = pages[i];
       if (p.html) { state.titles[bid] = extractTitle(p.html); missRun = 0; state.pages[bid] = p.html; }
       else missRun++;
+      if (p.error) errors++; else reached++;
     });
     id += batch.length;
   }
+  // Every request failed (not "no such event", but no answer at all): the site is down, not out of events.
+  if (!reached && errors) throw new Error(`TAS Exchange did not answer (${errors} failed requests)`);
   // Match titles to editions; keep the highest id when an edition was posted twice.
   for (const [eid, title] of Object.entries(state.titles)) {
     for (const [set, re] of Object.entries(EVENT_SETS)) {
@@ -346,6 +356,23 @@ async function fetchPack(packId) {
   }
   return tracks;
 }
+/* Maps whose name matches a season's pattern ("SpeedTAS 3 #4"), from TMX's name search. */
+async function searchTracks({ query, name }) {
+  const tracks = [];
+  let after = null;
+  for (let i = 0; i < 5; i++) {
+    const res = await get(`https://tmnf.exchange/api/tracks?name=${encodeURIComponent(query)}&count=100&fields=${encodeURIComponent(MAP_FIELDS)}${after ? `&after=${after}` : ''}`);
+    if (!res.ok) throw new Error(`TMX search HTTP ${res.status}`);
+    const j = await res.json();
+    tracks.push(...(j.Results || []).filter((t) => name.test(t.TrackName || '')));
+    if (!j.More || !(j.Results || []).length) break;
+    after = j.Results[j.Results.length - 1].TrackId;
+  }
+  // The same edition uploaded twice: keep the first upload (lowest id), which is the one used on the day.
+  const byEd = {};
+  tracks.sort((a, b) => a.TrackId - b.TrackId).forEach((t) => { const ed = t.TrackName.match(name)[1]; if (!byEd[ed]) byEd[ed] = t; });
+  return byEd;
+}
 async function fetchTasTracks() {
   const all = [];
   for (let from = 1; from < 1000; from += 50) {
@@ -363,9 +390,22 @@ async function updateMaps(previous) {
   const maps = { ...previous };
   delete maps.updatedAt;
   let tas = [];
-  try { tas = await fetchTasTracks(); } catch (err) { console.warn(`maps: TAS Exchange records unavailable (${err.message})`); }
+  try { tas = await fetchTasTracks(); } catch (err) { console.warn(`maps: TAS Exchange records unavailable (${err.message})`); REPORT.warnings.push(`TAS records for maps unavailable this run (${err.message}).`); }
   const tasByTmx = Object.fromEntries(tas.filter((t) => t.tmx_id).map((t) => [String(t.tmx_id), t]));
   const tasRecord = (t) => (t && t.tas_time ? { track: t.track_id, time: t.tas_time, by: t.author || null } : null);
+  const mapEntry = (t) => ({
+    tmx: t.TrackId, name: t.TrackName.trim(), authors: (t.Authors || []).map((a) => a.User && a.User.Name).filter(Boolean),
+    authorTime: t.AuthorTime || null, wr: t.WRReplay ? { time: t.WRReplay.ReplayTime, by: t.WRReplay.User ? t.WRReplay.User.Name : null } : null,
+    thumb: !!t.HasThumbnail, tas: tasRecord(tasByTmx[String(t.TrackId)]),
+  });
+  for (const [season, search] of Object.entries(MAP_SEARCH)) {
+    if (MAP_PACKS[season]) continue;
+    try {
+      const found = await searchTracks(search);
+      if (!Object.keys(found).length) { console.log(`maps ${season}: no maps on TMX yet`); continue; }
+      maps[season] = Object.fromEntries(Object.entries(found).map(([ed, t]) => [ed, mapEntry(t)]));
+    } catch (err) { console.warn(`maps ${season}: kept the previous data (${err.message})`); REPORT.warnings.push(`${season} maps: kept the previous data (${err.message}).`); }
+  }
   for (const [season, pack] of Object.entries(MAP_PACKS)) {
     try {
       const tracks = await fetchPack(pack);
@@ -375,14 +415,10 @@ async function updateMaps(previous) {
         let ed = editionFromMapName(t.TrackName);
         if (!ed && !used.has(String(i + 1))) ed = String(i + 1); // e.g. "SpeedTAS GS Edition": its place in the pack
         if (!ed) return;
-        out[ed] = {
-          tmx: t.TrackId, name: t.TrackName.trim(), authors: (t.Authors || []).map((a) => a.User && a.User.Name).filter(Boolean),
-          authorTime: t.AuthorTime || null, wr: t.WRReplay ? { time: t.WRReplay.ReplayTime, by: t.WRReplay.User ? t.WRReplay.User.Name : null } : null,
-          thumb: !!t.HasThumbnail, tas: tasRecord(tasByTmx[String(t.TrackId)]),
-        };
+        out[ed] = mapEntry(t);
       });
       maps[season] = out;
-    } catch (err) { console.warn(`maps ${season}: kept the previous data (${err.message})`); }
+    } catch (err) { console.warn(`maps ${season}: kept the previous data (${err.message})`); REPORT.warnings.push(`${season} maps: kept the previous data (${err.message}).`); }
   }
   // TM2020 maps aren't in a TMX pack; TAS Exchange knows them by name ("SpeedTAS #4") with a Nadeo thumbnail.
   const tm20 = {};
@@ -403,7 +439,7 @@ const exists = (f) => access(f).then(() => true, () => false);
 async function saveThumbs(maps) {
   await mkdir(`${OUT}/thumbs`, { recursive: true });
   let fetched = 0, failed = 0;
-  for (const season of Object.keys(MAP_PACKS)) {
+  for (const season of MAP_SEASONS) {
     for (const map of Object.values(maps[season] || {})) {
       if (!map.tmx || !map.thumb) continue;
       const base = `thumbs/tmx-${map.tmx}`;
@@ -452,7 +488,9 @@ async function updateAvatars(previous) {
   }
   // A lookup that failed this time keeps last run's picture.
   Object.values(players).forEach((id) => { if (!(id in avatars) && prev.avatars[id]) avatars[id] = prev.avatars[id]; });
-  return { players, avatars, calls };
+  // Sorted, so the file only changes when a picture does (the Worker answers batches in any order).
+  const sorted = (o) => Object.fromEntries(Object.entries(o).sort(([a], [b]) => a.localeCompare(b)));
+  return { players: sorted(players), avatars: sorted(avatars), calls };
 }
 
 /* ============ YOUTUBE VIDEOS ============ */
@@ -537,31 +575,113 @@ async function updateVideos(previous) {
   return out;
 }
 
+/* ============ GUARD + RUN REPORT ============ */
+const ARCHIVE_SEASONS = ['s1', 's2']; // finished: their sheets should never lose editions
+/* Decides whether freshly read sheet data may replace the saved file. Returns {take, problems, warnings}.
+   prev = the saved file (or null). Auto-imported editions in prev don't count: the sheet may not have them yet. */
+export function guardDataset(key, fresh, prev, allowRemovals = false) {
+  const problems = [], warnings = [];
+  const prevSheet = prev ? (prev.editions || []).filter((e) => !e.auto) : [];
+  const freshLabels = new Set(fresh.editions.map((e) => e.edition));
+  const gone = prevSheet.map((e) => e.edition).filter((ed) => !freshLabels.has(ed));
+  if (!allowRemovals) {
+    if (prevSheet.length && !fresh.editions.length) problems.push(`${key}: the sheet came back empty; kept the previous data.`);
+    else if (gone.length) problems.push(`${key}: the sheet no longer has edition(s) ${gone.join(', ')}; kept the previous data. If that was on purpose, run the workflow with "allow removals".`);
+    else if (ARCHIVE_SEASONS.includes(key) && fresh.editions.length < prevSheet.length) problems.push(`${key}: finished season shrank from ${prevSheet.length} to ${fresh.editions.length} editions; kept the previous data.`);
+  }
+  const seen = new Set();
+  fresh.editions.forEach((e) => {
+    if (seen.has(e.edition)) warnings.push(`${key}: edition ${e.edition} appears twice in the sheet.`);
+    seen.add(e.edition);
+    const bad = Object.entries(e.results).filter(([, p]) => !Number.isInteger(p) || p < 1).map(([n]) => n);
+    if (bad.length) warnings.push(`${key} edition ${e.edition}: placement that isn't a whole number 1 or more for ${bad.join(', ')}.`);
+    if (!Object.values(e.results).includes(1)) warnings.push(`${key} edition ${e.edition}: nobody is in 1st place.`);
+  });
+  return { take: !problems.length, problems, warnings };
+}
+/* What a run changed in a results file, for the report and the commit message. */
+export function datasetChanges(key, prev, next) {
+  const out = [];
+  const before = Object.fromEntries(((prev && prev.editions) || []).map((e) => [e.edition, e]));
+  const added = next.editions.filter((e) => !before[e.edition]);
+  const changed = next.editions.filter((e) => before[e.edition] && JSON.stringify(before[e.edition].results) !== JSON.stringify(e.results));
+  if (added.length) out.push(`${key} #${added.map((e) => e.edition + (e.auto ? ' (auto)' : '')).join(', #')} added`);
+  if (changed.length) out.push(`${key} #${changed.map((e) => e.edition).join(', #')} updated`);
+  const known = new Set((prev && prev.players) || []), fresh = next.players.filter((n) => !known.has(n));
+  if (prev && fresh.length) out.push(`${key} new player${fresh.length > 1 ? 's' : ''}: ${fresh.join(', ')}`);
+  return out;
+}
+/* Season 3 schedule, read from the website's own config (assets/js/01-config.js) so it is written down once. */
+export function readSchedule(configJs) {
+  const info = configJs.match(/s3:\s*\{[^}]*editions:\s*(\d+)[^}]*start:\s*'(\d{4}-\d{2}-\d{2})'/);
+  const breaks = (configJs.match(/SCHEDULE_BREAKS\s*=\s*\[([^\]]*)\]/) || [, ''])[1].match(/\d{4}-\d{2}-\d{2}/g) || [];
+  const hour = +((configJs.match(/EDITION_HOUR_LISBON\s*=\s*(\d+)/) || [, 18])[1]);
+  return info ? { total: +info[1], start: info[2], breaks, hour } : null;
+}
+/* How many Season 3 editions should exist by `now`: edition Saturdays from the start, minus breaks, whose
+   edition finished more than `graceHours` ago (Lisbon time is UTC+0/+1, so +1h covers both). */
+export function expectedEditions(schedule, now, graceHours = 18) {
+  if (!schedule) return 0;
+  let n = 0;
+  for (let day = Date.parse(schedule.start + 'T00:00:00Z'); n < schedule.total; day += 7 * 86400e3) {
+    const iso = new Date(day).toISOString().slice(0, 10);
+    if (day + (schedule.hour + 1 + graceHours) * 3600e3 > now.getTime()) break;
+    if (!schedule.breaks.includes(iso)) n++;
+  }
+  return n;
+}
+const REPORT = { problems: [], warnings: [], changes: [], notes: [] };
+async function writeReport(startedAt) {
+  const list = (title, xs) => (xs.length ? `### ${title}\n${xs.map((x) => `- ${x}`).join('\n')}\n\n` : '');
+  const md = `## SpeedTAS data update · ${startedAt.slice(0, 16).replace('T', ' ')} UTC\n\n` +
+    (REPORT.problems.length ? `**${REPORT.problems.length} problem(s).** The previous data was kept for these, so the site still works.\n\n` : '**All sources OK.**\n\n') +
+    list('Problems', REPORT.problems) + list('Changes', REPORT.changes.length ? REPORT.changes : ['No result changes.']) + list('Warnings', REPORT.warnings) + list('Details', REPORT.notes);
+  await writeFile('run-report.md', md);
+  await writeFile('run-report.json', JSON.stringify({ at: startedAt, problems: REPORT.problems.length, warnings: REPORT.warnings.length, changes: REPORT.changes }, null, 1) + '\n');
+  const headline = REPORT.changes.length ? REPORT.changes.slice(0, 3).join('; ') : 'refresh';
+  await writeFile('commit-message.txt', `data: ${headline.length > 100 ? headline.slice(0, 97) + '...' : headline}\n\n${REPORT.changes.map((c) => `- ${c}`).join('\n')}\n`);
+}
+
 /* ============ MAIN ============ */
 async function readJson(f, d) { try { return JSON.parse(await readFile(f, 'utf8')); } catch { return d; } }
 const writeJson = (f, data) => writeFile(f, JSON.stringify(data, null, 1) + '\n');
+/* Rewrites a data file only when its content (ignoring updatedAt) changed, so a run without news makes no commit. */
+async function writeJsonIfChanged(f, data, now) {
+  const { updatedAt, ...prev } = await readJson(f, {});
+  const { updatedAt: _, ...next } = data;
+  if (JSON.stringify(prev) === JSON.stringify(next)) return false;
+  await writeJson(f, { ...next, updatedAt: now });
+  return true;
+}
 
 async function main() {
   await mkdir(OUT, { recursive: true });
   const now = new Date().toISOString();
   let failures = 0;
   // 1. Sheets. A sheet that can't be read keeps its previous file (minus earlier auto-imports, which are redone below).
-  const datasets = {};
+  const datasets = {}, previous = {};
+  const allowRemovals = process.argv.includes('--allow-removals');
   for (const [key, src] of Object.entries(SHEETS)) {
+    const prev = previous[key] = await readJson(`${OUT}/${key}.json`, null);
+    const keepPrev = () => { if (prev) datasets[key] = { season: key, editions: prev.editions.filter((e) => !e.auto), players: prev.players }; };
     try {
       const d = await fetchSheet(src);
+      const guard = guardDataset(key, d, prev, allowRemovals);
+      REPORT.warnings.push(...guard.warnings);
+      if (!guard.take) { failures++; REPORT.problems.push(...guard.problems); keepPrev(); console.warn(guard.problems.join('\n')); continue; }
       datasets[key] = { season: key, editions: d.editions, players: d.players };
       console.log(`${key}: ${d.editions.length} editions, ${d.players.length} players`);
     } catch (err) {
       failures++;
-      const prev = await readJson(`${OUT}/${key}.json`, null);
-      if (prev) datasets[key] = { season: key, editions: prev.editions.filter((e) => !e.auto), players: prev.players };
+      keepPrev();
+      REPORT.problems.push(`${key} sheet could not be read (${err.message}); kept the previous data.`);
       console.warn(`${key}: kept the previous data (${err.message})`);
     }
   }
   // 2. TAS Exchange events.
   const events = await readJson(`${OUT}/events.json`, {});
   delete events.updatedAt;
+  const eventsBefore = JSON.parse(JSON.stringify(events));
   if (!process.argv.includes('--sheets')) {
     const state = await readJson(`${OUT}/events_state.json`, { titles: {} });
     state.pages = {};
@@ -571,6 +691,7 @@ async function main() {
       console.log(`events: ${Object.entries(events).map(([k, v]) => `${k} ${Object.keys(v).length}`).join(', ')} (${requests} TAS Exchange requests)`);
     } catch (err) {
       failures++;
+      REPORT.problems.push(`TAS Exchange events could not be read (${err.message}); kept the previous file.`);
       console.warn(`events: kept the previous files (${err.message})`);
     }
   }
@@ -583,6 +704,7 @@ async function main() {
     const { data, added, unknown } = autoImport(datasets[key], events[set], aliases, namesFor(key));
     datasets[key] = data;
     if (added.length) console.log(`${key}: auto-imported edition(s) ${added.join(', ')} from TAS Exchange` + (unknown.length ? ` (new or unrecognised names: ${unknown.join(', ')})` : ''));
+    if (unknown.length) REPORT.warnings.push(`${key}: TAS Exchange names not matched to a sheet player (shown as typed until the sheet has them): ${unknown.join(', ')}.`);
   }
   // Each event result gets the sheet name it belongs to ("player"), so the site can match times, replays and inputs.
   for (const [set, evs] of Object.entries(events)) {
@@ -593,20 +715,30 @@ async function main() {
       if (n) r.player = n; else delete r.player;
     }
   }
-  for (const [key, d] of Object.entries(datasets)) await writeJson(`${OUT}/${key}.json`, { ...d, updatedAt: now });
+  for (const [key, d] of Object.entries(datasets)) {
+    REPORT.changes.push(...datasetChanges(key, previous[key], d));
+    await writeJsonIfChanged(`${OUT}/${key}.json`, d, now);
+  }
+  for (const [set, evs] of Object.entries(events)) {
+    const fresh = Object.entries(evs).filter(([ed, ev]) => (ev.results || []).length && !(((eventsBefore[set] || {})[ed] || {}).results || []).length).map(([ed]) => ed);
+    if (fresh.length) REPORT.changes.push(`${set} times for #${fresh.join(', #')}`);
+  }
   await writeJson(`${OUT}/aliases.json`, aliases);
-  await writeJson(`${OUT}/events.json`, { ...events, updatedAt: now });
+  await writeJsonIfChanged(`${OUT}/events.json`, events, now);
   // Maps: TMX packs + TAS Exchange records (a handful of requests).
   if (!process.argv.includes('--sheets')) {
     const maps = await updateMaps(await readJson(`${OUT}/maps.json`, {}));
     const thumbs = await saveThumbs(maps);
-    await writeJson(`${OUT}/maps.json`, { ...maps, updatedAt: now });
-    console.log(`maps: ${Object.entries(maps).map(([k, v]) => `${k} ${Object.keys(v).length}`).join(', ')} (thumbnails: ${thumbs.fetched} new, ${thumbs.failed} failed)`);
+    if (await writeJsonIfChanged(`${OUT}/maps.json`, maps, now)) REPORT.changes.push('map details updated');
+    const line = `maps: ${Object.entries(maps).map(([k, v]) => `${k} ${Object.keys(v).length}`).join(', ')} (thumbnails: ${thumbs.fetched} new, ${thumbs.failed} failed)`;
+    console.log(line); REPORT.notes.push(line);
+    if (thumbs.failed) REPORT.warnings.push(`${thumbs.failed} map picture(s) could not be downloaded; retried next run.`);
   }
   // 4. Inputs for every replay with downloads enabled.
   if (!process.argv.includes('--sheets')) {
     const r = await saveInputs(events);
-    console.log(`inputs: ${r.fetched} saved, ${r.unavailable} not available from TAS Exchange (replay download only), ${r.failed} failed, ${r.pending} left for the next run`);
+    const line = `inputs: ${r.fetched} saved, ${r.unavailable} not available from TAS Exchange (replay download only), ${r.failed} failed, ${r.pending} left for the next run`;
+    console.log(line); REPORT.notes.push(line);
     await writeInputsIndex();
   }
   // 5. YouTube videos per edition.
@@ -615,11 +747,16 @@ async function main() {
       const prevVideos = await readJson(`${OUT}/videos.json`, {});
       const v = await updateVideos(prevVideos);
       const { updatedAt, ...prevComparable } = prevVideos;
-      if (JSON.stringify(prevComparable) !== JSON.stringify(v)) await writeJson(`${OUT}/videos.json`, { ...v, updatedAt: now });
+      if (JSON.stringify(prevComparable) !== JSON.stringify(v)) {
+      await writeJson(`${OUT}/videos.json`, { ...v, updatedAt: now });
+      const fresh = Object.keys(v.videos).filter((id) => !(prevComparable.videos || {})[id]).length;
+      REPORT.changes.push(fresh ? `${fresh} new video${fresh > 1 ? 's' : ''}` : 'video links updated');
+    }
       const unmatched = Object.entries(v.videos).filter(([, x]) => !videoEdition(x.title, x.published)).map(([, x]) => x.title);
       console.log(`videos: ${Object.keys(v.videos).length} known, matched ${Object.entries(v.editions).map(([k, e]) => `${k} ${Object.keys(e).length}`).join(', ') || 'none'}` + (unmatched.length ? `; not matched: ${unmatched.slice(0, 8).join(' | ')}` : ''));
     } catch (err) {
       failures++;
+      REPORT.problems.push(`YouTube videos could not be read (${err.message}); kept the previous file.`);
       console.warn(`videos: kept the previous file (${err.message})`);
     }
   }
@@ -630,14 +767,25 @@ async function main() {
     const { updatedAt, ...prevComparable } = prevAvatars;
     const next = { players: av.players, avatars: av.avatars };
     // only rewrite the file when something changed, so a run without changes makes no commit
-    if (JSON.stringify(prevComparable) !== JSON.stringify(next)) await writeJson(`${OUT}/avatars.json`, { ...next, updatedAt: now });
+    if (JSON.stringify(prevComparable) !== JSON.stringify(next)) {
+      await writeJson(`${OUT}/avatars.json`, { ...next, updatedAt: now });
+      REPORT.changes.push('Discord pictures updated');
+    }
     console.log(`avatars: ${Object.keys(av.players).length} players, ${Object.values(av.avatars).filter(Boolean).length} pictures (${av.calls} Worker calls)`);
   } catch (err) {
     failures++;
+    REPORT.problems.push(`Discord avatars could not be read from the Worker (${err.message}); kept the previous file.`);
     console.warn(`avatars: kept the previous file (${err.message})`);
   }
+  // 7. Missing results: a Saturday edition whose results still aren't in by the next day is reported.
+  try {
+    const schedule = readSchedule(await readFile('assets/js/01-config.js', 'utf8'));
+    const want = expectedEditions(schedule, new Date()), have = datasets.s3 ? datasets.s3.editions.length : 0;
+    if (want > have) REPORT.problems.push(`Season 3 should have ${want} edition(s) by now but has ${have}. Add the latest results to the Season 3 sheet (or make the TAS Exchange times public).`);
+  } catch (err) { REPORT.warnings.push(`Could not check the Season 3 schedule (${err.message}).`); }
   await writeJson(`${OUT}/updated.json`, { at: now });
   if (failures) console.log(`${failures} source(s) failed; their previous data was kept.`);
+  await writeReport(now);
 }
 
 function selftest() {
@@ -673,10 +821,37 @@ function selftest() {
   assert(JSON.stringify(videoEdition('🏆 The First TM20 SpeedTAS', '2026-09-25')) === '{"set":"tm20","ed":"1"}', 'channel title tm20 first');
   assert(JSON.stringify(videoEdition('🏆 SpeedTAS 3', '2027-02-08')) === '{"set":"s3","ed":"3"}', 'channel title after S3 start');
   assert(videoEdition('Trackmania vlog', '2026-01-01') === null, 'unrelated video');
+  const prevS2 = { editions: [{ edition: '1', results: { A: 1 } }, { edition: '2', results: { A: 1 } }], players: ['A'] };
+  assert(!guardDataset('s2', { editions: [{ edition: '1', results: { A: 1 } }], players: ['A'] }, prevS2).take, 'guard: lost edition');
+  assert(guardDataset('s2', { editions: [{ edition: '1', results: { A: 1 } }], players: ['A'] }, prevS2, true).take, 'guard: allow removals');
+  assert(!guardDataset('s3', { editions: [], players: [] }, prevS2).take, 'guard: empty sheet');
+  assert(guardDataset('s3', { editions: [{ edition: '1', results: { A: 1 } }], players: ['A'] }, { editions: [{ edition: '1', results: { A: 1 }, auto: true }, { edition: '2', results: { A: 1 }, auto: true }], players: ['A'] }).take, 'guard: auto editions may go');
+  assert(guardDataset('s3', { editions: [{ edition: '1', results: { A: 0 } }], players: ['A'] }, null).warnings.length === 2, 'guard: bad placement warnings');
+  assert(datasetChanges('s3', prevS2, { editions: [...prevS2.editions, { edition: '3', results: { B: 1 } }], players: ['A', 'B'] }).join('|') === 's3 #3 added|s3 new player: B', 'changes');
+  assert(MAP_SEARCH.s3.name.test('SpeedTAS 3 #4') && MAP_SEARCH.s3.name.test('SpeedTAS S3 #12') && !MAP_SEARCH.s3.name.test('SpeedTAS 2 #3') && !MAP_SEARCH.s3.name.test('SpeedTAS 30 #3'), 'S3 map names');
+  const sched = readSchedule(`s3: {label: 'Season 3', short: 'S3', bestOf: 9, editions: 12, start: '2027-02-06'}\n const SCHEDULE_BREAKS = ['2027-02-20'];\n const EDITION_HOUR_LISBON = 18;`);
+  assert(sched && sched.total === 12 && sched.start === '2027-02-06' && sched.breaks[0] === '2027-02-20' && sched.hour === 18, 'schedule parse');
+  assert(expectedEditions(sched, new Date('2027-02-06T20:00:00Z')) === 0, 'expected: edition day itself');
+  assert(expectedEditions(sched, new Date('2027-02-07T14:00:00Z')) === 1, 'expected: next day');
+  assert(expectedEditions(sched, new Date('2027-02-21T14:00:00Z')) === 2, 'expected: break skipped');
+  assert(expectedEditions(sched, new Date('2026-11-27T12:00:00Z')) === 0, 'expected: before the season');
   console.log('selftest ok');
 }
 
-if (process.argv.includes('--selftest')) selftest();
+/* --probe-maps: checks the TMX name search against Season 2's pack (both should find the same maps). Writes nothing. */
+async function probeMaps() {
+  const pack = await fetchPack(MAP_PACKS.s2);
+  const byName = await searchTracks({ query: 'SpeedTAS 2', name: /^\s*SpeedTAS\s*2\s*#\s*0*(\d+)\b/i });
+  const packIds = new Set(pack.map((t) => t.TrackId)), found = Object.values(byName).map((t) => t.TrackId);
+  console.log(`probe: pack has ${pack.length} maps, name search found ${found.length}, ${found.filter((id) => packIds.has(id)).length} of them in the pack`);
+  const s3 = await searchTracks(MAP_SEARCH.s3);
+  console.log(`probe: Season 3 maps on TMX so far: ${Object.keys(s3).length}`);
+}
+// Only act when run as a script (node scripts/update-data.mjs ...), never when another script imports it.
+const isCli = process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
+if (!isCli) { /* imported: functions only */ }
+else if (process.argv.includes('--selftest')) selftest();
+else if (process.argv.includes('--probe-maps')) probeMaps().catch((err) => { console.error(err); process.exit(1); });
 else if (process.argv.includes('--relink-videos')) relinkVideos();
 else if (process.argv.includes('--index-inputs')) writeInputsIndex().then((n) => console.log(`inputs index: ${n} replays`));
-else if (!process.argv.includes('--index-inputs') && !process.argv.includes('--relink-videos')) main().catch((err) => { console.error(err); process.exit(1); });
+else main().catch((err) => { console.error(err); process.exit(1); });

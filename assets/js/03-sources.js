@@ -319,10 +319,10 @@
         const E = escapeHtml, thumb = mapThumb(map), link = mapLink(map);
         const row = (k, v) => v ? `<div class="map-stat"><span>${k}</span><b>${v}</b></div>` : '';
         card.innerHTML = `
-          ${thumb ? `<a class="map-thumb" href="${E(link)}" target="_blank" rel="noopener"><img src="${E(thumb)}" alt="" loading="lazy" onerror="this.parentNode.remove()"></a>` : ''}
+          ${thumb ? `<a class="map-thumb" href="${E(link)}" target="_blank" rel="noopener" aria-label="${E(map.name)} on ${map.tmx ? 'TMX' : 'TAS Exchange'} (opens in a new tab)"><img src="${E(thumb)}" alt="" loading="lazy" onerror="this.parentNode.remove()"></a>` : ''}
           <div class="map-info">
             <div class="panel-label">Map</div>
-            <h3>${link ? `<a href="${E(link)}" target="_blank" rel="noopener">${E(map.name)} ↗</a>` : E(map.name)}</h3>
+            <h2 class="map-name">${link ? `<a href="${E(link)}" target="_blank" rel="noopener">${E(map.name)} ↗</a>` : E(map.name)}</h2>
             ${map.authors && map.authors.length ? `<div class="map-by">by ${map.authors.map(E).join(', ')}</div>` : ''}
             <div class="map-stats">
               ${row('Author time', map.authorTime ? fmtMs(map.authorTime) : '')}

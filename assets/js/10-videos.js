@@ -81,7 +81,7 @@
 
     function renderVideos() {
       main.innerHTML = `
-    <header class="page-head"><div class="kicker">Race results on video</div><h1>Video <em>archive</em></h1><p>The latest SpeedTAS uploads from <a href="https://www.youtube.com/@Kristiano55-tas" target="_blank" rel="noopener" style="color:var(--accent)">Kristiano's YouTube channel ↗</a>. Pick one to play it here.</p></header>
+    <header class="page-head"><div class="kicker">Race results on video</div><h1>Video <em>archive</em></h1><p>The latest SpeedTAS uploads from <a href="https://www.youtube.com/@Kristiano55-tas" target="_blank" rel="noopener">Kristiano's YouTube channel ↗</a>. Pick one to play it here.</p></header>
     <div class="toolbar"><button type="button" class="btn" id="ytRefreshBtn">Refresh videos</button></div>
     <div id="videosContent"></div>
   `;
