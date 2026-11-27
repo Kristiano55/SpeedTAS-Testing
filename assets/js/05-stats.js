@@ -120,7 +120,7 @@
       // achievements
       Object.values(players).forEach(p => {
         const badges = [];
-        if (p.wins >= 1) badges.push({icon: '🏆', label: 'Champion'});
+        if (p.wins >= 1) badges.push({icon: '🏆', label: 'Winner'});
         if (p.wins >= 3) badges.push({icon: '🥇', label: 'Multi Winner'});
         if (p.maxPodiumStreak >= 5) badges.push({icon: '🔥', label: '5 Podium Streak'});
         if (p.rank && p.rank <= 3) badges.push({icon: '⭐', label: 'Top 3 Leaderboard'});
