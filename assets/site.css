@@ -832,7 +832,18 @@
       .player-card { grid-template-columns: 1fr; gap: 8px; }
       .profile-hero { gap: 16px; }
       .profile-hero > img, .profile-hero > .avatar { width: 64px !important; height: 64px !important; }
-      .rivalry-grid, .history-grid { grid-template-columns: 1fr; }
+      .rivalry-grid { grid-template-columns: 1fr; }
+      /* Phones: editions as a two-column grid of compact cards instead of one tall card each */
+      .history-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+      .history-card { gap: 9px; padding: 12px; }
+      .history-edition { font-size: 32px; }
+      .history-edition small { font-size: 17px; }
+      .history-tag { font-size: 9.5px; letter-spacing: .06em; }
+      .history-winner { gap: 8px; }
+      .history-winner img, .history-winner .avatar { width: 28px !important; height: 28px !important; font-size: 10px !important; }
+      .history-winner-name { font-size: 14px; }
+      .history-foot { padding-top: 8px; font-size: 11.5px; flex-wrap: wrap; }
+      .history-foot .also > span { display: none; }
       .rv-card.featured { padding: 18px 16px 14px; }
       .featured .rv-score { font-size: 42px; }
       .featured .rv-side { font-size: 15px; }

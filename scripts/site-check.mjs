@@ -6,6 +6,18 @@ import http from 'node:http';
 import { readFile } from 'node:fs/promises';
 import { extname, join, normalize } from 'node:path';
 import { chromium } from 'playwright';
+import { createRequire } from 'node:module';
+
+/* Accessibility audit with axe-core (installed next to playwright). Serious and critical WCAG 2 A/AA problems fail the check. */
+let AXE = null;
+try { AXE = await readFile(createRequire(import.meta.url).resolve('axe-core/axe.min.js'), 'utf8'); } catch { console.log('(axe-core not installed: accessibility audit skipped)'); }
+async function audit(page, label) {
+  if (!AXE) return;
+  await page.addScriptTag({ content: AXE });
+  const found = await page.evaluate(async () => (await window.axe.run(document, { runOnly: ['wcag2a', 'wcag2aa'] })).violations
+    .filter((v) => v.impact === 'serious' || v.impact === 'critical').map((v) => `${v.id} (${v.nodes.length}): ${v.nodes[0].target.join(' ')}`));
+  check(!found.length, `${label}: no serious accessibility problems${found.length ? ' — ' + found.join(' | ') : ''}`);
+}
 
 const ROOT = process.cwd();
 const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.png': 'image/png', '.jpg': 'image/jpeg', '.svg': 'image/svg+xml', '.txt': 'text/plain' };
@@ -57,18 +69,20 @@ try {
     check(await d.evaluate(() => !document.querySelector('#leaderboardTable .extra-row') && !document.getElementById('boardMore')), '"Show all players" reveals the full table');
   }
   const routes = { '#/players': /player/i, '#/history': /history/i, '#/maps': /maps/i, '#/records': /records/i, '#/rivalries': /rival/i, '#/versus': /head/i, '#/videos': /video/i, '#/tm20': /TM2020/i, '#/': /standings/i };
-  for (const [hash, re] of Object.entries(routes)) { await go(d, hash); check(re.test(await h1(d)), `${hash} renders ("${(await h1(d)).trim()}")`); }
+  for (const [hash, re] of Object.entries(routes)) { await go(d, hash); check(re.test(await h1(d)), `${hash} renders ("${(await h1(d)).trim()}")`); await audit(d, hash); }
   const profile = await d.evaluate(() => (document.querySelector('#leaderboardTable tbody a') || {}).getAttribute?.('href'));
   if (profile) {
     await go(d, profile, 2500);
     check(await d.evaluate(() => document.querySelectorAll('.history-times tbody tr').length > 0), `profile ${profile} has placement history`);
     check(await d.evaluate(() => [...document.querySelectorAll('canvas')].some((c) => window.Chart && Chart.getChart(c))), 'profile charts drawn');
     check(await d.evaluate(() => document.querySelectorAll('.outlook .note').length > 0), 'profile shows its standing');
+    await audit(d, 'profile');
   } else fail('no profile link on the home table');
   const edition = await d.evaluate(async () => { location.hash = '#/history'; await new Promise((r) => setTimeout(r, 1500)); return (document.querySelector('a[href*="#/edition/"]') || {}).getAttribute?.('href'); });
   if (edition) {
     await go(d, edition, 2500);
     check(await d.evaluate(() => document.querySelectorAll('.results-table tbody tr').length > 0), `edition ${edition} has results`);
+    await audit(d, 'edition page');
     await d.click('#resultsPost'); await d.waitForTimeout(400);
     check(/Results of/.test(await d.evaluate(() => (document.querySelector('.post-text') || {}).textContent || '')), 'results post opens');
     await d.keyboard.press('Escape');
@@ -94,6 +108,7 @@ try {
   for (const hash of ['#/', '#/players', '#/history', '#/maps', '#/rivalries', '#/versus']) {
     await go(m, hash);
     check(!(await m.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)), `${hash} fits the phone screen`);
+    await audit(m, `${hash} on phone`);
   }
   check(!m.errors.length, `no script errors on phone${m.errors.length ? ': ' + m.errors.join(' | ') : ''}`);
 

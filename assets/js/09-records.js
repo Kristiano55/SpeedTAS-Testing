@@ -183,7 +183,7 @@
         if (heading && selectedPlayer) heading.textContent = selectedPlayer + '’s rivalries';
         /* rows are already sorted most-competitive first; the top one gets the featured card. */
         /* Long lists (hundreds of pairs) show 20 at a time with a "Show more" button. */
-        const PAGE = 20;
+        const PAGE = matchMedia('(max-width: 560px)').matches ? 8 : 20; // phones: shorter pages
         const showUpTo = n => {
           host.innerHTML = rows.slice(0, n).map((r, i) => rivalryCard(r, season, i, i === 0)).join('') +
             (rows.length > n ? `<div class="show-more-row"><button type="button" class="btn" id="rivalMore">Show ${Math.min(PAGE, rows.length - n)} more <small>(${rows.length - n} left)</small></button></div>` : '');
