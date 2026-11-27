@@ -46,8 +46,6 @@ jobs:
           node-version: 20
       - name: Check the parsers
         run: node scripts/update-data.mjs --selftest
-      - name: TEMP probe maps search
-        run: node scripts/update-data.mjs --probe-maps || true
       - name: Fetch sheets and events
         run: node scripts/update-data.mjs ${{ inputs.sheets_only && '--sheets' || '' }} ${{ inputs.allow_removals && '--allow-removals' || '' }}
       - name: Draw the link-preview image (top 10)

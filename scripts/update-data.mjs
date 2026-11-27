@@ -643,6 +643,14 @@ async function writeReport(startedAt) {
 /* ============ MAIN ============ */
 async function readJson(f, d) { try { return JSON.parse(await readFile(f, 'utf8')); } catch { return d; } }
 const writeJson = (f, data) => writeFile(f, JSON.stringify(data, null, 1) + '\n');
+/* Rewrites a data file only when its content (ignoring updatedAt) changed, so a run without news makes no commit. */
+async function writeJsonIfChanged(f, data, now) {
+  const { updatedAt, ...prev } = await readJson(f, {});
+  const { updatedAt: _, ...next } = data;
+  if (JSON.stringify(prev) === JSON.stringify(next)) return false;
+  await writeJson(f, { ...next, updatedAt: now });
+  return true;
+}
 
 async function main() {
   await mkdir(OUT, { recursive: true });
@@ -707,19 +715,19 @@ async function main() {
   }
   for (const [key, d] of Object.entries(datasets)) {
     REPORT.changes.push(...datasetChanges(key, previous[key], d));
-    await writeJson(`${OUT}/${key}.json`, { ...d, updatedAt: now });
+    await writeJsonIfChanged(`${OUT}/${key}.json`, d, now);
   }
   for (const [set, evs] of Object.entries(events)) {
     const fresh = Object.entries(evs).filter(([ed, ev]) => (ev.results || []).length && !(((eventsBefore[set] || {})[ed] || {}).results || []).length).map(([ed]) => ed);
     if (fresh.length) REPORT.changes.push(`${set} times for #${fresh.join(', #')}`);
   }
   await writeJson(`${OUT}/aliases.json`, aliases);
-  await writeJson(`${OUT}/events.json`, { ...events, updatedAt: now });
+  await writeJsonIfChanged(`${OUT}/events.json`, events, now);
   // Maps: TMX packs + TAS Exchange records (a handful of requests).
   if (!process.argv.includes('--sheets')) {
     const maps = await updateMaps(await readJson(`${OUT}/maps.json`, {}));
     const thumbs = await saveThumbs(maps);
-    await writeJson(`${OUT}/maps.json`, { ...maps, updatedAt: now });
+    if (await writeJsonIfChanged(`${OUT}/maps.json`, maps, now)) REPORT.changes.push('map details updated');
     const line = `maps: ${Object.entries(maps).map(([k, v]) => `${k} ${Object.keys(v).length}`).join(', ')} (thumbnails: ${thumbs.fetched} new, ${thumbs.failed} failed)`;
     console.log(line); REPORT.notes.push(line);
     if (thumbs.failed) REPORT.warnings.push(`${thumbs.failed} map picture(s) could not be downloaded; retried next run.`);
@@ -737,7 +745,11 @@ async function main() {
       const prevVideos = await readJson(`${OUT}/videos.json`, {});
       const v = await updateVideos(prevVideos);
       const { updatedAt, ...prevComparable } = prevVideos;
-      if (JSON.stringify(prevComparable) !== JSON.stringify(v)) await writeJson(`${OUT}/videos.json`, { ...v, updatedAt: now });
+      if (JSON.stringify(prevComparable) !== JSON.stringify(v)) {
+      await writeJson(`${OUT}/videos.json`, { ...v, updatedAt: now });
+      const fresh = Object.keys(v.videos).filter((id) => !(prevComparable.videos || {})[id]).length;
+      REPORT.changes.push(fresh ? `${fresh} new video${fresh > 1 ? 's' : ''}` : 'video links updated');
+    }
       const unmatched = Object.entries(v.videos).filter(([, x]) => !videoEdition(x.title, x.published)).map(([, x]) => x.title);
       console.log(`videos: ${Object.keys(v.videos).length} known, matched ${Object.entries(v.editions).map(([k, e]) => `${k} ${Object.keys(e).length}`).join(', ') || 'none'}` + (unmatched.length ? `; not matched: ${unmatched.slice(0, 8).join(' | ')}` : ''));
     } catch (err) {
@@ -753,7 +765,10 @@ async function main() {
     const { updatedAt, ...prevComparable } = prevAvatars;
     const next = { players: av.players, avatars: av.avatars };
     // only rewrite the file when something changed, so a run without changes makes no commit
-    if (JSON.stringify(prevComparable) !== JSON.stringify(next)) await writeJson(`${OUT}/avatars.json`, { ...next, updatedAt: now });
+    if (JSON.stringify(prevComparable) !== JSON.stringify(next)) {
+      await writeJson(`${OUT}/avatars.json`, { ...next, updatedAt: now });
+      REPORT.changes.push('Discord pictures updated');
+    }
     console.log(`avatars: ${Object.keys(av.players).length} players, ${Object.values(av.avatars).filter(Boolean).length} pictures (${av.calls} Worker calls)`);
   } catch (err) {
     failures++;
