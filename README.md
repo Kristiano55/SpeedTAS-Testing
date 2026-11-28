@@ -55,4 +55,8 @@ where changes are tried first. GitHub Pages, plain HTML/CSS/JS, no build step. N
   - **Alerts:** any problem (a source down, refused sheet data, a Saturday edition still without results the next day,
     a failed site check) opens a GitHub issue labelled `data-update` (GitHub emails you). The next clean run closes it.
   - **Season 3 maps** are found on TMX by name ("SpeedTAS 3 #4"); no pack id needed.
+  - **Inputs:** TMNF runs are saved as TMInterface scripts (`data/inputs/<replay>.txt`). TM2020 runs are saved in
+    the TM2020 TAS format with the seed (`data/inputs/tm20/<replay>.txt`), decoded from the event's replay download
+    with TAS Exchange's own input extractor, which runs sandboxed (no token, no repository access).
+    `node scripts/update-data.mjs --probe-tm20 <event> <replay>` decodes one TM2020 replay without saving anything.
   - Each run's report is on the run's summary page in the Actions tab.

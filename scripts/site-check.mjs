@@ -87,6 +87,15 @@ try {
     check(/Results of/.test(await d.evaluate(() => (document.querySelector('.post-text') || {}).textContent || '')), 'results post opens');
     await d.keyboard.press('Escape');
   } else fail('no edition link on the history page');
+  /* TM2020 inputs: their own files, in the TM2020 TAS format with the seed (not TMNF scripts). */
+  await go(d, '#/tm20/edition/s2/1', 3000);
+  const tmInputs = await d.$('[data-inputs]');
+  if (tmInputs) {
+    await tmInputs.click(); await d.waitForTimeout(800);
+    const shown = await d.evaluate(() => ({ note: (document.querySelector('.inputs-note') || {}).textContent || '', text: (document.querySelector('.inputs-text') || {}).textContent || '' }));
+    check(/TM2020 TAS format/.test(shown.note) && /^0 seed -?\d+\n/.test(shown.text) && !/ press /.test(shown.text), 'TM2020 inputs are in the TM2020 format with the seed');
+    await d.keyboard.press('Escape');
+  } else check(!(await d.evaluate(() => fetch('data/inputs/tm20/index.json').then((r) => r.ok ? r.json() : []).then((ids) => ids.length))), 'TM2020 edition shows its saved inputs');
   await go(d, '#/'); await d.keyboard.press('/'); await d.keyboard.type('a'); await d.waitForTimeout(800);
   check(await d.evaluate(() => document.querySelectorAll('#searchResults a').length > 0), 'search finds results');
   await go(d, '#/records', 2500);
