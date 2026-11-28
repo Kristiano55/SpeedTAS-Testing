@@ -156,9 +156,11 @@
       if (t && best != null) fillMapCard(t.dataset.season, t.dataset.edition, best);
     }
     /* Replay download + inputs for each player whose TAS Exchange run has downloads enabled.
-       Inputs come from data/inputs/<replayId>.txt, saved by the data Action. */
-    let INPUTS_INDEX = null;
-    const inputsIndex = () => INPUTS_INDEX || (INPUTS_INDEX = fetch('data/inputs/index.json', {cache: 'no-cache'}).then(r => r.ok ? r.json() : []).then(ids => new Set(ids)).catch(() => new Set()));
+       Inputs are saved by the data Action: TMNF in data/inputs/<replayId>.txt (TMInterface script), TM2020 in
+       data/inputs/tm20/<replayId>.txt (TM2020 TAS format with the seed). The two games number replays separately. */
+    const inputsDir = () => GAME === 'tm20' ? 'data/inputs/tm20' : 'data/inputs';
+    const INPUTS_INDEX = {};
+    const inputsIndex = () => INPUTS_INDEX[GAME] || (INPUTS_INDEX[GAME] = fetch(`${inputsDir()}/index.json`, {cache: 'no-cache'}).then(r => r.ok ? r.json() : []).then(ids => new Set(ids)).catch(() => new Set()));
     function paintRuns(times, eventId, label) {
       inputsIndex().then(saved => {
         let filled = 0;
@@ -217,11 +219,15 @@
         <div class="inputs-body"><div class="loader"><div class="spinner"></div> Loading inputs…</div></div></div>`;
       document.body.appendChild(o);
       o.querySelector('[data-close-inputs]').focus();
-      fetch(`data/inputs/${encodeURIComponent(replayId)}.txt`, {cache: 'no-cache'}).then(r => {if (!r.ok) throw new Error('not saved yet'); return r.text();}).then(text => {
+      const tm20 = GAME === 'tm20';
+      fetch(`${inputsDir()}/${encodeURIComponent(replayId)}.txt`, {cache: 'no-cache'}).then(r => {if (!r.ok) throw new Error('not saved yet'); return r.text();}).then(text => {
         const body = o.querySelector('.inputs-body');
         if (!body) return;
-        const lines = text.trim().split('\n').length;
-        body.innerHTML = `<p class="inputs-note">${lines} input changes · TMInterface script format: <code>&lt;seconds&gt; &lt;action&gt; &lt;value&gt;</code></p>
+        const lines = text.trim().split('\n').length - (tm20 ? 1 : 0), seed = tm20 && (text.match(/^0 seed (-?\d+)/) || [])[1];
+        const format = tm20
+          ? `TM2020 TAS format: <code>&lt;milliseconds&gt; &lt;action&gt; &lt;value&gt;</code>${seed ? ` · seed <code>${E(seed)}</code>` : ''}`
+          : 'TMInterface script format: <code>&lt;seconds&gt; &lt;action&gt; &lt;value&gt;</code>';
+        body.innerHTML = `<p class="inputs-note">${lines} input changes · ${format}</p>
           <div class="inputs-tools"><button type="button" class="btn" data-copy>Copy</button><a class="btn" download="${E(fileLabel)}.txt" href="${URL.createObjectURL(new Blob([text], {type: 'text/plain'}))}">Download .txt</a></div>
           <pre class="inputs-text">${E(text)}</pre>`;
         body.querySelector('[data-copy]').addEventListener('click', ev => {navigator.clipboard.writeText(text).then(() => {ev.target.textContent = 'Copied';}, () => {ev.target.textContent = 'Copy failed';});});
