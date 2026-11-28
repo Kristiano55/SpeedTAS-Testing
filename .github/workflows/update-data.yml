@@ -23,6 +23,10 @@ on:
         description: 'Allow editions to disappear from a sheet (only if you deleted them on purpose)'
         type: boolean
         default: false
+      rebuild_share:
+        description: 'Redraw every link-preview picture'
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -66,17 +70,39 @@ jobs:
           else
             echo "changed=true" >> "$GITHUB_OUTPUT"; git diff --cached --stat -- data | tail -5
           fi
+      # Link previews (share/ pages + pictures) follow the data; also redrawn when a picture is missing an avatar
+      # or the card design changed, or when asked ("rebuild share pages").
+      - name: Share pages needed?
+        id: needshare
+        run: |
+          need=$(node -e "const fs=require('fs');try{const m=JSON.parse(fs.readFileSync('data/share/manifest.json','utf8'));const d=+((fs.readFileSync('scripts/share-pages.mjs','utf8').match(/const DESIGN = (\d+)/)||[])[1]);console.log(m.design!==d||Object.values(m.pages).some(p=>p.complete===false)?'true':'false')}catch{console.log('true')}")
+          if [ "${{ steps.diff.outputs.changed }}" = "true" ] || [ "${{ inputs.rebuild_share }}" = "true" ]; then need=true; fi
+          echo "need=$need" >> "$GITHUB_OUTPUT"; echo "share pages needed: $need"
+      - name: Install the test browser
+        if: steps.diff.outputs.changed == 'true' || steps.needshare.outputs.need == 'true'
+        run: |
+          npm install --no-save --no-package-lock --silent playwright@1 axe-core@4
+          npx playwright install --with-deps chromium > /dev/null
+      - name: Link previews
+        id: share
+        if: steps.needshare.outputs.need == 'true'
+        run: |
+          node scripts/share-pages.mjs ${{ inputs.rebuild_share && '--all' || '' }}
+          git add -A share sitemap.xml data/share
+          if git diff --cached --quiet -- share sitemap.xml data/share; then echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            grep -q . commit-message.txt 2>/dev/null || echo "data: link previews" > commit-message.txt
+            sed -i '1s/data: refresh/data: link previews updated/' commit-message.txt
+          fi
       # Commits made by this workflow don't start the "Site check" workflow, so the new data is tested here,
       # before it goes live. If the site breaks with it, nothing is published and an issue is opened.
       - name: Test the site with the new data
         id: sitecheck
-        if: steps.diff.outputs.changed == 'true'
-        run: |
-          npm install --no-save --no-package-lock --silent playwright@1 axe-core@4
-          npx playwright install --with-deps chromium > /dev/null
-          node scripts/site-check.mjs
+        if: steps.diff.outputs.changed == 'true' || steps.share.outputs.changed == 'true'
+        run: node scripts/site-check.mjs
       - name: Publish the new data
-        if: steps.diff.outputs.changed == 'true' && steps.sitecheck.outcome == 'success'
+        if: (steps.diff.outputs.changed == 'true' || steps.share.outputs.changed == 'true') && steps.sitecheck.outcome == 'success'
         run: |
           git config user.name "speedtas-bot"
           git config user.email "actions@users.noreply.github.com"

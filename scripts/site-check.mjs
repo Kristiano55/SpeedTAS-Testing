@@ -76,6 +76,7 @@ try {
     check(await d.evaluate(() => document.querySelectorAll('.history-times tbody tr').length > 0), `profile ${profile} has placement history`);
     check(await d.evaluate(() => [...document.querySelectorAll('canvas')].some((c) => window.Chart && Chart.getChart(c))), 'profile charts drawn');
     check(await d.evaluate(() => document.querySelectorAll('.outlook .note').length > 0), 'profile shows its standing');
+    check(await d.evaluate(() => !!document.getElementById('copyLink')), 'profile has a Copy link button');
     await audit(d, 'profile');
   } else fail('no profile link on the home table');
   const edition = await d.evaluate(async () => { location.hash = '#/history'; await new Promise((r) => setTimeout(r, 1500)); return (document.querySelector('a[href*="#/edition/"]') || {}).getAttribute?.('href'); });
@@ -84,9 +85,31 @@ try {
     check(await d.evaluate(() => document.querySelectorAll('.results-table tbody tr').length > 0), `edition ${edition} has results`);
     await audit(d, 'edition page');
     await d.click('#resultsPost'); await d.waitForTimeout(400);
-    check(/Results of/.test(await d.evaluate(() => (document.querySelector('.post-text') || {}).textContent || '')), 'results post opens');
+    const post = await d.evaluate(() => (document.querySelector('.post-text') || {}).textContent || '');
+    check(/Results of/.test(post), 'results post opens');
+    const hasShare = await d.evaluate(() => fetch('data/share/index.json').then((r) => r.ok));
+    if (hasShare) check(/\/share\/e\//.test(post), 'results post links to the edition\'s share page');
+    check(await d.evaluate(() => !!document.getElementById('copyLink')), 'edition has a Copy link button');
     await d.keyboard.press('Escape');
   } else fail('no edition link on the history page');
+  /* Link previews: every page in the share index exists, with its own title and picture, and opens the site. */
+  const share = await d.evaluate(async () => {
+    const idx = await fetch('data/share/index.json').then((r) => (r.ok ? r.json() : null));
+    if (!idx) return null;
+    const pages = [];
+    for (const [game, seasons] of Object.entries(idx)) for (const [key, s] of Object.entries(seasons)) {
+      const base = game === 'tm20' ? 'share/tm20' : 'share';
+      pages.push(`${base}/s/${key}/`, ...Object.values(s.players).map((slug) => `${base}/p/${key}/${slug}/`), ...s.editions.map((e) => `${base}/e/${key}/${encodeURIComponent(e)}/`));
+    }
+    const bad = [];
+    for (const path of pages) {
+      const html = await fetch(path + 'index.html').then((r) => (r.ok ? r.text() : ''));
+      const img = await fetch(path + 'card.jpg').then((r) => r.ok);
+      if (!/<meta property="og:title" content="[^"]+ · SpeedTAS">/.test(html) || !/og:image" content="[^"]+card\.jpg\?v=/.test(html) || !/location\.replace\("https:[^"]+#\//.test(html) || !img) bad.push(path);
+    }
+    return { count: pages.length, bad };
+  });
+  if (share) check(share.count > 0 && !share.bad.length, `${share.count} share pages have their own preview${share.bad.length ? ' — broken: ' + share.bad.slice(0, 5).join(', ') : ''}`);
   /* TM2020 inputs: their own files, in the TM2020 TAS format with the seed (not TMNF scripts). */
   await go(d, '#/tm20/edition/s2/1', 3000);
   const tmInputs = await d.$('[data-inputs]');

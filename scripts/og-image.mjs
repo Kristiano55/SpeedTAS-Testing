@@ -109,6 +109,7 @@ async function updateIndex(version, description) {
   html = html.replace(/(<meta property="og:image" content=")[^"]*(")/, `$1${img}$2`)
     .replace(/(<meta name="twitter:image" content=")[^"]*(")/, `$1${img}$2`)
     .replace(/(<meta property="og:url" content=")[^"]*(")/, `$1${SITE}$2`)
+    .replace(/(<link rel="canonical" href=")[^"]*(")/, `$1${SITE}$2`)
     .replace(/(<meta property="og:description" content=")[^"]*(")/, `$1${esc(description)}$2`)
     .replace(/(<meta name="twitter:description" content=")[^"]*(")/, `$1${esc(description)}$2`);
   if (html !== before) await writeFile(file, html);

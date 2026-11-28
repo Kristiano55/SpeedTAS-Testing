@@ -131,6 +131,7 @@
 
     /* ============ INIT ============ */
     async function init() {
+      loadShareIndex(); // share links for "Copy link" and the Discord post; no wait, the #/ address is the fallback
       loadAvatarOverridesCache();
       prefillAvatarsFromStore();
       GAME = 'tmnf'; DATA.tm20 = null; // RAW below is always the TMNF data; TM2020 reloads on demand

@@ -151,7 +151,7 @@
         <h1>${E(profileName)}</h1>
         <div class="rank-tag"><span class="pos">P${p.rank ?? '—'}</span><span>${E(rankLabel)} standings</span>${seasonKey === curKey() && p.movement ? moveIcon(p.movement) : ''}</div>
       </div>
-      <div class="profile-actions">${profileTabs(seasonKey)}<span class="profile-buttons">${profileHonor ? `<span class="honor-tag honor-${profileHonor}">${profileHonor === 'champion' ? '🏆 Champion' : '🥈 Runner-up'}</span>` : ''}${compare}<button type="button" class="btn" id="shareCard">${profileHonor === 'champion' ? 'Share champion card' : profileHonor === 'runner' ? 'Share runner-up card' : 'Share season card'}</button></span></div>
+      <div class="profile-actions">${profileTabs(seasonKey)}<span class="profile-buttons">${profileHonor ? `<span class="honor-tag honor-${profileHonor}">${profileHonor === 'champion' ? '🏆 Champion' : '🥈 Runner-up'}</span>` : ''}${compare}<button type="button" class="btn" id="copyLink" title="Link with a preview for Discord">Copy link</button><button type="button" class="btn" id="shareCard">${profileHonor === 'champion' ? 'Share champion card' : profileHonor === 'runner' ? 'Share runner-up card' : 'Share season card'}</button></span></div>
     </div>
     <div class="key-stats">${stat(p.droppedPoints && SEASON_INFO[seasonKey] ? `Points <span class="dim-note">best ${SEASON_INFO[seasonKey].bestOf}</span>` : 'Points', p.droppedPoints ? `${p.points}<small class="scored-note">${p.scored} scored</small>` : p.points)}${stat('Wins', p.wins)}${stat('Podiums', p.podiums)}${stat('Editions', p.played)}</div>
     <div class="stat-grid">
@@ -176,6 +176,7 @@
     </section>`;
       bindProfileTabs(decoded);
       fillHistoryTimes();
+      wireCopyLink(document.getElementById('copyLink'), 'player', seasonKey, p.name);
       const shareBtn = document.getElementById('shareCard');
       if (shareBtn) shareBtn.addEventListener('click', () => openSeasonCard(p, seasonKey === 'all' ? 'All-time' : (GAME === 'tm20' ? 'TM2020' : labelFor(seasonKey)), p.rank ? `P${p.rank} ${seasonKey === 'all' ? 'all-time' : 'in the standings'}` : '', seasonKey, profileHonor));
       profileCharts.forEach(c => c.destroy()); profileCharts = [];
@@ -284,6 +285,7 @@
         ${prev ? `<a class="btn" href="#/edition/${seasonKey}/${enc(prev.edition)}" aria-label="Previous edition, ${E(prev.edition)}">← #${E(prev.edition)}</a>` : ''}
         ${next ? `<a class="btn" href="#/edition/${seasonKey}/${enc(next.edition)}" aria-label="Next edition, ${E(next.edition)}">#${E(next.edition)} →</a>` : ''}
         ${hasEvents(seasonKey) ? `<a class="btn" id="eventLink" data-edition="${E(ed.edition)}" target="_blank" rel="noopener" style="display:none">TAS Exchange ↗</a>` : ''}
+        <button type="button" class="btn" id="copyLink" title="Link with a preview for Discord">Copy link</button>
         <button type="button" class="btn" id="resultsPost" title="Results message to paste into Discord">Results post</button>
         <a class="btn" href="#/history">All editions</a>
       </div>
@@ -315,6 +317,7 @@
       fillMapCard(seasonKey, ed.edition, null);
       fillEditionVideo(seasonKey, ed.edition);
       document.getElementById('resultsPost').addEventListener('click', () => openResultsPost(ed, seasonKey, data));
+      wireCopyLink(document.getElementById('copyLink'), 'edition', seasonKey, ed.edition);
       attachEditionEvent(ed, seasonKey);
     }
 

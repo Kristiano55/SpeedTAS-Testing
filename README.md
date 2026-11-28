@@ -59,4 +59,9 @@ where changes are tried first. GitHub Pages, plain HTML/CSS/JS, no build step. N
     the TM2020 TAS format with the seed (`data/inputs/tm20/<replay>.txt`), decoded from the event's replay download
     with TAS Exchange's own input extractor, which runs sandboxed (no token, no repository access).
     `node scripts/update-data.mjs --probe-tm20 <event> <replay>` decodes one TM2020 replay without saving anything.
+  - **Link previews:** `scripts/share-pages.mjs` writes `share/` pages (one per player per season, edition and
+    season table) with their own Discord/X title, text and JPEG picture, plus `sitemap.xml`. It draws the
+    pictures with the site itself in headless Chromium, so the numbers always match. Pictures are redrawn only
+    when their content changes; run the workflow with "rebuild share pages" to redraw all of them.
+    "Copy link" on profiles and editions and the Discord results post use these links.
   - Each run's report is on the run's summary page in the Actions tab.

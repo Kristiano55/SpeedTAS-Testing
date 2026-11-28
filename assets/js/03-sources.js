@@ -390,6 +390,31 @@
 
     /* ============ RESULTS POST (copy into Discord) ============ */
     let EDITION_TIMES = {};
+    /* ---------- Share links ----------
+       share/... pages (written by scripts/share-pages.mjs in the data Action) give Discord a preview per player,
+       edition and season. data/share/index.json says which exist; until a page exists (e.g. an edition posted
+       before the next data update) the normal #/ address is used instead. */
+    let SHARE_INDEX = null;
+    function loadShareIndex() {
+      return fetch('data/share/index.json', {cache: 'no-cache'}).then(r => r.ok ? r.json() : {}).catch(() => ({})).then(j => (SHARE_INDEX = j));
+    }
+    function shareUrl(kind, seasonKey, id) {
+      const entry = SHARE_INDEX && SHARE_INDEX[GAME] && SHARE_INDEX[GAME][seasonKey];
+      if (!entry) return null;
+      const base = location.origin + location.pathname.replace(/index\.html$/, '') + (GAME === 'tm20' ? 'share/tm20' : 'share');
+      if (kind === 'player') return entry.players && entry.players[id] ? `${base}/p/${seasonKey}/${entry.players[id]}/` : null;
+      if (kind === 'edition') return (entry.editions || []).includes(String(id)) ? `${base}/e/${seasonKey}/${encodeURIComponent(id)}/` : null;
+      return null;
+    }
+    /* "Copy link" button: the share page when there is one (Discord shows its preview), else this page's address. */
+    function wireCopyLink(btn, kind, seasonKey, id) {
+      if (!btn) return;
+      btn.addEventListener('click', () => {
+        const url = shareUrl(kind, seasonKey, id) || location.href;
+        navigator.clipboard.writeText(url).then(() => {btn.textContent = 'Link copied';}, () => {btn.textContent = 'Copy failed';});
+        setTimeout(() => {btn.textContent = 'Copy link';}, 2500);
+      });
+    }
     function resultsPostText(ed, seasonKey, data, clip = '', ping = false) {
       const entries = Object.entries(ed.results).sort((a, b) => a[1] - b[1]);
       const secs = Object.fromEntries(Object.entries(EDITION_TIMES).map(([n, en]) => [n, parseTimeSeconds(en.time)]));
@@ -417,7 +442,7 @@
       if (firsts.length && upTo.length > 1) lines.push('', `👋 First race this season: ${firsts.join(', ')}`);
       const mapLine = window.__editionMap;
       if (mapLine) lines.push('', mapLine);
-      lines.push('', `🔗 Full results: ${location.origin}${location.pathname}${GAME === 'tm20' ? '#/tm20' : '#'}/edition/${seasonKey}/${encodeURIComponent(ed.edition)}`);
+      lines.push('', `🔗 Full results: ${shareUrl('edition', seasonKey, ed.edition) || `${location.origin}${location.pathname}${GAME === 'tm20' ? '#/tm20' : '#'}/edition/${seasonKey}/${encodeURIComponent(ed.edition)}`}`);
       /* Discord mentions (<@id>) notify every racer with a known Discord ID; pasted by a person, they ping. */
       if (ping) {
         const ids = [...new Set(entries.map(([n]) => discordIdFor(n)).filter(Boolean))];
