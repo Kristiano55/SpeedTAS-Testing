@@ -358,8 +358,9 @@ catch (e) { process.stdout.write(JSON.stringify({ error: String(e && e.message |
       p.on('close', () => {
         clearTimeout(timer);
         try { const r = JSON.parse(out); r.error ? reject(new Error(r.error)) : resolve(r); }
-        catch { reject(new Error(`decoder failed: ${(err || out).trim().split('\n').pop()}`)); }
+        catch { reject(new Error(`decoder failed: ${(err || out).trim().split('\n').filter((l) => /Error|denied|ERR_/.test(l)).slice(0, 2).join(' / ') || (err || out).trim().slice(-200)}`)); }
       });
+      p.stdin.on('error', () => {}); // the decoder exiting early shows up as its own error in 'close'
       p.stdin.end(Buffer.from(bytes));
     }, reject);
   });
