@@ -10,7 +10,8 @@
 //  3. Auto-import: a finished Season 3 / TM2020 event whose times are public but whose edition has no row
 //     in the sheet yet is added to data/s3.json / tm20.json straight away (placements from the times,
 //     marked "auto"). As soon as the sheet has that edition, the sheet's version wins.
-//  4. Saves each replay's inputs as a TMInterface-style script in data/inputs/<replayId>.txt.
+//  4. Saves each replay's inputs: TMNF as a TMInterface script in data/inputs/<replayId>.txt, TM2020 in the TM2020
+//     TAS format (with the seed) in data/inputs/tm20/<replayId>.txt (the two games number replays separately).
 //
 // Run by .github/workflows/update-data.yml (Saturday evening every 30 min, Sunday, a weekly maintenance run, or by hand).
 // A source that fails keeps its previous file, so one bad fetch never blanks the site.
@@ -305,12 +306,111 @@ export function inputsToScript(list) {
    input viewer uses). Older event replays aren't known to that API (HTTP 404); those keep just the replay
    download, and are asked about again at most once a month (data/inputs_missing.json).
    data/inputs/index.json lists what's available, for the site. */
+/* ---------- TM2020 inputs ----------
+   TAS Exchange's replayData API only knows TMNF replays: TM2020 replay ids are numbered separately, so asking it
+   for a TM2020 id returns some unrelated TMNF run. TM2020 replays are downloaded from their event instead
+   (/events/<event>/replays/<replay>/download, the site's own Replay button) and decoded with TAS Exchange's own
+   TM2020 input extractor (the script behind tmtas.exchange/tools?module=input-extractor), which gives the
+   TM2020 TAS format: "0 seed <n>" then "<milliseconds> accel|brake|steer|flags|respawn <value>".
+   That script is fetched from tmtas.exchange on each run (so it follows their format) and runs in a separate
+   Node process with no environment variables and file access limited to its own temp folder, so third-party
+   code never sees this workflow's token or the repository. */
+const TOOLS_PAGE = 'https://tmtas.exchange/tools?module=input-extractor';
+let TM2020_DECODER = null;
+/* Finds the decoder module by walking the tools page's scripts (their file names change on every deploy). */
+export async function findTm2020Decoder(fetchText = async (u) => { const r = await get(u); if (!r.ok) throw new Error(`HTTP ${r.status} for ${u}`); return r.text(); }) {
+  const html = await fetchText(TOOLS_PAGE);
+  const queue = [...html.matchAll(/(?:src|href)="([^"]+\.js)"|import\("([^"]+\.js)"\)/g)].map((m) => new URL(m[1] || m[2], TOOLS_PAGE).href);
+  const seen = new Set();
+  while (queue.length && seen.size < 250) {
+    const url = queue.shift();
+    if (seen.has(url) || !url.startsWith('https://tmtas.exchange/')) continue;
+    seen.add(url);
+    const js = await fetchText(url).catch(() => '');
+    if (/\bas decodeTm2020Inputs\b/.test(js) && /export\s*\{/.test(js)) return js;
+    for (const m of js.matchAll(/["'`]((?:\.{1,2}\/|\/_app\/)[^"'`\s]+?\.js)["'`]/g)) queue.push(new URL(m[1], url).href);
+  }
+  throw new Error(`TM2020 input decoder not found on TAS Exchange (${seen.size} scripts checked)`);
+}
+async function tm2020Decoder() {
+  if (TM2020_DECODER) return TM2020_DECODER;
+  const { mkdtemp } = await import('node:fs/promises');
+  const { tmpdir } = await import('node:os');
+  const { join } = await import('node:path');
+  const dir = await mkdtemp(join(tmpdir(), 'speedtas-tm2020-'));
+  await writeFile(join(dir, 'decoder.mjs'), await findTm2020Decoder());
+  // Reads one replay from stdin, prints {seed, text} (or {error}) as JSON.
+  await writeFile(join(dir, 'run.mjs'), `import * as d from './decoder.mjs';
+const chunks = []; for await (const c of process.stdin) chunks.push(c);
+const buf = Buffer.concat(chunks), bytes = buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
+try { const r = d.decodeTm2020Inputs(bytes); process.stdout.write(JSON.stringify({ seed: r.seed ?? null, text: r.text || '' })); }
+catch (e) { process.stdout.write(JSON.stringify({ error: String(e && e.message || e) })); }
+`);
+  const major = Number(process.versions.node.split('.')[0]);
+  const flags = [major >= 22 ? '--permission' : '--experimental-permission', `--allow-fs-read=${dir}`, `--allow-fs-read=${dir}/*`];
+  TM2020_DECODER = (bytes) => new Promise((resolve, reject) => {
+    import('node:child_process').then(({ spawn }) => {
+      const p = spawn(process.execPath, [...flags, join(dir, 'run.mjs')], { cwd: dir, env: {}, stdio: ['pipe', 'pipe', 'pipe'] });
+      let out = '', err = '';
+      const timer = setTimeout(() => { p.kill('SIGKILL'); reject(new Error('decoder timed out')); }, 30000);
+      p.stdout.on('data', (c) => { out += c; });
+      p.stderr.on('data', (c) => { err += c; });
+      p.on('close', () => {
+        clearTimeout(timer);
+        try { const r = JSON.parse(out); r.error ? reject(new Error(r.error)) : resolve(r); }
+        catch { reject(new Error(`decoder failed: ${(err || out).trim().split('\n').pop()}`)); }
+      });
+      p.stdin.end(Buffer.from(bytes));
+    }, reject);
+  });
+  return TM2020_DECODER;
+}
+/* A decoded TM2020 script is usable when it starts with the seed and has at least one timed input. */
+export function validTm2020Script(text) {
+  const lines = String(text).trim().split('\n');
+  return /^0 seed -?\d+$/.test(lines[0]) && lines.length > 1 && lines.slice(1).every((l) => /^\d+ (accel|brake|steer|flags|respawn|srespawn)( -?\w+)?$/.test(l));
+}
+async function saveTm2020Inputs(evs, budget) {
+  await mkdir(`${OUT}/inputs/tm20`, { recursive: true });
+  let fetched = 0, failed = 0, pending = 0, decoder = null;
+  const runs = Object.values(evs).flatMap((ev) => (ev.results || []).filter((r) => r.replay).map((r) => ({ event: ev.id, replay: r.replay })));
+  for (const { event, replay } of runs.sort((a, b) => b.replay - a.replay)) {
+    const file = `${OUT}/inputs/tm20/${replay}.txt`;
+    if (await readFile(file).then(() => true, () => false)) continue;
+    if (fetched + failed >= budget) { pending++; continue; }
+    try {
+      decoder = decoder || await tm2020Decoder();
+      const res = await get(`https://tmtas.exchange/events/${event}/replays/${replay}/download`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const { text } = await decoder(await res.arrayBuffer());
+      if (!validTm2020Script(text)) throw new Error('decoded inputs are not in the TM2020 format');
+      await writeFile(file, text.trim() + '\n');
+      fetched++;
+    } catch (err) {
+      failed++; console.warn(`tm20 inputs ${replay}: ${err.message}`);
+      if (/decoder not found/.test(err.message)) { pending += runs.length; break; }
+    }
+  }
+  return { fetched, failed, pending };
+}
+
 async function saveInputs(events) {
   await mkdir(`${OUT}/inputs`, { recursive: true });
   const missing = await readJson(`${OUT}/inputs_missing.json`, {});
   const monthAgo = new Date(Date.now() - 30 * 86400e3).toISOString().slice(0, 10);
   let fetched = 0, failed = 0, pending = 0, unavailable = 0;
-  const ids = [...new Set(Object.values(events).flatMap((evs) => Object.values(evs).flatMap((ev) => (ev.results || []).map((r) => r.replay).filter(Boolean))))];
+  const replaysOf = (sets) => [...new Set(sets.flatMap((evs) => Object.values(evs || {}).flatMap((ev) => (ev.results || []).map((r) => r.replay).filter(Boolean))))];
+  const tmnfSets = Object.entries(events).filter(([set]) => set !== 'tm20').map(([, evs]) => evs);
+  const ids = replaysOf(tmnfSets);
+  // Old runs saved TM2020 ids through the TMNF API, i.e. somebody else's TMNF inputs: those files go.
+  const tmnfIds = new Set(ids);
+  let removed = 0;
+  for (const id of replaysOf([events.tm20])) {
+    if (tmnfIds.has(id)) continue;
+    const { rm } = await import('node:fs/promises');
+    if (await rm(`${OUT}/inputs/${id}.txt`).then(() => true, () => false)) removed++;
+    delete missing[id];
+  }
   for (const id of ids.sort((a, b) => b - a)) { // newest first
     const file = `${OUT}/inputs/${id}.txt`;
     if (await readFile(file).then(() => true, () => false)) continue;
@@ -328,13 +428,17 @@ async function saveInputs(events) {
     } catch (err) { failed++; console.warn(`inputs ${id}: ${err.message}`); }
   }
   await writeJson(`${OUT}/inputs_missing.json`, missing);
-  return { fetched, failed, pending, unavailable };
+  const tm20 = events.tm20 ? await saveTm2020Inputs(events.tm20, Math.max(0, INPUT_FETCHES - fetched - failed)) : { fetched: 0, failed: 0, pending: 0 };
+  return { fetched, failed, pending, unavailable, removed, tm20 };
 }
 export async function writeInputsIndex() {
   const { readdir } = await import('node:fs/promises');
-  const ids = (await readdir(`${OUT}/inputs`).catch(() => [])).filter((f) => /^\d+\.txt$/.test(f)).map((f) => Number(f.slice(0, -4))).sort((a, b) => a - b);
+  const list = async (dir) => (await readdir(dir).catch(() => [])).filter((f) => /^\d+\.txt$/.test(f)).map((f) => Number(f.slice(0, -4))).sort((a, b) => a - b);
+  const ids = await list(`${OUT}/inputs`), tm20 = await list(`${OUT}/inputs/tm20`);
   await writeJson(`${OUT}/inputs/index.json`, ids);
-  return ids.length;
+  await mkdir(`${OUT}/inputs/tm20`, { recursive: true });
+  await writeJson(`${OUT}/inputs/tm20/index.json`, tm20);
+  return ids.length + tm20.length;
 }
 
 /* ============ MAPS ============ */
@@ -737,8 +841,12 @@ async function main() {
   // 4. Inputs for every replay with downloads enabled.
   if (!process.argv.includes('--sheets')) {
     const r = await saveInputs(events);
-    const line = `inputs: ${r.fetched} saved, ${r.unavailable} not available from TAS Exchange (replay download only), ${r.failed} failed, ${r.pending} left for the next run`;
+    const line = `inputs: ${r.fetched} saved, ${r.unavailable} not available from TAS Exchange (replay download only), ${r.failed} failed, ${r.pending} left for the next run` +
+      ` · TM2020: ${r.tm20.fetched} saved, ${r.tm20.failed} failed, ${r.tm20.pending} left` + (r.removed ? ` · ${r.removed} wrong TM2020 files removed` : '');
     console.log(line); REPORT.notes.push(line);
+    if (r.tm20.fetched) REPORT.changes.push(`TM2020 inputs for ${r.tm20.fetched} run${r.tm20.fetched > 1 ? 's' : ''}`);
+    if (r.removed) REPORT.changes.push(`${r.removed} wrong TM2020 input files removed`);
+    if (r.tm20.failed) REPORT.warnings.push(`${r.tm20.failed} TM2020 replay(s) could not be decoded; tried again next run.`);
     await writeInputsIndex();
   }
   // 5. YouTube videos per edition.
@@ -835,6 +943,9 @@ function selftest() {
   assert(expectedEditions(sched, new Date('2027-02-07T14:00:00Z')) === 1, 'expected: next day');
   assert(expectedEditions(sched, new Date('2027-02-21T14:00:00Z')) === 2, 'expected: break skipped');
   assert(expectedEditions(sched, new Date('2026-11-27T12:00:00Z')) === 0, 'expected: before the season');
+  assert(validTm2020Script('0 seed 31893439\n0 accel 1\n280 steer 1\n290 steer -9\n300 steer left\n500 flags 2\n900 respawn\n'), 'tm2020 script ok');
+  assert(!validTm2020Script('0 steer -55685\n0 press up\n0.01 steer 58323\n'), 'tmnf script is not tm2020');
+  assert(!validTm2020Script('0 seed 5\n'), 'seed only');
   console.log('selftest ok');
 }
 
@@ -853,5 +964,12 @@ if (!isCli) { /* imported: functions only */ }
 else if (process.argv.includes('--selftest')) selftest();
 else if (process.argv.includes('--probe-maps')) probeMaps().catch((err) => { console.error(err); process.exit(1); });
 else if (process.argv.includes('--relink-videos')) relinkVideos();
+else if (process.argv.includes('--probe-tm20')) (async () => {
+  // --probe-tm20 <eventId> <replayId>: decode one TM2020 replay and print the start of its inputs. Writes nothing.
+  const [event, replay] = process.argv.slice(process.argv.indexOf('--probe-tm20') + 1);
+  const res = await get(`https://tmtas.exchange/events/${event}/replays/${replay}/download`);
+  const { text } = await (await tm2020Decoder())(await res.arrayBuffer());
+  console.log(`probe tm20 ${replay}: valid=${validTm2020Script(text)} lines=${text.trim().split('\n').length}\n${text.split('\n').slice(0, 6).join('\n')}`);
+})().catch((err) => { console.error(err); process.exit(1); });
 else if (process.argv.includes('--index-inputs')) writeInputsIndex().then((n) => console.log(`inputs index: ${n} replays`));
 else main().catch((err) => { console.error(err); process.exit(1); });
