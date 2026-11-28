@@ -1,0 +1,15 @@
+{
+  "name": "speedtas-site",
+  "private": true,
+  "description": "SpeedTAS website and data scripts. No build step; these are the commands used to work on it.",
+  "scripts": {
+    "setup": "npm install --no-save --no-package-lock playwright@1 axe-core@4 && npx playwright install chromium",
+    "stamp": "node scripts/stamp-assets.mjs",
+    "map": "node scripts/project-map.mjs",
+    "test": "node scripts/update-data.mjs --selftest",
+    "check": "npm run stamp && npm run map && npm test && node scripts/site-check.mjs",
+    "sim": "SIM_S3=1 node scripts/site-check.mjs",
+    "share": "node scripts/share-pages.mjs",
+    "data": "node scripts/update-data.mjs"
+  }
+}

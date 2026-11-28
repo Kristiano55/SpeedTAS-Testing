@@ -26,14 +26,19 @@ where changes are tried first. GitHub Pages, plain HTML/CSS/JS, no build step. N
 | &nbsp;&nbsp;`11-router.js` | Reading the address, the phone menu, picking the page to draw |
 | &nbsp;&nbsp;`12-boot.js` | Search, refresh, status banner, manual import, start-up, tab titles |
 | `data/` | Results, events, maps, videos, avatars, map thumbnails and the preview image, written by the data Action |
-| `scripts/update-data.mjs` | The data Action: Google Sheets, TAS Exchange, TMX, YouTube, Discord avatars |
+| `scripts/update-data.mjs` | The data Action's run order, self-test and command line |
+| `scripts/lib/*.mjs` | Its parts: config, sheets, events, names, inputs, maps, media, guard, common |
+| `scripts/project-map.mjs` | Writes `docs/project-map.md` (every part, file and function) from the code and `scripts/project-map.json` |
+| `data/fixtures/s3-sample.json` | Season 3 sample data for `npm run sim` (never loaded by the site) |
 | `scripts/og-image.mjs` | Draws `data/og/standings.png` (top 10) for Discord/X link previews |
 | `scripts/stamp-assets.mjs` | Adds `?v=<hash>` to every asset link in `index.html` |
 | `scripts/site-check.mjs` | Opens every page on desktop and phone and fails on errors (run on every push by `site-check.yml`) |
 
 ## Editing
 
-- After changing anything in `assets/`, run `node scripts/stamp-assets.mjs` so browsers fetch the new files
+- **Commands** (`package.json`): `npm run setup` once, then `npm run check` after any change (stamps assets, rebuilds
+  the project map, self-test, full site check) and `npm run sim` (site check with Season 3 sample data).
+- After changing anything in `assets/`, run `node scripts/stamp-assets.mjs` (part of `npm run check`) so browsers fetch the new files
   (the data Action also runs it).
 - The script files run in order. Code that runs immediately at load must only use things from the same or an
   earlier file; inside functions and event handlers anything can be used. Adding a file: add it to `index.html`

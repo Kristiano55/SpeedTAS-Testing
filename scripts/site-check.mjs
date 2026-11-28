@@ -8,6 +8,11 @@ import { extname, join, normalize } from 'node:path';
 import { chromium } from 'playwright';
 import { createRequire } from 'node:module';
 
+/* SIM_S3=1 (npm run sim): Season 3 is served from data/fixtures/s3-sample.json (11 editions, best 9 of 12),
+   so the in-season pages are checked before the season starts. */
+const SIM = process.env.SIM_S3 === '1';
+if (SIM) console.log('Season 3 simulation: data/s3.json replaced by data/fixtures/s3-sample.json');
+
 /* Accessibility audit with axe-core (installed next to playwright). Serious and critical WCAG 2 A/AA problems fail the check. */
 let AXE = null;
 try { AXE = await readFile(createRequire(import.meta.url).resolve('axe-core/axe.min.js'), 'utf8'); } catch { console.log('(axe-core not installed: accessibility audit skipped)'); }
@@ -42,6 +47,7 @@ async function newPage(viewport, { blockCharts = false } = {}) {
   await ctx.route('**/*', (route) => {
     const u = route.request().url();
     if (blockCharts && u.includes('/assets/vendor/chart')) return route.fulfill({ status: 503, body: '' }); // chart library missing
+    if (SIM && /\/data\/s3\.json/.test(u)) return readFile('data/fixtures/s3-sample.json').then((body) => route.fulfill({ status: 200, body, contentType: 'application/json' }));
     if (u.startsWith('http://localhost')) return route.continue();
     return route.fulfill({ status: 503, body: '' }); // outside services: pretend they're down, the site must cope
   });
@@ -61,7 +67,7 @@ try {
   check(/standings/i.test(await h1(d)), `home renders ("${await h1(d)}")`);
   check(await d.evaluate(() => document.querySelectorAll('#leaderboardTable tbody tr:not(.empty-row)').length > 0 || /Season 3/.test(document.querySelector('h1').textContent)), 'home table has rows');
   check(await d.evaluate(() => !!(window.Chart && Chart.getChart(document.getElementById('progressChart')))), 'title-race chart drawn');
-  check(await d.evaluate(() => !document.getElementById('latestMap') || !document.getElementById('latestMap').hidden), 'latest result shows its map');
+  if (!SIM) check(await d.evaluate(() => !document.getElementById('latestMap') || !document.getElementById('latestMap').hidden), 'latest result shows its map'); // sample S3 has no map data
   check(/ · SpeedTAS Stats$/.test(await d.title()), `tab title follows the page ("${await d.title()}")`);
   const more = await d.$('#boardMore');
   if (more) {
@@ -88,10 +94,18 @@ try {
     const post = await d.evaluate(() => (document.querySelector('.post-text') || {}).textContent || '');
     check(/Results of/.test(post), 'results post opens');
     const hasShare = await d.evaluate(() => fetch('data/share/index.json').then((r) => r.ok));
-    if (hasShare) check(/\/share\/e\//.test(post), 'results post links to the edition\'s share page');
+    if (hasShare && !SIM) check(/\/share\/e\//.test(post), 'results post links to the edition\'s share page');
     check(await d.evaluate(() => !!document.getElementById('copyLink')), 'edition has a Copy link button');
     await d.keyboard.press('Escape');
   } else fail('no edition link on the history page');
+  if (SIM) {
+    await go(d, '#/player/s3/Sneak', 2500);
+    check(await d.evaluate(() => /Counting results/.test((document.querySelector('.outlook') || {}).textContent || '')), 'Season 3 sample: profile shows its counting results (best 9 of 12)');
+    await go(d, '#/players/s3', 2000);
+    check(await d.evaluate(() => document.querySelectorAll('a[href*="/player/s3/"]').length > 5), 'Season 3 sample: player directory lists Season 3 players');
+    await go(d, '#/edition/s3/11', 2000);
+    check(await d.evaluate(() => document.querySelectorAll('.results-table tbody tr').length > 0), 'Season 3 sample: edition #11 has results');
+  }
   /* Link previews: every page in the share index exists, with its own title and picture, and opens the site. */
   const share = await d.evaluate(async () => {
     const idx = await fetch('data/share/index.json').then((r) => (r.ok ? r.json() : null));

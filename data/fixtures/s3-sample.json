@@ -1,0 +1,230 @@
+{
+ "_note": "Sample data for npm run sim: Season 2's first 11 editions renumbered as Season 3 #1-#11 (best 9 of 12 applies). Not real Season 3 results; the site never loads this file.",
+ "season": "s3",
+ "editions": [
+  {
+   "edition": "1",
+   "results": {
+    "Vogtek": 1,
+    "Sneak": 2,
+    "Charlie": 3,
+    "Magon": 4,
+    "Exix": 5,
+    "C4ster": 6,
+    "Leva": 7,
+    "Elliott": 8,
+    "Galaxy": 9,
+    "Skycrafter": 10,
+    "Mufat": 11,
+    "Lucy": 12,
+    "Fabi": 13,
+    "QQ": 14,
+    "DeleteC": 15,
+    "Crayhax": 16,
+    "Thoman": 17
+   }
+  },
+  {
+   "edition": "2",
+   "results": {
+    "Vogtek": 4,
+    "Sneak": 10,
+    "Charlie": 2,
+    "Magon": 9,
+    "C4ster": 8,
+    "Leva": 6,
+    "Skycrafter": 3,
+    "QQ": 7,
+    "Thoman": 1,
+    "Bedeux": 5
+   }
+  },
+  {
+   "edition": "3",
+   "results": {
+    "Vogtek": 4,
+    "Sneak": 12,
+    "Charlie": 8,
+    "Exix": 11,
+    "C4ster": 6,
+    "Elliott": 10,
+    "Skycrafter": 1,
+    "Mufat": 2,
+    "Lucy": 13,
+    "QQ": 9,
+    "Thoman": 3,
+    "Rio": 5,
+    "IgntuL": 7
+   }
+  },
+  {
+   "edition": "4",
+   "results": {
+    "Vogtek": 5,
+    "Charlie": 4,
+    "Magon": 6,
+    "Elliott": 9,
+    "Skycrafter": 1,
+    "Mufat": 2,
+    "Fabi": 8,
+    "QQ": 7,
+    "Thoman": 3,
+    "Bedeux": 10
+   }
+  },
+  {
+   "edition": "5",
+   "results": {
+    "Vogtek": 3,
+    "Sneak": 6,
+    "Exix": 5,
+    "Skycrafter": 1,
+    "Mufat": 4,
+    "Fabi": 10,
+    "QQ": 9,
+    "Thoman": 2,
+    "Frusty": 7,
+    "Oogy749": 8
+   }
+  },
+  {
+   "edition": "6",
+   "results": {
+    "Vogtek": 2,
+    "Sneak": 4,
+    "Charlie": 3,
+    "Mufat": 1,
+    "Fabi": 6,
+    "QQ": 5,
+    "Bedeux": 7
+   }
+  },
+  {
+   "edition": "7",
+   "results": {
+    "Vogtek": 5,
+    "Sneak": 3,
+    "Charlie": 7,
+    "Exix": 8,
+    "C4ster": 6,
+    "Elliott": 9,
+    "Skycrafter": 2,
+    "Fabi": 11,
+    "Crayhax": 4,
+    "Thoman": 1,
+    "Oogy749": 12,
+    "NaiCou": 10
+   }
+  },
+  {
+   "edition": "8",
+   "results": {
+    "Sneak": 4,
+    "C4ster": 5,
+    "Skycrafter": 3,
+    "Lucy": 8,
+    "QQ": 9,
+    "Crayhax": 6,
+    "Thoman": 1,
+    "Rio": 2
+   }
+  },
+  {
+   "edition": "9",
+   "results": {
+    "Sneak": 1,
+    "C4ster": 4,
+    "Crayhax": 5,
+    "Thoman": 3,
+    "Rio": 6,
+    "Oogy749": 2,
+    "NaiCou": 7
+   }
+  },
+  {
+   "edition": "10",
+   "results": {
+    "Sneak": 6,
+    "Magon": 4,
+    "QQ": 7,
+    "Thoman": 5,
+    "Bedeux": 3,
+    "Rio": 2,
+    "IgntuL": 1
+   }
+  },
+  {
+   "edition": "11",
+   "results": {
+    "Sneak": 3,
+    "Elliott": 6,
+    "Fabi": 5,
+    "QQ": 7,
+    "Crayhax": 4,
+    "IgntuL": 1,
+    "Oogy749": 2
+   }
+  }
+ ],
+ "players": [
+  "Vogtek",
+  "Sneak",
+  "Charlie",
+  "Magon",
+  "Exix",
+  "C4ster",
+  "Leva",
+  "Elliott",
+  "Galaxy",
+  "Skycrafter",
+  "Mufat",
+  "Lucy",
+  "Fabi",
+  "QQ",
+  "DeleteC",
+  "Crayhax",
+  "Thoman",
+  "Bedeux",
+  "Rio",
+  "IgntuL",
+  "Frusty",
+  "Oogy749",
+  "NaiCou",
+  "Salty",
+  "Midnight",
+  "oeN",
+  "wasgud",
+  "Faiby",
+  "Caleb",
+  "Comfy",
+  "Kim",
+  "Qwerter25c",
+  "LilDemo",
+  "Timefall",
+  "Felipe",
+  "Meable",
+  "Viron",
+  "Infra",
+  "Adrien",
+  "NicoReborn",
+  "Magnus",
+  "casterjamar",
+  "Telve",
+  "Trizzan",
+  "TejasIsAmazing",
+  "MigthBeJoe",
+  "Kram",
+  "Bobas",
+  "Logout",
+  "Prodi",
+  "Emil",
+  "Kristiano",
+  "happytas",
+  "xinferno",
+  "popE",
+  "popE",
+  "Febstone",
+  "Prow",
+  "Gorgman"
+ ]
+}

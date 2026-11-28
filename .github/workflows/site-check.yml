@@ -5,7 +5,7 @@ name: Site check
 on:
   push:
     branches: [main]
-    paths: ['index.html', 'assets/**', 'scripts/**', 'data/*.json', '.github/workflows/site-check.yml']
+    paths: ['index.html', 'assets/**', 'scripts/**', 'data/*.json', 'data/fixtures/**', 'docs/**', 'package.json', '.github/workflows/site-check.yml']
   pull_request:
   workflow_dispatch:
 
@@ -24,14 +24,17 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
       - name: Scripts parse
-        run: for f in assets/js/*.js scripts/*.mjs; do node --check "$f"; done
+        run: for f in assets/js/*.js scripts/*.mjs scripts/lib/*.mjs; do node --check "$f"; done
       - name: Asset versions are up to date
         # fails if assets/ changed without running: node scripts/stamp-assets.mjs
         run: |
           node scripts/stamp-assets.mjs
           git diff --exit-code index.html || (echo "::error::Run node scripts/stamp-assets.mjs and commit index.html" && exit 1)
+      - name: Project map is up to date
+        # fails if code changed without running: npm run map (docs/project-map.md)
+        run: node scripts/project-map.mjs --check
       - name: Data parsers self-test
         run: node scripts/update-data.mjs --selftest
       - name: Install browser
@@ -40,3 +43,5 @@ jobs:
           npx playwright install --with-deps chromium
       - name: Every page on desktop and phone
         run: node scripts/site-check.mjs
+      - name: Season 3 sample (in-season pages)
+        run: SIM_S3=1 node scripts/site-check.mjs

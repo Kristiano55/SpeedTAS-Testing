@@ -1,0 +1,626 @@
+{
+ "nodes": [
+  {
+   "id": "root",
+   "parent": null,
+   "title": "SpeedTAS",
+   "what": "A static website on GitHub Pages plus a robot (GitHub Actions) that keeps its data fresh. The browser does all the maths; the robot only collects data, draws preview pictures and checks the site.",
+   "where": [],
+   "uses": []
+  },
+  {
+   "id": "site",
+   "parent": "root",
+   "title": "Website",
+   "what": "Everything the visitor's browser runs. One HTML page, one stylesheet and twelve plain JavaScript files loaded in order. They share one global scope, so a later file can use anything from an earlier one.",
+   "where": [
+    "index.html",
+    "assets/site.css",
+    "assets/fonts/",
+    "assets/vendor/chart-4.4.0.umd.js"
+   ],
+   "uses": [
+    "data"
+   ],
+   "tip": "Load order matters only for code that runs immediately; inside functions anything can be used. To add a file, add a script tag in index.html and a row in the README."
+  },
+  {
+   "id": "config",
+   "parent": "site",
+   "title": "Config & seasons",
+   "what": "The settings: sheet links, points table, season list (S1, S2, S3 with best 9 of 12), schedule breaks, the edition hour and the shared state variables.",
+   "where": [
+    [
+     "assets/js/01-config.js"
+    ]
+   ],
+   "uses": [],
+   "tip": "Change a season's start date, edition count or breaks here. The data robot reads this file too, for the missing-results check."
+  },
+  {
+   "id": "names",
+   "parent": "site",
+   "title": "Player names",
+   "what": "Makes text safe to show (escapeHtml) and treats different spellings of one player as the same person across seasons and games.",
+   "where": [
+    [
+     "assets/js/02-names.js"
+    ]
+   ],
+   "uses": [
+    "config"
+   ],
+   "tip": "A renamed player who shows up as two people needs an alias here."
+  },
+  {
+   "id": "loading",
+   "parent": "site",
+   "title": "Loading data",
+   "what": "Gets the results into the browser: the saved data/*.json files first, then live Google Sheets (JSONP, no CORS) or the Worker, with retries and the fallback snapshot.",
+   "where": [
+    {
+     "path": "assets/js/04-season-data.js",
+     "start_pat": "JSONP LOADER",
+     "end_pat": "function readAvatarStore"
+    }
+   ],
+   "uses": [
+    "config",
+    "data"
+   ],
+   "tip": "If the site shows old numbers, this is where the source is chosen."
+  },
+  {
+   "id": "sources",
+   "parent": "loading",
+   "title": "Race sources",
+   "what": "Everything about a race beyond the placements: TM2020 sheet, TAS Exchange events, times, replays and the Inputs panel.",
+   "where": [
+    [
+     "assets/js/03-sources.js",
+     1,
+     276
+    ]
+   ],
+   "uses": [
+    "data"
+   ],
+   "tip": "Inputs come from data/inputs/ (TMNF) or data/inputs/tm20/ (TM2020); the folder is picked by game."
+  },
+  {
+   "id": "avatars",
+   "parent": "loading",
+   "title": "Avatars",
+   "what": "Discord profile pictures: from the saved file, then the Worker in batches with retries, cached in the browser. Visitors can also set a custom picture.",
+   "where": [
+    {
+     "path": "assets/js/04-season-data.js",
+     "start_pat": "function readAvatarStore"
+    },
+    {
+     "path": "assets/js/05-stats.js",
+     "start_pat": "CUSTOM PROFILE PICTURES"
+    },
+    {
+     "path": "assets/js/06-view-helpers.js",
+     "start_pat": "AVATAR MODAL",
+     "end_pat": "COLOR HELPERS"
+    }
+   ],
+   "uses": [
+    "data",
+    "outside"
+   ]
+  },
+  {
+   "id": "stats",
+   "parent": "site",
+   "title": "Stats engine",
+   "what": "computeAll turns a season's editions into the ranked table: points, wins, podiums, form, best-of dropping, tie-breaks and movement. Every page uses it.",
+   "where": [
+    {
+     "path": "assets/js/05-stats.js",
+     "start_pat": "COMPUTE STATS",
+     "end_pat": "CUSTOM PROFILE PICTURES"
+    }
+   ],
+   "uses": [
+    "config",
+    "names"
+   ],
+   "tip": "Never change points, ranking or tie-breaks without an explicit decision. Share-page pictures call this same function."
+  },
+  {
+   "id": "helpers",
+   "parent": "site",
+   "title": "View helpers",
+   "what": "Small reusable pieces of HTML: form chips, podiums, season pickers, avatar circles, colours per name, medal and movement icons, local time, themes and the game switch.",
+   "where": [
+    {
+     "path": "assets/js/06-view-helpers.js",
+     "start_pat": "SHARED VIEW HELPERS",
+     "end_pat": "AVATAR MODAL"
+    },
+    {
+     "path": "assets/js/06-view-helpers.js",
+     "start_pat": "COLOR HELPERS"
+    },
+    {
+     "path": "assets/js/04-season-data.js",
+     "start_pat": "LOCAL TIME",
+     "end_pat": "JSONP LOADER"
+    }
+   ],
+   "uses": [
+    "names"
+   ]
+  },
+  {
+   "id": "router",
+   "parent": "site",
+   "title": "Router & boot",
+   "what": "Reads the #/ address and draws the right page, runs the phone menu, start-up, search, refresh, the status banner, manual import and the tab title.",
+   "where": [
+    [
+     "assets/js/11-router.js"
+    ],
+    [
+     "assets/js/12-boot.js"
+    ]
+   ],
+   "uses": [
+    "loading",
+    "pages"
+   ],
+   "tip": "Routes: home, players, player, history, edition, maps, records, rivalries, versus, videos, and #/tm20 for the TM2020 side."
+  },
+  {
+   "id": "pages",
+   "parent": "site",
+   "title": "Pages",
+   "what": "One render function per page. Each builds HTML strings and puts them into the main element.",
+   "where": [],
+   "uses": [
+    "stats",
+    "helpers"
+   ]
+  },
+  {
+   "id": "home",
+   "parent": "pages",
+   "title": "Home & standings",
+   "what": "The standings table (sortable, Show all, CSV), the latest result card with its map, the countdown and live Saturday banner, and who can still win.",
+   "where": [
+    [
+     "assets/js/07-home.js"
+    ]
+   ],
+   "uses": [
+    "stats",
+    "charts"
+   ]
+  },
+  {
+   "id": "profiles",
+   "parent": "pages",
+   "title": "Players & profiles",
+   "what": "The player directory and each profile: stats, Standing panel (gaps, best-of slots, ceiling), achievements, honors and charts.",
+   "where": [
+    {
+     "path": "assets/js/08-charts-pages.js",
+     "start_pat": "RENDER: PLAYERS DIRECTORY",
+     "end_pat": "RENDER: HISTORY"
+    },
+    {
+     "path": "assets/js/04-season-data.js",
+     "start_pat": "CHAMPIONS",
+     "end_pat": "SEASON CARD"
+    }
+   ],
+   "uses": [
+    "stats",
+    "charts",
+    "share"
+   ]
+  },
+  {
+   "id": "history",
+   "parent": "pages",
+   "title": "History & editions",
+   "what": "The edition list, and each edition page: full results, times, replays, inputs, the map card and the race video.",
+   "where": [
+    {
+     "path": "assets/js/08-charts-pages.js",
+     "start_pat": "RENDER: HISTORY",
+     "end_pat": "RENDER: VERSUS"
+    },
+    {
+     "path": "assets/js/03-sources.js",
+     "start_pat": "EDITION VIDEO",
+     "end_pat": "function winnerTimes"
+    }
+   ],
+   "uses": [
+    "sources",
+    "share"
+   ]
+  },
+  {
+   "id": "versus",
+   "parent": "pages",
+   "title": "Head-to-head",
+   "what": "Compare two players across seasons, race by race.",
+   "where": [
+    {
+     "path": "assets/js/08-charts-pages.js",
+     "start_pat": "RENDER: VERSUS"
+    }
+   ],
+   "uses": [
+    "stats"
+   ]
+  },
+  {
+   "id": "records",
+   "parent": "pages",
+   "title": "Records & rivalries",
+   "what": "Player records, race records from times (closest win, biggest margin, tightest podium...) and the rivalry list.",
+   "where": [
+    [
+     "assets/js/09-records.js"
+    ]
+   ],
+   "uses": [
+    "stats",
+    "sources"
+   ]
+  },
+  {
+   "id": "maps",
+   "parent": "pages",
+   "title": "Maps",
+   "what": "Every map with its picture, author time, TAS record and how close the winner got.",
+   "where": [
+    {
+     "path": "assets/js/03-sources.js",
+     "start_pat": "======= MAPS",
+     "end_pat": "EDITION VIDEO"
+    },
+    {
+     "path": "assets/js/03-sources.js",
+     "start_pat": "function winnerTimes",
+     "end_pat": "RESULTS POST"
+    }
+   ],
+   "uses": [
+    "data"
+   ]
+  },
+  {
+   "id": "videos",
+   "parent": "pages",
+   "title": "Videos",
+   "what": "YouTube uploads: Worker, then the public RSS feed, merged with the saved data/videos.json.",
+   "where": [
+    [
+     "assets/js/10-videos.js"
+    ]
+   ],
+   "uses": [
+    "data",
+    "outside"
+   ]
+  },
+  {
+   "id": "charts",
+   "parent": "pages",
+   "title": "Charts",
+   "what": "Title race and profile charts with Chart.js (served from the site). If it can't load, each chart says so.",
+   "where": [
+    {
+     "path": "assets/js/08-charts-pages.js",
+     "start_pat": "======= CHARTS",
+     "end_pat": "RENDER: PLAYERS DIRECTORY"
+    }
+   ],
+   "uses": [
+    "stats"
+   ]
+  },
+  {
+   "id": "share",
+   "parent": "pages",
+   "title": "Sharing",
+   "what": "Copy link (uses the share pages), the Discord results post with pings and clip, and the downloadable season/champion card.",
+   "where": [
+    {
+     "path": "assets/js/03-sources.js",
+     "start_pat": "RESULTS POST"
+    },
+    {
+     "path": "assets/js/04-season-data.js",
+     "start_pat": "SEASON CARD",
+     "end_pat": "LOCAL TIME"
+    }
+   ],
+   "uses": [
+    "previews"
+   ]
+  },
+  {
+   "id": "pipeline",
+   "parent": "root",
+   "title": "Data robot",
+   "what": "scripts/update-data.mjs is the run order (sheets, events, auto-import, inputs, maps, avatars, videos, missing-results check, report), the self-test and the command line; the parts live in scripts/lib/. Run by GitHub Actions. A source that fails keeps its previous file.",
+   "where": [
+    [
+     "scripts/update-data.mjs"
+    ]
+   ],
+   "uses": [
+    "outside"
+   ],
+   "tip": "npm test runs the offline self-test. --probe-maps and --probe-tm20 <event> <replay> test TMX search and the TM2020 decoder without saving."
+  },
+  {
+   "id": "p-sheets",
+   "parent": "pipeline",
+   "title": "Sources & sheets",
+   "what": "config.mjs lists every source and limit (sheets, TAS Exchange event sets, TMX packs, map search, auto-import); sheets.mjs reads the Google Sheets like the Worker does; common.mjs has the shared HTTP and file helpers and the run report.",
+   "where": [
+    [
+     "scripts/lib/config.mjs"
+    ],
+    [
+     "scripts/lib/sheets.mjs"
+    ],
+    [
+     "scripts/lib/common.mjs"
+    ]
+   ],
+   "uses": [
+    "outside"
+   ]
+  },
+  {
+   "id": "p-events",
+   "parent": "pipeline",
+   "title": "TAS Exchange events",
+   "what": "Finds every SpeedTAS event on TAS Exchange with its results, times and replay ids; matches entrant names to sheet players and auto-imports Season 3 / TM2020 results before they're in the sheet.",
+   "where": [
+    [
+     "scripts/lib/events.mjs"
+    ],
+    [
+     "scripts/lib/names.mjs"
+    ]
+   ],
+   "uses": [
+    "outside"
+   ],
+   "tip": "Event names must look like \"SpeedTAS S3 #4\" or \"SpeedTAS Season 3 #4\" to be recognised."
+  },
+  {
+   "id": "p-inputs",
+   "parent": "pipeline",
+   "title": "Inputs",
+   "what": "TMNF inputs as TMInterface scripts from the replay API. TM2020 inputs from the event's replay download, decoded with TAS Exchange's own extractor in a locked-down process, with the seed.",
+   "where": [
+    [
+     "scripts/lib/inputs.mjs"
+    ]
+   ],
+   "uses": [
+    "outside"
+   ],
+   "tip": "TMNF and TM2020 replays are numbered separately on TAS Exchange; never mix them. --probe-tm20 <event> <replay> tests one."
+  },
+  {
+   "id": "p-maps",
+   "parent": "pipeline",
+   "title": "Maps & pictures",
+   "what": "Map details from the TMX packs (S1, S2) or by name search (\"SpeedTAS 3 #N\"), TAS records, and map pictures saved to data/thumbs.",
+   "where": [
+    [
+     "scripts/lib/maps.mjs"
+    ]
+   ],
+   "uses": [
+    "outside"
+   ]
+  },
+  {
+   "id": "p-media",
+   "parent": "pipeline",
+   "title": "Avatars & videos",
+   "what": "Discord pictures via the Worker (sorted so the file only changes when a picture does) and YouTube uploads linked to editions by title.",
+   "where": [
+    [
+     "scripts/lib/media.mjs"
+    ]
+   ],
+   "uses": [
+    "outside"
+   ]
+  },
+  {
+   "id": "p-guard",
+   "parent": "pipeline",
+   "title": "Guard & report",
+   "what": "Refuses sheet data that would lose editions, warns about odd placements, spots a missing Saturday edition, and writes the run report and commit message.",
+   "where": [
+    [
+     "scripts/lib/guard.mjs"
+    ]
+   ],
+   "uses": [
+    "config"
+   ]
+  },
+  {
+   "id": "previews",
+   "parent": "root",
+   "title": "Link previews",
+   "what": "Pictures and pages Discord shows when a link is shared: the site's top-10 image and one share page per player, edition and season, plus the sitemap.",
+   "where": [
+    [
+     "scripts/og-image.mjs"
+    ],
+    [
+     "scripts/share-pages.mjs"
+    ]
+   ],
+   "uses": [
+    "stats",
+    "data"
+   ],
+   "tip": "share-pages.mjs opens the site in headless Chromium and draws each card with the site's own code. Bump DESIGN to redraw all."
+  },
+  {
+   "id": "checks",
+   "parent": "root",
+   "title": "Checks",
+   "what": "npm run check: stamps assets, rebuilds this map, runs the self-test and site-check.mjs (every page on desktop and phone, outside services blocked, accessibility audit). npm run sim does the same with Season 3 sample data. CI fails if stamps or this map are out of date.",
+   "where": [
+    [
+     "scripts/site-check.mjs"
+    ],
+    [
+     "scripts/stamp-assets.mjs"
+    ],
+    [
+     "scripts/project-map.mjs"
+    ],
+    "package.json"
+   ],
+   "uses": [
+    "site"
+   ],
+   "tip": "After changing code: npm run check, then commit index.html and docs/project-map.md with the change."
+  },
+  {
+   "id": "actions",
+   "parent": "root",
+   "title": "GitHub Actions",
+   "what": "update-data.yml: Saturday every 30 min, Sunday, Wednesday; fetch, previews, test, publish, open or close the data-update issue. site-check.yml: on every push.",
+   "where": [
+    ".github/workflows/update-data.yml",
+    ".github/workflows/site-check.yml"
+   ],
+   "uses": [
+    "pipeline",
+    "previews",
+    "checks"
+   ],
+   "tip": "\"Run workflow\" has options: sheets only, allow removals, rebuild share pages."
+  },
+  {
+   "id": "data",
+   "parent": "root",
+   "title": "Data files",
+   "what": "What the robot writes and the site reads: results per season (s1, s2, s3, tm20), events and times, maps and thumbs, inputs, avatars, videos, share index and the og image.",
+   "where": [
+    "data/s1.json, s2.json, s3.json, tm20.json",
+    "data/events.json, times.json, maps.json",
+    "data/inputs/ and data/inputs/tm20/",
+    "data/avatars.json, videos.json, aliases.json",
+    "data/share/, data/thumbs/, data/og/",
+    "share/ (preview pages), sitemap.xml",
+    "data/fixtures/s3-sample.json (Season 3 sample for npm run sim)"
+   ],
+   "uses": []
+  },
+  {
+   "id": "outside",
+   "parent": "root",
+   "title": "Outside services",
+   "what": "Google Sheets (official results), TAS Exchange (events, times, replays, inputs), TMX (maps), YouTube (videos), Discord via the Cloudflare Worker (avatars), GitHub Pages (hosting). All optional: the site keeps working when one is down.",
+   "where": [
+    "Cloudflare Worker: SPEEDTAS_API_URL in 01-config.js (code not in this repo)"
+   ],
+   "uses": []
+  }
+ ],
+ "fdesc": {
+  "escapeHtml": "makes text safe to put in HTML",
+  "canonicalizeDataset": "merges spellings of the same player",
+  "discordIdFor": "Discord ID for a player name",
+  "computeAll": "the ranked season table",
+  "loadSeasonData": "one season's data, any source",
+  "loadAllTmnfSeasons": "every TMNF season together",
+  "withBestOf": "adds the best-of rule to a season",
+  "fetchViaJSONP": "reads a Google Sheet without CORS",
+  "fetchRepoData": "reads data/*.json",
+  "fetchWorkerData": "reads from the Worker",
+  "loadData": "start-up data load",
+  "renderHome": "draws the home page",
+  "fillLatestMap": "map strip on the latest result",
+  "titleRace": "who can still win",
+  "startCountdown": "next edition countdown",
+  "startLiveBanner": "live Saturday banner",
+  "renderPlayers": "player directory",
+  "renderPlayerProfileEnhanced": "a player's profile",
+  "outlookHTML": "Standing panel on profiles",
+  "renderHistory": "edition list",
+  "renderEditionDetail": "one edition's page",
+  "renderVersus": "head-to-head page",
+  "renderRecords": "record book",
+  "raceRecordCards": "records from race times",
+  "renderRivalries": "rivalry list",
+  "renderMaps": "maps page",
+  "renderVideos": "videos page",
+  "fetchChannelVideos": "live feed + saved list",
+  "render": "draws the page for the address",
+  "currentRoute": "reads the #/ address",
+  "init": "start-up",
+  "renderStatusBanner": "data source banner",
+  "syncTitle": "tab title from the heading",
+  "openInputs": "Inputs panel",
+  "seasonTimes": "times per edition",
+  "attachEditionEvent": "TAS Exchange link and runs on an edition",
+  "resultsPostText": "Discord results message",
+  "shareUrl": "share page address for a player or edition",
+  "wireCopyLink": "Copy link button",
+  "openSeasonCard": "downloadable season card",
+  "avatarHTML": "avatar circle (photo or initials)",
+  "formChip": "coloured placement chip",
+  "podiumHTML": "three-step podium",
+  "colorForName": "stable colour per player",
+  "whenChart": "waits for Chart.js",
+  "renderProgressChart": "title race chart",
+  "setGame": "switches TMNF / TM2020",
+  "setSeasonTheme": "season accent colour",
+  "prefixLinks": "adds #/tm20 to links",
+  "main": "one full data run",
+  "guardDataset": "refuses data that loses editions",
+  "datasetChanges": "what changed, for the report",
+  "expectedEditions": "editions due by now",
+  "readSchedule": "reads the schedule from 01-config.js",
+  "writeReport": "run report + commit message",
+  "updateEvents": "scans TAS Exchange events",
+  "autoImport": "results from times before the sheet",
+  "learnAliases": "learns name spellings",
+  "resolveName": "TAS Exchange name to sheet name",
+  "saveInputs": "saves TMNF inputs, then TM2020",
+  "saveTm2020Inputs": "decodes and saves TM2020 inputs",
+  "findTm2020Decoder": "finds TAS Exchange's TM2020 extractor",
+  "tm2020Decoder": "runs it in a locked-down process",
+  "tm2020ScriptProblem": "why a TM2020 script is rejected",
+  "inputsToScript": "TMNF inputs to TMInterface text",
+  "updateMaps": "map details and TAS records",
+  "searchTracks": "finds maps on TMX by name",
+  "saveThumbs": "downloads map pictures",
+  "updateAvatars": "Discord pictures via the Worker",
+  "updateVideos": "YouTube uploads per edition",
+  "selftest": "offline parser tests",
+  "fetchSheet": "reads one Google Sheet",
+  "gather": "collects standings from the site",
+  "shoot": "screenshots one card",
+  "emit": "writes one share page",
+  "sharePage": "share page HTML",
+  "prune": "removes pages that no longer exist",
+  "audit": "accessibility check of a page",
+  "mapEntry": "one map's details",
+  "probeMaps": "tests the TMX name search"
+ }
+}
