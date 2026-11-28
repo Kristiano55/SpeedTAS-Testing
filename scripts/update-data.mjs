@@ -367,9 +367,15 @@ catch (e) { process.stdout.write(JSON.stringify({ error: String(e && e.message |
   return TM2020_DECODER;
 }
 /* A decoded TM2020 script is usable when it starts with the seed and has at least one timed input. */
-export function validTm2020Script(text) {
+const TM2020_LINE = /^-?\d+ (accel|brake|steer|flags|respawn|srespawn)( -?\w+)?$/;
+export function validTm2020Script(text) { return !tm2020ScriptProblem(text); }
+/* Why a decoded script isn't usable (null when it is). */
+export function tm2020ScriptProblem(text) {
   const lines = String(text).trim().split('\n');
-  return /^0 seed -?\d+$/.test(lines[0]) && lines.length > 1 && lines.slice(1).every((l) => /^\d+ (accel|brake|steer|flags|respawn|srespawn)( -?\w+)?$/.test(l));
+  if (!/^0 seed -?\d+$/.test(lines[0])) return `no seed line (starts "${lines[0].slice(0, 40)}")`;
+  if (lines.length < 2) return 'no inputs after the seed';
+  const bad = lines.slice(1).find((l) => !TM2020_LINE.test(l));
+  return bad ? `unexpected line "${bad.slice(0, 60)}"` : null;
 }
 async function saveTm2020Inputs(evs, budget) {
   await mkdir(`${OUT}/inputs/tm20`, { recursive: true });
@@ -384,7 +390,8 @@ async function saveTm2020Inputs(evs, budget) {
       const res = await get(`https://tmtas.exchange/events/${event}/replays/${replay}/download`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const { text } = await decoder(await res.arrayBuffer());
-      if (!validTm2020Script(text)) throw new Error('decoded inputs are not in the TM2020 format');
+      const problem = tm2020ScriptProblem(text);
+      if (problem) throw new Error(`decoded inputs not usable: ${problem}`);
       await writeFile(file, text.trim() + '\n');
       fetched++;
     } catch (err) {
